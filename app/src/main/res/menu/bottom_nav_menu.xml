@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_globalmessage"
+        android:icon="@drawable/ic_chart_black_24dp"
+        android:title="@string/title_globalmessage" />
+
+    <item
+        android:id="@+id/navigation_directmessage"
+        android:icon="@drawable/ic_near_black_24dp"
+        android:title="@string/title_directmessage" />
+
+    <item
+        android:id="@+id/navigation_ledger"
+        android:icon="@drawable/ic_list_black_24dp"
+        android:title="@string/title_ledger" />
+
+</menu>
