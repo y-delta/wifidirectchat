@@ -1,13 +1,16 @@
-
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.text.Html
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ListView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
@@ -49,12 +52,30 @@ class LedgerFragment : Fragment() {
 
         listView.setOnItemClickListener { parent: AdapterView<*>, view: View, position:Int, id:Long ->
             Toast.makeText(root.context, "Clicked on" + list[position].landmarkName, Toast.LENGTH_LONG).show()
-            val latitude = list[position].latLongAcc[0].toDouble()
-            val longitude = list[position].latLongAcc[1].toDouble()
-            val gmmIntentUri: Uri = Uri.parse("geo:%f,%f?q=%f,%f".format(latitude, longitude, latitude, longitude)) //first 2 for map_view, next 2 for dropping pin
-            val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
-            mapIntent.setPackage("com.google.android.apps.maps")
-            startActivity(mapIntent)
+            var builder = AlertDialog.Builder(context)
+            builder.setTitle("I need")
+            var requiredItems = list[position].requiredItems
+            var message = ""
+            for (item in requiredItems){
+                message += item + "\n"
+            }
+            builder.setMessage(Html.fromHtml("<font color='#000000'>$message</font>"))
+            builder.setPositiveButton("Show location",
+                DialogInterface.OnClickListener { dialog, id ->
+                    val latitude = list[position].latLongAcc[0].toDouble()
+                    val longitude = list[position].latLongAcc[1].toDouble()
+                    val gmmIntentUri: Uri = Uri.parse("geo:%f,%f?q=%f,%f".format(latitude, longitude, latitude, longitude)) //first 2 for map_view, next 2 for dropping pin
+                    val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+                    mapIntent.setPackage("com.google.android.apps.maps")
+                    startActivity(mapIntent)
+                })
+
+
+            builder.setNegativeButton("Exit",
+                DialogInterface.OnClickListener { dialog, id ->
+                    dialog.cancel()
+                })
+            builder.create().show()
 
         }
         val add = root.findViewById<FloatingActionButton>(R.id.add)
@@ -77,10 +98,11 @@ class LedgerFragment : Fragment() {
                 val locationName = data!!.getStringExtra("Location")
                 val landmark = data!!.getStringExtra("Landmark")
                 val latLongAcc= data!!.getStringArrayListExtra("LatLongAcc")
+                val requiredItems = data!!.getStringArrayListExtra("CheckedItems")
                 Log.d("LedgerFragment-onActivityResult", "location = " + locationName)
                 Log.d("LedgerFragment-onActivityResult", "landmark = " + landmark)
                 Log.d("LedgerFragment-onActivityResult", "landmark = " + latLongAcc)
-                list.add(Model(locationName, landmark, latLongAcc))
+                list.add(Model(locationName, landmark, latLongAcc, requiredItems))
                 listView.adapter = MyAdapter(root.context, R.layout.row, list)
             }
         }

@@ -8,15 +8,15 @@ import com.example.myapp.ui.globalmessage.GlobalMessageFragment
 
 import com.example.myapp.ui.main.ModalBottomSheet
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class MainActivity : AppCompatActivity() {
 
     var directMessageFragment: DirectMessageFragment = DirectMessageFragment()
     var globalMessageFragment: GlobalMessageFragment = GlobalMessageFragment()
     var ledgerFragment: LedgerFragment = LedgerFragment()
-
-
     private val modalBottomSheet = ModalBottomSheet()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
         }
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
-        modalBottomSheet.show(supportFragmentManager, modalBottomSheet.tag)
+        modalBottomSheet.show(supportFragmentManager, modalBottomSheet.tag) //implement this on WiFiDirectBroadcastReceiver when Prashant sends code
         modalBottomSheet.isCancelable = false //prevents cancelling
     }
 

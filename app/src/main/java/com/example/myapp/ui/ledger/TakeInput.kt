@@ -247,9 +247,18 @@ class TakeInput : AppCompatActivity(){
             locationName = latitude.toString() + ", " + longitude.toString()
 
         var landmark = text_landmark.text.toString()
+
+        var checkedItems = arrayListOf<String>()
+
+        if(findViewById<CheckBox>(R.id.cb_FirstAid).isChecked) checkedItems.add("first aid")
+        if(findViewById<CheckBox>(R.id.cb_food).isChecked) checkedItems.add("food")
+        if(findViewById<CheckBox>(R.id.cb_sanitation).isChecked) checkedItems.add("sanitation")
+        if(findViewById<CheckBox>(R.id.cb_water).isChecked) checkedItems.add("water")
+
         val intent = Intent()
         intent.putExtra("Location", locationName)
         intent.putExtra("Landmark", landmark)
+        intent.putStringArrayListExtra("CheckedItems", checkedItems)
         intent.putStringArrayListExtra("LatLongAcc", arrayListOf(latitude.toString(), longitude.toString(), accuracy.toString()))
         Log.d("onButtonClick", "location = "+locationName)
         Log.d("onButtonClick", "landmark = "+landmark)
