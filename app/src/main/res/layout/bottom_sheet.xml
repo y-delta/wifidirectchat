@@ -71,7 +71,8 @@
             android:layout_marginStart="168dp"
             android:background="@drawable/round_button"
             android:text="TURN ON"
-            android:textColor="@color/colorPrimaryDark" />
+            android:textColor="@color/colorPrimaryDark"
+             />
     </LinearLayout>
 
     <View
