@@ -54,13 +54,19 @@ class LedgerFragment : Fragment() {
             builder.setTitle(Html.fromHtml("<font size = '18'><b>Help!</b>"))
 
             val message = StringBuilder()
-            message.append("I am in great need of:").append("\n\n")
-            for (item in requiredItems){
-                message.append("     ○  ").append(item).append("\n\n")
-            }
-            message.delete(message.length-2,message.length)
+            if(!requiredItems.isEmpty()) {
+                message.append("I am in great need of:").append("\n\n")
+                for (item in requiredItems) {
+                    message.append("     ○  ").append(item).append("\n\n")
+                }
+                message.delete(message.length - 2, message.length)
 
-            builder.setMessage(message.toString())
+                builder.setMessage(message.toString())
+            }
+            else
+            {
+                builder.setMessage("")
+            }
             builder.setPositiveButton("Show location") { _, id ->
                 val latitude = list[position].latLongAcc[0].toDouble()
                 val longitude = list[position].latLongAcc[1].toDouble()

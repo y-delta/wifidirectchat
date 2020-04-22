@@ -1,9 +1,14 @@
 package com.example.myapp
 
 import LedgerFragment
+import android.app.AlertDialog
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.EditText
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.example.myapp.ui.directmessage.DirectMessageFragment
 import com.example.myapp.ui.globalmessage.GlobalMessageFragment
@@ -77,7 +82,15 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id: Int = item.itemId
         if (id == R.id.connection) { // do something here
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Enter your username:")
+            val input = EditText(this)
+            builder.setView(input)
+            builder.setPositiveButton("ENTER"){ dialog, id ->
+                dialog.cancel()
+            }
 
+            builder.create().show()
         }
         return super.onOptionsItemSelected(item)
     }
