@@ -1,7 +1,6 @@
 package com.example.myapp.ui.main
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -17,8 +16,6 @@ import android.widget.Toast
 import com.example.myapp.R
 import com.example.myapp.R.*
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import java.util.*
-import kotlin.concurrent.schedule
 
 private lateinit var continueButton: Button
 private lateinit var wifiButton: Button
@@ -72,11 +69,10 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
 
         wifiButton.setOnClickListener {
             if(!wifiStatus) {
-                startActivity(Intent(Settings.ACTION_WIFI_SETTINGS))
-                Timer().schedule(1000){
+               // startActivity(Intent(Settings.ACTION_WIFI_SETTINGS))
+             //   Timer().schedule(1000){
                     wifiManager.isWifiEnabled = true
                     serviceOn(wifiButton)
-                }
             }
         }
         gpsButton.setOnClickListener {

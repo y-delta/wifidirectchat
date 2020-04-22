@@ -182,9 +182,9 @@ class TakeInput : AppCompatActivity(){
                         bestLocation = locationNetwork as Location
                     }
 
-                    latitude = bestLocation!!.latitude
-                    longitude = bestLocation!!.longitude
-                    accuracy = bestLocation!!.accuracy
+                    latitude = bestLocation.latitude
+                    longitude = bestLocation.longitude
+                    accuracy = bestLocation.accuracy
                     text_location_accuracy.text = accuracy.toString()
                 }
 
@@ -236,9 +236,9 @@ class TakeInput : AppCompatActivity(){
         try {
             val listAddresses: List<Address>? =
                 geocoder.getFromLocation(latitude!!, longitude!!, 1)
-            if (null != listAddresses && listAddresses.size > 0) {
+            if (null != listAddresses && listAddresses.isNotEmpty()) {
                 locationName = listAddresses[0].getAddressLine(0)
-                Log.d("onButtonClick", "location = "+ locationName)
+                Log.d("onButtonClick", "location = $locationName")
             }
         } catch (e: IOException) {
             e.printStackTrace()
@@ -250,18 +250,18 @@ class TakeInput : AppCompatActivity(){
 
         var checkedItems = arrayListOf<String>()
 
-        if(findViewById<CheckBox>(R.id.cb_FirstAid).isChecked) checkedItems.add("first aid")
-        if(findViewById<CheckBox>(R.id.cb_food).isChecked) checkedItems.add("food")
-        if(findViewById<CheckBox>(R.id.cb_sanitation).isChecked) checkedItems.add("sanitation")
-        if(findViewById<CheckBox>(R.id.cb_water).isChecked) checkedItems.add("water")
+        if(findViewById<CheckBox>(R.id.cb_FirstAid).isChecked) checkedItems.add("First Aid")
+        if(findViewById<CheckBox>(R.id.cb_food).isChecked) checkedItems.add("Food")
+        if(findViewById<CheckBox>(R.id.cb_sanitation).isChecked) checkedItems.add("Sanitation")
+        if(findViewById<CheckBox>(R.id.cb_water).isChecked) checkedItems.add("Water")
 
         val intent = Intent()
         intent.putExtra("Location", locationName)
         intent.putExtra("Landmark", landmark)
         intent.putStringArrayListExtra("CheckedItems", checkedItems)
         intent.putStringArrayListExtra("LatLongAcc", arrayListOf(latitude.toString(), longitude.toString(), accuracy.toString()))
-        Log.d("onButtonClick", "location = "+locationName)
-        Log.d("onButtonClick", "landmark = "+landmark)
+        Log.d("onButtonClick", "location = $locationName")
+        Log.d("onButtonClick", "landmark = $landmark")
         setResult(7070, intent)
         finish()
 
