@@ -6,5 +6,13 @@
         android:title=""
         app:showAsAction="always"
         android:icon="@drawable/ic_wifi"
+        android:contentDescription="discover Peers"
+        />
+    <item
+        android:id="@+id/connectionGO"
+        android:title=""
+        app:showAsAction="always"
+        android:icon="@drawable/ic_add"
+        android:contentDescription="create Group"
         />
 </menu>

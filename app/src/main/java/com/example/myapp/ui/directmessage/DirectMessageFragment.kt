@@ -13,6 +13,7 @@ import android.widget.EditText
 import android.widget.ListView
 import androidx.fragment.app.Fragment
 import com.delta.chatscreen.ChatArrayAdapter
+import com.example.myapp.MainActivity.Companion.broadcastMessage
 import com.example.myapp.R
 
 data class ChatMessage(var left: Boolean, var message: String)
@@ -64,6 +65,7 @@ class DirectMessageFragment : Fragment() {
     }
 
     private fun sendChatMessage(): Boolean {
+        broadcastMessage(chatText!!.text.toString())
         chatArrayAdapter?.add(ChatMessage(side, chatText!!.text.toString()))
         chatText!!.setText("")
         side = !side

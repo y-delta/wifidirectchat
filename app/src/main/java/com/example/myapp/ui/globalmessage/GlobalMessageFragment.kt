@@ -11,6 +11,7 @@ import android.widget.ListView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
+import com.example.myapp.MainActivity
 import com.example.myapp.R
 import com.example.myapp.ui.main.ChatAdapter
 
@@ -47,6 +48,10 @@ class GlobalMessageFragment : Fragment() {
             intent.putExtra("key", "value")
             startActivityForResult(intent, 6969)
         }
+
+        Log.d("GlobalMessageFragment", "onCreateView")
+        var mainActivity: MainActivity = context as MainActivity
+        mainActivity.testDisplay("Yeno bhadwa rascal")
         return root
     }
 
