@@ -1,13 +1,14 @@
 package com.example.myapp.connections
 
+import android.content.Context
+import android.net.nsd.NsdManager
 import android.util.Log
-import com.example.myapp.MainActivity.Companion.sendReceive
 import com.example.myapp.MainActivity.Companion.netAddrSendReceiveHashMap
+import com.example.myapp.MainActivity.Companion.sendReceive
 import java.io.IOException
 import java.net.InetAddress
 import java.net.ServerSocket
 import java.net.Socket
-import java.util.HashMap
 import java.util.concurrent.ConcurrentHashMap
 
 class ServerClass : Thread() {
@@ -48,6 +49,7 @@ class ServerClass : Thread() {
                 Log.d("SendReceive Size", netAddrSendReceiveHashMap?.size.toString())
                 Log.d("ServerClass", "run() added client to sendReceiveHashMap")
                 sendReceive!!.start()
+
             }
         } catch (se: IOException) {
             se.printStackTrace()

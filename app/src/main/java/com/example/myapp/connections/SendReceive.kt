@@ -19,6 +19,7 @@ class SendReceive(private var socket: Socket?) : Thread() {
         val buffer = ByteArray(1024)
         var bytes: Int
         while (socket != null && listening) {
+            var decodedMsg:String
             try {
                 bytes = inputStream!!.read(buffer)
                 if (bytes > 0) {
@@ -26,22 +27,15 @@ class SendReceive(private var socket: Socket?) : Thread() {
                         "MessageReceived",
                         "from " + socket!!.inetAddress.hostAddress
                     )
-                    Log.d("MessageReceived", String(buffer).trim().substring(0, bytes))
-                    Log.d("MessageReceived", "size of string = " + bytes)
+                    decodedMsg = String(buffer).trim().substring(0, bytes)
+                    Log.d("MessageReceived", decodedMsg)
+                    Log.d("MessageReceived", "size of string = $bytes")
                     if (serverCreated) {
-                        Log.d(
-                            "Forwarding",
-                            "Start forwarding messages because I'm the GO"
-                        )
+                        Log.d("Forwarding", "Start forwarding messages because I'm the GO")
                         for (sendReceiveDevice in netAddrSendReceiveHashMap!!.values) {
                             if (sendReceiveDevice !== this) {
-                                Log.d(
-                                    "Forwarding Message",
-                                    "from " + socket!!.inetAddress.hostAddress +
-                                            " to " + sendReceiveDevice.socket!!.inetAddress
-                                        .hostAddress
-                                )
-                                sendReceiveDevice.write(buffer)
+                                Log.d("Forwarding Message", "from " + socket!!.inetAddress.hostAddress + " to " + sendReceiveDevice.socket!!.inetAddress.hostAddress)
+                                sendReceiveDevice.write(decodedMsg.toByteArray())
                             }
                         }
                     }

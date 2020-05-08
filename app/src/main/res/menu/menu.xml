@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+<!--these lines need to be uncommented if you want to test. also uncomment id == R.id.connectionGO in MainActivity thx -->
+<!--    <item-->
+<!--        android:id="@+id/scanWifi"-->
+<!--        android:title=""-->
+<!--        app:showAsAction="always"-->
+<!--        android:icon="@drawable/ic_near_black_24dp"-->
+<!--        android:contentDescription="scan wifi"-->
+<!--        />-->
     <item
         android:id="@+id/connection"
         android:title=""
@@ -8,11 +16,25 @@
         android:icon="@drawable/ic_wifi"
         android:contentDescription="discover Peers"
         />
+<!--    <item-->
+<!--        android:id="@+id/connectionGO"-->
+<!--        android:title=""-->
+<!--        app:showAsAction="always"-->
+<!--        android:icon="@drawable/ic_add"-->
+<!--        android:contentDescription="create Group"-->
+<!--        />-->
     <item
-        android:id="@+id/connectionGO"
+        android:id="@+id/discoverPeersOnly"
         android:title=""
         app:showAsAction="always"
-        android:icon="@drawable/ic_add"
-        android:contentDescription="create Group"
+        android:icon="@drawable/ic_send"
+        android:contentDescription="discoverPeersOnly"
+        />
+    <item
+        android:id="@+id/connectToHotspot"
+        android:title=""
+        app:showAsAction="always"
+        android:icon="@drawable/ic_chart_black_24dp"
+        android:contentDescription="connect to available hotspot"
         />
 </menu>

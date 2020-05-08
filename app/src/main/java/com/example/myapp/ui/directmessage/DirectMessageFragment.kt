@@ -65,7 +65,7 @@ class DirectMessageFragment : Fragment() {
     }
 
     private fun sendChatMessage(): Boolean {
-        broadcastMessage(chatText!!.text.toString())
+        val broadcastMessage = broadcastMessage(chatText!!.text.toString(), context!!)
         chatArrayAdapter?.add(ChatMessage(side, chatText!!.text.toString()))
         chatText!!.setText("")
         side = !side
