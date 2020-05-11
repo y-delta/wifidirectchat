@@ -257,8 +257,8 @@ class MainActivity : AppCompatActivity() {
                             Log.d("connectToHotspot", "${wifiDevice.SSID} is $deviceName")
                             Log.d("connectToHotspot", "found the ssid's full name")
                             var wifiConfig = WifiConfiguration()
-                            wifiConfig.SSID = "\"" + wifiDevice.SSID + "\""
-                            wifiConfig.preSharedKey = "\""+ "aGkPCGl2" +"\""
+                            wifiConfig.SSID = "\"" + wifiDevice.SSID + "\""     //make sure device is connected to GO's hotspot once before
+//                            wifiConfig.preSharedKey = "\""+ "aGkPCGl2" +"\""    //TODO check without this line!!!
 
 //                            wifiConfig.SSID =  wifiDevice.SSID
                             Log.d("connectToHotspot", "attempting connect to ${wifiConfig.SSID}")
@@ -267,10 +267,10 @@ class MainActivity : AppCompatActivity() {
                                 Log.d("connectToHotspot", "inner checking ${i.SSID}")
                                 if (i.SSID != null && i.SSID == "\"" + wifiDevice.SSID.toString() + "\"") {
                                     Log.d("connectToHotspot", "inner attempting connect to ${i.SSID}")
-//                                    wifiManager!!.disconnect()
-//                                    wifiManager!!.enableNetwork(i.networkId, true)
-//                                    wifiManager!!.reconnect()
-                                    Log.d("INETADDRESS", getLocalIpAddress()?.hostAddress)
+                                    wifiManager!!.disconnect()
+                                    wifiManager!!.enableNetwork(i.networkId, true)
+                                    wifiManager!!.reconnect()
+//                                    Log.d("INETADDRESS", getLocalIpAddress()?.hostAddress)
 //                                    clientClass = getLocalIpAddress()?.let { ClientClass(it) }
 //                                    clientClass!!.start()
                                     break
@@ -280,7 +280,8 @@ class MainActivity : AppCompatActivity() {
                                 nsdManager = getSystemService(Context.NSD_SERVICE) as NsdManager
                                 nsdManager.discoverServices(
                                     SERVICE_TYPE,
-                                    NsdManager.PROTOCOL_DNS_SD, mDiscoveryListener
+                                    NsdManager.PROTOCOL_DNS_SD,
+                                    mDiscoveryListener
                                 )
                             }catch (e:Exception){
                                 e.printStackTrace()
@@ -291,6 +292,8 @@ class MainActivity : AppCompatActivity() {
                             break
                         }
                     }
+                }else{
+                    Toast.makeText(applicationContext, "can't join if you are GO", Toast.LENGTH_SHORT)
                 }
 
             }
@@ -659,7 +662,7 @@ class MainActivity : AppCompatActivity() {
         override fun doInBackground(vararg params: String?): Boolean {
             val msg = params[0]
             try {
-                if (serverCreated) {
+                if (netAddrSendReceiveHashMap?.size!! > 0) {
                     for (sendReceiveDevice in netAddrSendReceiveHashMap!!.values) {
                         try {
                             sendReceiveDevice.write(msg?.toByteArray())
@@ -667,8 +670,6 @@ class MainActivity : AppCompatActivity() {
                             Log.e("Exception is ", e.toString())
                         }
                     }
-                } else {
-                    sendReceive!!.write(msg?.toByteArray())
                 }
                 return true
             } catch (e: Exception) {

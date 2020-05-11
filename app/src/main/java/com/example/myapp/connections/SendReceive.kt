@@ -23,15 +23,13 @@ class SendReceive(private var socket: Socket?) : Thread() {
             try {
                 bytes = inputStream!!.read(buffer)
                 if (bytes > 0) {
-                    Log.d(
-                        "MessageReceived",
-                        "from " + socket!!.inetAddress.hostAddress
-                    )
+                    Log.d("MessageReceived", "from " + socket!!.inetAddress.hostAddress)
                     decodedMsg = String(buffer).trim().substring(0, bytes)
                     Log.d("MessageReceived", decodedMsg)
                     Log.d("MessageReceived", "size of string = $bytes")
-                    if (serverCreated) {
-                        Log.d("Forwarding", "Start forwarding messages because I'm the GO")
+                    if (netAddrSendReceiveHashMap?.size!! > 1) {               //this is greater than 1 only when device is either GO or bridge member
+                        Log.d("Forwarding", "Start forwarding messages because there are at least 2 sockets open from my device")
+                        Log.d("Forwarding", "which means I am either the GO, or bridge member")
                         for (sendReceiveDevice in netAddrSendReceiveHashMap!!.values) {
                             if (sendReceiveDevice !== this) {
                                 Log.d("Forwarding Message", "from " + socket!!.inetAddress.hostAddress + " to " + sendReceiveDevice.socket!!.inetAddress.hostAddress)
@@ -46,29 +44,15 @@ class SendReceive(private var socket: Socket?) : Thread() {
                     Log.d("SendReceive run()", "inputStream is null")
                 }
                 try {
-                    if (!serverCreated) {
-                        listening = false
-                        socket!!.close()
-                    }
-                    Log.d(
-                        "Socket Closing",
-                        "Closing socket due to error IOException"
-                    )
+                    listening = false
+                    socket!!.close()
+                    Log.d("Socket Closing", "Closing socket due to error IOException")
                 } catch (e2: Exception) {
                     e2.printStackTrace()
                 } finally {
-                    if (serverCreated) {
-                        netAddrSendReceiveHashMap?.remove(inetAddress)
-                        Log.d("Socket Closing", "Removed from sendReceiveHashMap")
-                        Log.d(
-                            "Socket Closing",
-                            "items in sendReceiveHashMap = " + netAddrSendReceiveHashMap!!.size
-                        )
-                        socket = null
-                    } else {
-                        sendReceive = null
-                        socket = null
-                    }
+                    netAddrSendReceiveHashMap?.remove(inetAddress)
+                    Log.d("Socket Closing", "Removed from sendReceiveHashMap")
+                    Log.d("Socket Closing", "items in sendReceiveHashMap = " + netAddrSendReceiveHashMap!!.size)
                 }
             }
         }
@@ -88,9 +72,7 @@ class SendReceive(private var socket: Socket?) : Thread() {
             } catch (e2: Exception) {
                 e2.printStackTrace()
             } finally {
-                if (serverCreated) netAddrSendReceiveHashMap!!.remove(inetAddress) else {
-                    sendReceive = null
-                }
+                netAddrSendReceiveHashMap!!.remove(inetAddress)     //this used to be only for server but changed when i put every sendreceive in hashmap
             }
         }
     }
