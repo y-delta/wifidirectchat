@@ -129,6 +129,7 @@ class MainActivity : AppCompatActivity() {
         for (result in results!!){
             Log.d("Successful scan results", result.SSID)
         }
+        if(results!!.size > 0) wifiScannedAtleastOnce = true
     }
 
     private val mOnNavigationItemSelectedListener =
@@ -275,12 +276,15 @@ class MainActivity : AppCompatActivity() {
                                     break
                                 }
                             }
-
-                            var mNsdManager = getSystemService(Context.NSD_SERVICE) as NsdManager
-                            mNsdManager.discoverServices(
-                                SERVICE_TYPE,
-                                NsdManager.PROTOCOL_DNS_SD, mDiscoveryListener
-                            )
+                            try {
+                                nsdManager = getSystemService(Context.NSD_SERVICE) as NsdManager
+                                nsdManager.discoverServices(
+                                    SERVICE_TYPE,
+                                    NsdManager.PROTOCOL_DNS_SD, mDiscoveryListener
+                                )
+                            }catch (e:Exception){
+                                e.printStackTrace()
+                            }
 //                            wifiManager?.disconnect()
 //                            wifiManager?.enableNetwork(wifiConfig.networkId, true)
 //                            wifiManager?.reconnect()
@@ -393,6 +397,27 @@ class MainActivity : AppCompatActivity() {
         Log.d("String", str)
     }
 
+    var resolveListener:NsdManager.ResolveListener = object : NsdManager.ResolveListener{
+        override fun onResolveFailed(serviceInfo: NsdServiceInfo?, errorCode: Int) {
+            //do nothing for now
+        }
+
+        override fun onServiceResolved(serviceInfo: NsdServiceInfo?) {
+            Log.d("DiscoveryListener", "host is null, servicename = ${serviceInfo?.serviceName}, servicetype = ${serviceInfo?.serviceType}, port = ${serviceInfo?.port}")
+            try{
+                Log.d("Resolve", "about to create client class object alhamdulilah")
+                clientClass = ClientClass(serviceInfo!!.host)
+                clientClass!!.start()
+                Log.d("Resolve", "created client object and started thread mashallah")
+            }
+            catch (e:Exception){
+                e.printStackTrace()
+            }
+        }
+
+
+    }
+
     var mDiscoveryListener: DiscoveryListener = object : DiscoveryListener {
         override fun onServiceFound(serviceInfo: NsdServiceInfo) {
 //            if (serviceInfo.serviceName == mThisDeviceName) {
@@ -405,20 +430,18 @@ class MainActivity : AppCompatActivity() {
                     serviceInfo.serviceName
                 )
             )
+            if(serviceInfo.serviceType.contains(MainActivity.SERVICE_TYPE))
+                nsdManager.resolveService(serviceInfo, resolveListener);
             try {
                 Log.d("nsd", "About to create a clientclass object alhamdulilah")
-                if(serviceInfo.host!= null) {
-                    clientClass = ClientClass(serviceInfo.host)
-                    clientClass!!.start()
-                }
-                else{
-                    Log.d("DiscoveryListener", "host is null, servicename = ${serviceInfo.serviceName}, servicetype = ${serviceInfo.serviceType}, port = ${serviceInfo.port}")
-                }
+                Log.d("DiscoveryListener", "host is null, servicename = ${serviceInfo.serviceName}, servicetype = ${serviceInfo.serviceType}, port = ${serviceInfo.port}")
                 Log.d("nsd", "just created clientclass object and started the thread mashallah")
             }catch (e:Exception){
                 e.printStackTrace()
             }
         }
+
+
 
         override fun onServiceLost(serviceInfo: NsdServiceInfo) {
             Log.d(
@@ -539,8 +562,8 @@ class MainActivity : AppCompatActivity() {
                     nsdManager = applicationContext.getSystemService(Context.NSD_SERVICE) as NsdManager
                     var nsdServiceInfo = NsdServiceInfo()
                     nsdServiceInfo.serviceType = SERVICE_TYPE
-                    serviceName = mManager.toString()
-                    nsdServiceInfo.serviceName = serviceName
+                    SERVICE_NAME = serverClass?.socket?.inetAddress.toString()
+                    nsdServiceInfo.serviceName = SERVICE_NAME
                     nsdServiceInfo.port = 2323
                     nsdManager.registerService(nsdServiceInfo, NsdManager.PROTOCOL_DNS_SD, mRegistrationListener)
                 }
@@ -611,7 +634,7 @@ class MainActivity : AppCompatActivity() {
         var peers: ArrayList<WifiP2pDevice> = ArrayList<WifiP2pDevice>()
         var ssidList = ArrayList<String>()
         var resultList = ArrayList<ScanResult>()
-        var serviceName : String? = null
+        var SERVICE_NAME : String? = null
         lateinit var deviceNameArray: Array<String?>
         lateinit var deviceArray: Array<WifiP2pDevice?>
 

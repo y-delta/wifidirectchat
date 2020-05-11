@@ -14,6 +14,7 @@ class ClientClass(hostAddress: InetAddress) : Thread() {
         try {
             socket = Socket()
             socket!!.keepAlive = true
+            Log.d("Attempting connection to ip", hostAdd.toString())
             socket!!.connect(InetSocketAddress(hostAdd, 2323), 500)
             sendReceive = SendReceive(socket)
             Log.d("ClientClass", "run() sendReceive Object Created")
