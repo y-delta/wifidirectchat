@@ -1,6 +1,6 @@
 package com.example.myapp
 
-import LedgerFragment
+import com.example.myapp.ui.ledger.LedgerFragment
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.IntentFilter
@@ -18,6 +18,15 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.replace
+import androidx.navigation.Navigation
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
 import com.example.myapp.connections.ClientClass
 import com.example.myapp.connections.SendReceive
 import com.example.myapp.connections.ServerClass
@@ -33,9 +42,9 @@ import java.util.concurrent.ConcurrentHashMap
 
 class MainActivity : AppCompatActivity() {
 
-    var directMessageFragment: DirectMessageFragment = DirectMessageFragment()
-    var globalMessageFragment: GlobalMessageFragment = GlobalMessageFragment()
-    var ledgerFragment: LedgerFragment = LedgerFragment()
+    var directMessageFragment: Fragment = DirectMessageFragment()
+    var globalMessageFragment: Fragment = GlobalMessageFragment()
+    var ledgerFragment: Fragment = LedgerFragment()
 
     var wifiManager: WifiManager? = null
     var mManager: WifiP2pManager? = null
@@ -48,18 +57,25 @@ class MainActivity : AppCompatActivity() {
     var serverClass: ServerClass? = null
     var clientClass: ClientClass? = null
     var sendReceive: SendReceive? = null
-
+    var navView: BottomNavigationView? = null
+    var active = directMessageFragment
+    lateinit var bottomNavigation: BottomNavigationView
 
     private val modalBottomSheet = ModalBottomSheet()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val navView: BottomNavigationView = findViewById(R.id.nav_view)
+        val navController = findNavController(R.id.nav_host_fragment)
+
+        navView.setupWithNavController(navController)
+
+       // bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+      //  supportFragmentManager.beginTransaction().replace(R.id.nav_host_fragment, globalMessageFragment).addToBackStack(null).commit()
 
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .add(R.id.nav_host_fragment, globalMessageFragment, "putGlobalMessageFragment")
-                .commit()
+           //supportFragmentManager.beginTransaction().add(R.id.nav_host_fragment, globalMessageFragment, "putGlobalMessageFragment").commit()
 
             wifiManager =
                 applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
@@ -77,8 +93,8 @@ class MainActivity : AppCompatActivity() {
             mIntentFilter!!.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
         }
 
-        val navView: BottomNavigationView = findViewById(R.id.nav_view)
-        navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+//        navView = findViewById(R.id.nav_view)
+//        navView?.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
 
 //        initialWork()
 
@@ -90,27 +106,15 @@ class MainActivity : AppCompatActivity() {
         BottomNavigationView.OnNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.navigation_directmessage -> {
-                    supportFragmentManager.beginTransaction().replace(
-                        R.id.nav_host_fragment,
-                        directMessageFragment,
-                        "putDirectMessageFragment"
-                    )
-                        .commit()
+                    supportFragmentManager.beginTransaction().replace(R.id.nav_host_fragment, directMessageFragment).addToBackStack(null).commit()
                     return@OnNavigationItemSelectedListener true
                 }
                 R.id.navigation_globalmessage -> {
-                    supportFragmentManager.beginTransaction().replace(
-                        R.id.nav_host_fragment,
-                        globalMessageFragment,
-                        "putGlobalMessageFragment"
-                    )
-                        .commit()
+                    supportFragmentManager.beginTransaction().replace(R.id.nav_host_fragment, globalMessageFragment).addToBackStack(null).commit()
                     return@OnNavigationItemSelectedListener true
                 }
                 R.id.navigation_ledger -> {
-                    supportFragmentManager.beginTransaction()
-                        .replace(R.id.nav_host_fragment, ledgerFragment, "putLedgerFragment")
-                        .commit()
+                    supportFragmentManager.beginTransaction().replace(R.id.nav_host_fragment, ledgerFragment).addToBackStack(null).commit()
                     return@OnNavigationItemSelectedListener true
                 }
             }
@@ -276,6 +280,10 @@ class MainActivity : AppCompatActivity() {
         var groupCreated = false
         var serverCreated = false
         const val MESSAGE_READ = 1
+
+        var directMessageFragment: DirectMessageFragment = DirectMessageFragment()
+        var globalMessageFragment: GlobalMessageFragment = GlobalMessageFragment()
+        var ledgerFragment: LedgerFragment = LedgerFragment()
 
 
         fun broadcastMessage(msg: String) {

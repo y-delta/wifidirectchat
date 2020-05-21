@@ -13,11 +13,12 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import com.example.myapp.MainActivity
 import com.example.myapp.R
+import com.example.myapp.ui.activity.ChatListingActivity
+import com.example.myapp.ui.activity.ChatMessage
 import com.example.myapp.ui.main.ChatAdapter
 
 class GlobalMessageFragment : Fragment() {
     var contactList = mutableListOf<ChatMessage>()
-    // lateinit var contactList : MutableList<ChatMessage>
     private lateinit var dashboardViewModel: DashboardViewModel
 
     init {
@@ -44,7 +45,7 @@ class GlobalMessageFragment : Fragment() {
                 "Clicked on" + contactList[position].name,
                 Toast.LENGTH_LONG
             ).show()
-            val intent = Intent(root.context, ChatActivity::class.java)
+            val intent = Intent(root.context, ChatListingActivity::class.java)
             intent.putExtra("key", "value")
             startActivityForResult(intent, 6969)
         }

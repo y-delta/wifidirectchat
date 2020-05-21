@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_globalmessage">
+
+    <fragment
+        android:id="@+id/navigation_globalmessage"
+        android:name="com.example.myapp.ui.globalmessage.GlobalMessageFragment"
+        android:label="Global Message"
+        tools:layout="@layout/fragment_globalmessage" />
+
+    <fragment
+        android:id="@+id/navigation_directmessage"
+        android:name="com.example.myapp.ui.directmessage.DirectMessageFragment"
+        android:label="Direct Message"
+        tools:layout="@layout/fragment_directmessage" />
+
+    <fragment
+        android:id="@+id/navigation_ledger"
+        android:name="com.example.myapp.ui.ledger.LedgerFragment"
+        android:label="Global Ledger"
+        tools:layout="@layout/fragment_ledger" />
+
+
+</navigation>

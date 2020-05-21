@@ -1,33 +1,114 @@
 package com.example.myapp.ui.directmessage
 import android.content.Context
-import android.database.DataSetObserver
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AbsListView
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ListView
+import androidx.appcompat.widget.AppCompatEditText
+import androidx.databinding.DataBindingUtil.*
 import androidx.fragment.app.Fragment
-import com.delta.chatscreen.ChatArrayAdapter
+import androidx.lifecycle.LiveData
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.example.myapp.MainActivity.Companion.broadcastMessage
 import com.example.myapp.R
-
-data class ChatMessage(var left: Boolean, var message: String)
+import com.example.myapp.databinding.FragmentDirectmessageBinding
+import com.example.myapp.db.AppDatabase
+import com.example.myapp.db.DatabaseUtil
+import com.example.myapp.db.entity.GroupChatEntity
+import com.example.myapp.ui.adapter.GroupMessageAdapter
+import com.example.myapp.utils.AppUtils
+import com.example.myapp.utils.Constants
+import com.example.myapp.utils.NPALinearLayoutManager
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import java.util.*
 
 class DirectMessageFragment : Fragment() {
-    private var chatArrayAdapter: ChatArrayAdapter? = null
-    private var listView: ListView? = null
-    private var chatText: EditText? = null
-    private var buttonSend: Button? = null
-    private var side = false
+    private var chatText: AppCompatEditText? = null
+    private var buttonSend: FloatingActionButton? = null
     private var globalContext: Context? = null
+
+    private var recyclerView: RecyclerView? = null
+    var adapter: GroupMessageAdapter? = null
+    var mChatList: MutableList<GroupChatEntity>? = null
+    var binding: FragmentDirectmessageBinding? = null
+    var appDatabase: AppDatabase? = null
+    private var receiverMessageFlag = false
+    private var mObservableChats: LiveData<List<GroupChatEntity>>? = null
+    private var layoutManager: NPALinearLayoutManager? = null
 
     init {
         Log.d("DirectMessageFragment", "Init")
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        appDatabase = AppDatabase.getDatabase(this.activity?.application)
+        globalContext = this.activity
+    }
+
+    private fun initRecyclerView() {
+        layoutManager = NPALinearLayoutManager(globalContext)
+        val itemAnimator: SimpleItemAnimator = DefaultItemAnimator()
+        itemAnimator.supportsChangeAnimations = false
+        recyclerView?.adapter = adapter
+        recyclerView?.setHasFixedSize(true)
+        recyclerView?.layoutManager = layoutManager
+        recyclerView?.itemAnimator = itemAnimator
+        recyclerView?.setItemViewCacheSize(10)
+        recyclerView?.isDrawingCacheEnabled = true
+        recyclerView?.drawingCacheQuality = View.DRAWING_CACHE_QUALITY_HIGH
+        mChatList = ArrayList()
+        adapter = GroupMessageAdapter(this.activity, mChatList)
+        recyclerView?.adapter = adapter
+    }
+
+    private val chatHistory: Unit
+        private get() {
+            mObservableChats = appDatabase!!.groupChatDao().loadAllChatHistory()
+            mObservableChats?.observe(
+                this,
+                androidx.lifecycle.Observer <MutableList<GroupChatEntity>?>{
+                        chatsHistoryList ->
+                    if (chatsHistoryList != null) {
+                        mChatList = chatsHistoryList
+                        adapter!!.refresh(mChatList)
+                        adapter!!.notifyItemInserted(chatsHistoryList.size - 1)
+                        if (chatsHistoryList.size > 0) layoutManager!!.scrollToPosition(
+                            chatsHistoryList.size - 1
+                        )
+                        if (receiverMessageFlag) {
+                            addReceiverMessage()
+                        }
+                    }
+                }
+            )
+        }
+
+    private fun addSenderMessage() {
+        val chatEntitySender = GroupChatEntity()
+        chatEntitySender.chatType = Constants.MESSAGE_SENDER
+        chatEntitySender.chatContent = chatText?.text.toString()
+        chatEntitySender.date = Date()
+        chatEntitySender.senderId= "You"
+        mChatList!!.add(chatEntitySender)
+        receiverMessageFlag = true
+        DatabaseUtil.addSenderGroupChatToDataBase(appDatabase, chatEntitySender)
+    }
+
+    private fun addReceiverMessage() {
+        Handler().postDelayed({
+            val chatEntityReceiver = GroupChatEntity()
+            chatEntityReceiver.chatType = Constants.MESSAGE_RECEIVER
+            chatEntityReceiver.chatContent = DatabaseUtil.generateRandomReceiverMessage()
+            chatEntityReceiver.date = Date()
+            mChatList!!.add(chatEntityReceiver)
+            receiverMessageFlag = false
+            DatabaseUtil.addReceiverGroupChatToDataBase(appDatabase, chatEntityReceiver)
+        }, 1000)
     }
 
     override fun onCreateView(
@@ -35,40 +116,36 @@ class DirectMessageFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
         val root = inflater.inflate(R.layout.fragment_directmessage, container, false)
         globalContext = this.activity
         super.onCreate(savedInstanceState)
-        buttonSend = root.findViewById<View>(R.id.send) as Button
-        listView = root.findViewById<View>(R.id.msgview) as ListView
-        if (chatArrayAdapter == null) {
-            chatArrayAdapter = ChatArrayAdapter(globalContext!!, R.layout.right)
 
-        }
-        listView?.adapter = chatArrayAdapter
-        chatText = root.findViewById<View>(R.id.msg) as EditText
-        chatText!!.setOnKeyListener { _, keyCode, event ->
-            if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
-                sendChatMessage()
-            } else false
-        }
+        binding = inflate(inflater, R.layout.fragment_directmessage, container, false)
+        appDatabase = AppDatabase.getDatabase(activity?.application)
+
+        recyclerView = root.findViewById(R.id.msgview) as RecyclerView
+        buttonSend = root.findViewById<View>(R.id.send) as FloatingActionButton
+        chatText = root.findViewById(R.id.msg)
+
+        recyclerView?.adapter = adapter
         buttonSend?.setOnClickListener { sendChatMessage() }
-        listView?.transcriptMode = AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL
-        listView?.adapter = chatArrayAdapter
-        //to scroll the list view to bottom on data change
-        chatArrayAdapter!!.registerDataSetObserver(object : DataSetObserver() {
-            override fun onChanged() {
-                super.onChanged()
-                listView!!.setSelection(chatArrayAdapter!!.count - 1)
-            }
-        })
+
+        initRecyclerView()
+        chatHistory
+
         return root
     }
 
     private fun sendChatMessage(): Boolean {
-        broadcastMessage(chatText!!.text.toString())
-        chatArrayAdapter?.add(ChatMessage(side, chatText!!.text.toString()))
-        chatText!!.setText("")
-        side = !side
+        broadcastMessage(chatText?.text.toString())
+        if(chatText?.text.toString().trim().isNotEmpty()) {
+            addSenderMessage()
+            // clear edit text
+            chatText?.setText("")
+        } else {
+            AppUtils.toastMessage(this.activity, "Please enter some message")
+        }
 
         return true
     }

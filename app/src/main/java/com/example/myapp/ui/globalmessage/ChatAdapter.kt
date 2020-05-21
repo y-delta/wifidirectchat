@@ -9,7 +9,7 @@ import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import com.example.myapp.R
-import com.example.myapp.ui.globalmessage.ChatMessage
+import com.example.myapp.ui.activity.ChatMessage
 
 
 class ChatAdapter(var mCtx: Context, var resources: Int, var items: List<ChatMessage>) :

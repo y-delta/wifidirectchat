@@ -2,16 +2,17 @@ package com.example.myapp.ui.main
 
 import android.content.Context
 import android.view.LayoutInflater
-import android.widget.ArrayAdapter
 import android.view.View
-
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import com.example.myapp.R
 
-
 class MyAdapter (var mCtx:Context,var resources:Int,var items:List<Model>):ArrayAdapter<Model>(mCtx, resources,items){
+
+    private val mMessagesList: List<Model>? = null
+
     init{
         items = items.reversed()
     }
@@ -25,7 +26,6 @@ class MyAdapter (var mCtx:Context,var resources:Int,var items:List<Model>):Array
         imageView.setImageDrawable(mCtx.resources.getDrawable(mItem.img))
         titleTextView.text = mItem.locationName
         descriptionTextView.text = mItem.landmarkName
-
 
         return view
     }

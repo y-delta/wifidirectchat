@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.myapp.MainActivity.Companion.sendReceive
 import com.example.myapp.MainActivity.Companion.netAddrSendReceiveHashMap
 import com.example.myapp.MainActivity.Companion.serverCreated
+import com.example.myapp.db.DatabaseUtil
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
@@ -14,6 +15,7 @@ class SendReceive(private var socket: Socket?) : Thread() {
     private val inetAddress: InetAddress
     private var inputStream: InputStream? = null
     private var outputStream: OutputStream? = null
+    var decodedMsg: String? = null
     var listening = true
     override fun run() {
         val buffer = ByteArray(1024)
@@ -26,7 +28,8 @@ class SendReceive(private var socket: Socket?) : Thread() {
                         "MessageReceived",
                         "from " + socket!!.inetAddress.hostAddress
                     )
-                    Log.d("MessageReceived", String(buffer).trim().substring(0, bytes))
+                    decodedMsg = String(buffer).trim().substring(0, bytes)
+                    Log.d("MessageReceived", decodedMsg)
                     Log.d("MessageReceived", "size of string = " + bytes)
                     if (serverCreated) {
                         Log.d(
@@ -41,7 +44,7 @@ class SendReceive(private var socket: Socket?) : Thread() {
                                             " to " + sendReceiveDevice.socket!!.inetAddress
                                         .hostAddress
                                 )
-                                sendReceiveDevice.write(buffer)
+                                sendReceiveDevice.write(decodedMsg!!.toByteArray())
                             }
                         }
                     }
@@ -109,5 +112,9 @@ class SendReceive(private var socket: Socket?) : Thread() {
         } catch (e: IOException) {
             e.printStackTrace()
         }
+    }
+
+    companion object {
+       // lateinit var recievedMsg: String = this.decodedMsg
     }
 }

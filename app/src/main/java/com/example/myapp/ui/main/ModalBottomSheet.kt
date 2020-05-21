@@ -56,6 +56,7 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
             serviceOn(gpsButton)
 
         continueButton.setOnClickListener {
+            dismiss()
             if(!wifiManager.isWifiEnabled||!locManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
                 Toast.makeText(
                     root.context,
