@@ -3,18 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_globalmessage">
-
-    <fragment
-        android:id="@+id/navigation_globalmessage"
-        android:name="com.example.myapp.ui.globalmessage.GlobalMessageFragment"
-        android:label="Global Message"
-        tools:layout="@layout/fragment_globalmessage" />
+    app:startDestination="@+id/navigation_directmessage">
 
     <fragment
         android:id="@+id/navigation_directmessage"
-        android:name="com.example.myapp.ui.directmessage.DirectMessageFragment"
+        android:name="com.example.myapp.ui.globalmessage.GlobalMessageFragment"
         android:label="Direct Message"
+        tools:layout="@layout/fragment_globalmessage" />
+
+    <fragment
+        android:id="@+id/navigation_globalmessage"
+        android:name="com.example.myapp.ui.directmessage.DirectMessageFragment"
+        android:label="Global Message"
         tools:layout="@layout/fragment_directmessage" />
 
     <fragment
