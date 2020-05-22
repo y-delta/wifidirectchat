@@ -2,6 +2,7 @@ package com.example.myapp.db;
 
 import android.os.AsyncTask;
 
+import com.example.myapp.MainActivity;
 import com.example.myapp.connections.SendReceive;
 import com.example.myapp.db.entity.ChatEntity;
 import com.example.myapp.db.entity.GroupChatEntity;
@@ -19,25 +20,35 @@ public class DatabaseUtil {
             "new messsage1","new messsage2","new messsage3","new messsage5","new messsage4"
     };
 
-    public static final String ledgerData(){
-        String data = "new ledger";
-
-        return data;
-    }
-
+    //add message content here of type GroupChatEntity to retrieve from socket
     public static GroupChatEntity getMessage()
     {
         GroupChatEntity entry = new GroupChatEntity();
 
-       // String message = SendReceive.recievedMsg;
+        String message = MainActivity.recievedGroupMessage;
+        entry.setChatContent(message);
+
         return entry;
+    }
+
+    public static LedgerEntity getLedger()
+    {
+        LedgerEntity updatedLedger = new LedgerEntity();
+
+        String location;
+        String landmark;
+        //fetch from mainActivity/SendRecieve and add to this object
+
+        return updatedLedger;
     }
 
     public static String generateRandomReceiverMessage() {
         Random rnd = new Random();
         int commentsNumber = rnd.nextInt(5) + 1;
+        String message = getMessage().getChatContent();
 
-        return RECEIVER_MESSAGES[commentsNumber];
+       // return RECEIVER_MESSAGES[commentsNumber];
+        return message; //might crash
     }
 
     public static void addSenderChatToDataBase(AppDatabase db, ChatEntity chatEntitySender) {
