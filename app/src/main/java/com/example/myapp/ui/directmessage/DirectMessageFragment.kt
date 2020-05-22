@@ -50,7 +50,7 @@ class DirectMessageFragment : Fragment() {
         appDatabase = AppDatabase.getDatabase(this.activity?.application)
         appDatabaseCompanion = appDatabase
         globalContext = this.activity
-        addReceiverMessage()
+//        addReceiverMessage()
     }
 
     private fun initRecyclerView() {
