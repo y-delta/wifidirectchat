@@ -48,7 +48,9 @@ class DirectMessageFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         appDatabase = AppDatabase.getDatabase(this.activity?.application)
+        appDatabaseCompanion = appDatabase
         globalContext = this.activity
+        addReceiverMessage()
     }
 
     private fun initRecyclerView() {
@@ -63,6 +65,7 @@ class DirectMessageFragment : Fragment() {
         recyclerView?.isDrawingCacheEnabled = true
         recyclerView?.drawingCacheQuality = View.DRAWING_CACHE_QUALITY_HIGH
         mChatList = ArrayList()
+        mChatListCompanion = mChatList
         adapter = GroupMessageAdapter(this.activity, mChatList)
         recyclerView?.adapter = adapter
     }
@@ -81,9 +84,9 @@ class DirectMessageFragment : Fragment() {
                         if (chatsHistoryList.size > 0) layoutManager!!.scrollToPosition(
                             chatsHistoryList.size - 1
                         )
-                        if (receiverMessageFlag) {
-                            addReceiverMessage()
-                        }
+//                        if (receiverMessageFlag) {
+//                            addReceiverMessage()
+//                        }
                     }
                 }
             )
@@ -151,5 +154,8 @@ class DirectMessageFragment : Fragment() {
         return true
     }
 
-
+    companion object{
+        var appDatabaseCompanion:AppDatabase? = null
+        var mChatListCompanion: MutableList<GroupChatEntity>? = null
+    }
 }

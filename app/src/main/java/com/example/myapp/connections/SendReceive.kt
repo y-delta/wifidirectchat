@@ -4,12 +4,16 @@ import android.util.Log
 import com.example.myapp.MainActivity.Companion.netAddrSendReceiveHashMap
 import com.example.myapp.MainActivity.Companion.receivedGroupMessage
 import com.example.myapp.MainActivity.Companion.serverCreated
+import com.example.myapp.db.DatabaseUtil
 import com.example.myapp.db.entity.GroupChatEntity
+import com.example.myapp.ui.directmessage.DirectMessageFragment
+import com.example.myapp.utils.Constants
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.net.InetAddress
 import java.net.Socket
+import java.util.*
 
 class SendReceive(private var socket: Socket?) : Thread() {
 
@@ -27,6 +31,17 @@ class SendReceive(private var socket: Socket?) : Thread() {
                 if (bytes > 0) {
                     Log.d("MessageReceived", "from " + socket!!.inetAddress.hostAddress)
                     receivedGroupMessage = String(buffer).trim().substring(0, bytes)
+                    if(true){ //this is where we would check if the message is ledger fragment or group fragment
+                        val chatEntitySender = GroupChatEntity()
+                        chatEntitySender.chatType = Constants.MESSAGE_RECEIVER
+                        chatEntitySender.chatContent = receivedGroupMessage
+                        chatEntitySender.date = Date()
+                        chatEntitySender.senderId= "Other device"
+                        DirectMessageFragment.mChatListCompanion!!.add(chatEntitySender)
+//                    receiverMessageFlag = true
+                        var appDatabase = DirectMessageFragment.appDatabaseCompanion
+                        DatabaseUtil.addSenderGroupChatToDataBase(appDatabase, chatEntitySender)
+                    }
                     Log.d("MessageReceived", receivedGroupMessage)
                     Log.d("MessageReceived", "size of string = $bytes")
                     if (netAddrSendReceiveHashMap?.size!! > 1) {               //this is greater than 1 only when device is either GO or bridge member
