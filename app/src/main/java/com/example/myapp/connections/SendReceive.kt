@@ -1,10 +1,10 @@
 package com.example.myapp.connections
 
 import android.util.Log
-import com.example.myapp.MainActivity.Companion.sendReceive
 import com.example.myapp.MainActivity.Companion.netAddrSendReceiveHashMap
-import com.example.myapp.MainActivity.Companion.recievedGroupMessage
+import com.example.myapp.MainActivity.Companion.receivedGroupMessage
 import com.example.myapp.MainActivity.Companion.serverCreated
+import com.example.myapp.db.entity.GroupChatEntity
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
@@ -12,6 +12,7 @@ import java.net.InetAddress
 import java.net.Socket
 
 class SendReceive(private var socket: Socket?) : Thread() {
+
     private val inetAddress: InetAddress
     private var inputStream: InputStream? = null
     private var outputStream: OutputStream? = null
@@ -20,13 +21,13 @@ class SendReceive(private var socket: Socket?) : Thread() {
         val buffer = ByteArray(1024)
         var bytes: Int
         while (socket != null && listening) {
-            var decodedMsg:String
+           // var receivedGroupMessage:String
             try {
                 bytes = inputStream!!.read(buffer)
                 if (bytes > 0) {
                     Log.d("MessageReceived", "from " + socket!!.inetAddress.hostAddress)
-                    decodedMsg = String(buffer).trim().substring(0, bytes)
-                    Log.d("MessageReceived", decodedMsg)
+                    receivedGroupMessage = String(buffer).trim().substring(0, bytes)
+                    Log.d("MessageReceived", receivedGroupMessage)
                     Log.d("MessageReceived", "size of string = $bytes")
                     if (netAddrSendReceiveHashMap?.size!! > 1) {               //this is greater than 1 only when device is either GO or bridge member
                         Log.d("Forwarding", "Start forwarding messages because there are at least 2 sockets open from my device")
@@ -34,8 +35,8 @@ class SendReceive(private var socket: Socket?) : Thread() {
                         for (sendReceiveDevice in netAddrSendReceiveHashMap!!.values) {
                             if (sendReceiveDevice !== this) {
                                 Log.d("Forwarding Message", "from " + socket!!.inetAddress.hostAddress + " to " + sendReceiveDevice.socket!!.inetAddress.hostAddress)
-                                sendReceiveDevice.write(decodedMsg.toByteArray())
-                                recievedGroupMessage=decodedMsg
+                                sendReceiveDevice.write(receivedGroupMessage.toByteArray())
+                               // receivedGroupMessage=receivedGroupMessage
                             }
                         }
                     }
@@ -87,5 +88,17 @@ class SendReceive(private var socket: Socket?) : Thread() {
         } catch (e: IOException) {
             e.printStackTrace()
         }
+    }
+
+    companion object{
+        fun getMessage(): GroupChatEntity {
+            val entry = GroupChatEntity()
+            val message: String = receivedGroupMessage
+            if (message.isEmpty()) entry.chatContent =
+                "no new message" else entry.chatContent =
+                message
+            return entry
+        }
+
     }
 }

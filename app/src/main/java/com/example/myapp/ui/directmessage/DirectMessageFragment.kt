@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.example.myapp.MainActivity.Companion.broadcastMessage
 import com.example.myapp.R
+import com.example.myapp.connections.SendReceive
 import com.example.myapp.databinding.FragmentDirectmessageBinding
 import com.example.myapp.db.AppDatabase
 import com.example.myapp.db.DatabaseUtil
@@ -101,9 +102,9 @@ class DirectMessageFragment : Fragment() {
 
     private fun addReceiverMessage() {
         Handler().postDelayed({
-            val chatEntityReceiver = GroupChatEntity()
+            val chatEntityReceiver = SendReceive.getMessage()
             chatEntityReceiver.chatType = Constants.MESSAGE_RECEIVER
-            chatEntityReceiver.chatContent = DatabaseUtil.generateRandomReceiverMessage()
+//            chatEntityReceiver.chatContent = SendReceive.getMessage().chatContent
             chatEntityReceiver.date = Date()
             mChatList!!.add(chatEntityReceiver)
             receiverMessageFlag = false

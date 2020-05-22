@@ -21,15 +21,18 @@ public class DatabaseUtil {
     };
 
     //add message content here of type GroupChatEntity to retrieve from socket
-    public static GroupChatEntity getMessage()
-    {
-        GroupChatEntity entry = new GroupChatEntity();
-
-        String message = MainActivity.recievedGroupMessage;
-        entry.setChatContent(message);
-
-        return entry;
-    }
+//    public static GroupChatEntity getMessage()
+//    {
+//        GroupChatEntity entry = new GroupChatEntity();
+//        String message;
+//        message = MainActivity.receivedGroupMessage;
+//        if(message.isEmpty())
+//            entry.setChatContent("no new message");
+//        else
+//            entry.setChatContent(message);
+//
+//        return entry;
+//    }
 
     public static LedgerEntity getLedger()
     {
@@ -45,10 +48,8 @@ public class DatabaseUtil {
     public static String generateRandomReceiverMessage() {
         Random rnd = new Random();
         int commentsNumber = rnd.nextInt(5) + 1;
-        String message = getMessage().getChatContent();
-
-       // return RECEIVER_MESSAGES[commentsNumber];
-        return message; //might crash
+         return RECEIVER_MESSAGES[commentsNumber];
+//        return SendReceive.getMessage().getChatContent(); //might crash
     }
 
     public static void addSenderChatToDataBase(AppDatabase db, ChatEntity chatEntitySender) {

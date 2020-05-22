@@ -636,7 +636,7 @@ class MainActivity : AppCompatActivity() {
         var peersScannedAtleastOnce = false
         var wifiScannedAtleastOnce = false
         var checkedForGroups = false
-        lateinit var recievedGroupMessage: String
+        var receivedGroupMessage: String = ""
 
         const val SERVICE_TYPE = "_helpapp._tcp."
         var peers: ArrayList<WifiP2pDevice> = ArrayList<WifiP2pDevice>()
