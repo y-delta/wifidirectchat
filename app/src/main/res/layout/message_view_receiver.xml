@@ -33,7 +33,7 @@
                 android:id="@+id/textview_message_receiver_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
                 android:layout_marginStart="10dp"
                 android:layout_marginBottom="5dp"
                 android:layout_below="@id/textview_message_receiver"
@@ -44,6 +44,7 @@
 
         </RelativeLayout>
         <TextView
+            android:id="@+id/sender_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="SenderName"

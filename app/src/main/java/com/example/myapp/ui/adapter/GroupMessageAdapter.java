@@ -17,6 +17,7 @@ import com.example.myapp.utils.DateUtils;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class GroupMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -67,6 +68,8 @@ final GroupChatEntity message = mMessagesList.get(position);
 
 final GroupChatEntity message = mMessagesList.get(position);
         ((MessageLeftViewHolder) holder).binding.textviewMessageReceiver.setText(message.getChatContent());
+        //Adding senderName to the received message view
+        ((MessageLeftViewHolder) holder).binding.senderName.setText(Arrays.toString(message.getChatContent().split("\\r?\\n")));
         ((MessageLeftViewHolder) holder).binding.textviewMessageReceiverTime.setText(DateUtils.getFormattedTime(message.getDate()));
 
         }
