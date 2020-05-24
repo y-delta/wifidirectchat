@@ -67,12 +67,12 @@ class SendReceive(private var socket: Socket?) : Thread() {
                 Log.d("MessageReceived", "size of string = ${message.length}")
                 if(message.equals(Constants.MESSAGE_TYPE_GROUP)){
                     var pass = 1
-                    while(true){
+                    while(true){    //run this indefinitely until you encounter the ending frame
                         message = bufferedReader.readLine()
                         Log.d("MessageReceived", message)
                         Log.d("MessageReceived", "size of string = ${message.length}")
                         sendAlong(message + "\n")
-                        if(message.equals(Constants.MESSAGE_TYPE_GROUP)){
+                        if(message.equals(Constants.MESSAGE_TYPE_GROUP)){       //if you encounter this, the frame is ending
                             DirectMessageFragment.mChatListCompanion!!.add(chatEntitySender)
 //                    receiverMessageFlag = true
                             var appDatabase = DirectMessageFragment.appDatabaseCompanion
@@ -90,6 +90,7 @@ class SendReceive(private var socket: Socket?) : Thread() {
                             else{
                                 pass++
                                 chatEntitySender.chatContent += "\n" + message
+                                Log.d("group message", "senderID = ${chatEntitySender.senderId}")
                             }
                         }
                     }

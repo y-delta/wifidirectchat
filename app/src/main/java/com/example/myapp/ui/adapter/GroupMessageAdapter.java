@@ -69,7 +69,7 @@ final GroupChatEntity message = mMessagesList.get(position);
 final GroupChatEntity message = mMessagesList.get(position);
         ((MessageLeftViewHolder) holder).binding.textviewMessageReceiver.setText(message.getChatContent());
         //Adding senderName to the received message view
-        ((MessageLeftViewHolder) holder).binding.senderName.setText(Arrays.toString(message.getChatContent().split("\\r?\\n")));
+        ((MessageLeftViewHolder) holder).binding.senderName.setText(message.getSenderId());
         ((MessageLeftViewHolder) holder).binding.textviewMessageReceiverTime.setText(DateUtils.getFormattedTime(message.getDate()));
 
         }
