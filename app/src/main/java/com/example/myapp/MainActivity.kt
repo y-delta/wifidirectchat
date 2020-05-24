@@ -360,13 +360,30 @@ class MainActivity : AppCompatActivity() {
             alert.setTitle("Please select")
             var input = TextView (this);
             alert.setView(input);
+            input.text = ""
+            var inputText = ""
             if(serverCreated && groupCreated){
                 mManager!!.requestGroupInfo(mChannel) { group ->
-                    input.text = ("PASSPHRASE =  ${group.passphrase}")
+                    inputText += ("PASSPHRASE =  ${group.passphrase}\n")
                 }
             } else{
                 alert.setMessage("this device is not GO, click \"Create Group\" to manually become a GO")
             }
+
+            if(groupCreated){
+                inputText += "Group created = true\n"
+            }
+            if(serverCreated){
+                inputText += "Server created = true\n"
+            }
+            if(!groupCreated && !serverCreated){
+                if(netAddrSendReceiveHashMap!!.size > 0)
+                    inputText += "I am a client\n"
+                else
+                    inputText += "Not yet connected to a network\n"
+            }
+            inputText += "No of items in netAddrSendReceiveHashMap = ${netAddrSendReceiveHashMap?.size}"
+
             alert.setPositiveButton("Ok") { _, id ->
 
             }
@@ -397,6 +414,7 @@ class MainActivity : AppCompatActivity() {
                     })
                 }
             }
+            input.text = inputText
             alert.show()
         }
         return super.onOptionsItemSelected(item)
