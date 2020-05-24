@@ -1,5 +1,6 @@
 package com.example.myapp
 
+import android.app.AlertDialog
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -17,9 +18,11 @@ import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener
 import android.os.AsyncTask
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -245,10 +248,34 @@ class MainActivity : AppCompatActivity() {
                     Log.d("Discover Peers", "Nahi shuru ho payi discovery")
                 }
             })
+            val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+            builder.setTitle("Enter Username")
+            val input =  EditText(this)
+            input.inputType = InputType.TYPE_CLASS_TEXT
+            builder.setView(input)
+            builder.setPositiveButton("Ok") { _, id ->
+                var text = input.getText().toString()
+                networkUsername = text
+            }
+            if(networkUsername.isNullOrEmpty())
+                builder.show()
+
             var createGroupOrConnect = CreateGroupOrConnect(mManager, mChannel, applicationContext)
             createGroupOrConnect.start()
         }
         if(id == R.id.connectToHotspot){
+            val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+            builder.setTitle("Enter Username")
+            val input =  EditText(this)
+            input.inputType = InputType.TYPE_CLASS_TEXT
+            builder.setView(input)
+            builder.setPositiveButton("Ok") { _, id ->
+                var text = input.getText().toString()
+                networkUsername = text
+            }
+            if(networkUsername.isNullOrEmpty())
+                builder.show()
+
             Log.d("connectToHotspot", "button clicked")
             for(deviceName in ssidList){
                 Log.d("connectToHotspot", "checking device $deviceName")
@@ -646,6 +673,7 @@ class MainActivity : AppCompatActivity() {
         var SERVICE_NAME : String? = null
         lateinit var deviceNameArray: Array<String?>
         lateinit var deviceArray: Array<WifiP2pDevice?>
+        var networkUsername:String = ""
 
         var nameOfGO: String? = null
         var nameOfConnectedGOHotspot: String? = null
@@ -653,7 +681,13 @@ class MainActivity : AppCompatActivity() {
         fun broadcastMessage(msg: String, context: Context, messageType:String = Constants.MESSAGE_TYPE_GROUP): Boolean {
             if(sendReceive != null || netAddrSendReceiveHashMap?.size!! > 0) {
                 val broadcastMessageAsyncTask = BroadcastMessageAsyncTask()
-                var msgWithStartEndString = messageType + "\n" + msg + "\n" + messageType + "\n"
+                var username:String = ""
+                if(networkUsername.isNullOrEmpty()){
+                    username = "username_not_set"
+                } else{
+                    username = networkUsername
+                }
+                var msgWithStartEndString = messageType + "\n" + networkUsername + "\n" + msg + "\n" + messageType + "\n"
                 broadcastMessageAsyncTask.execute(msgWithStartEndString)
                 return true
             }
