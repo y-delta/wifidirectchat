@@ -8,9 +8,7 @@ import com.example.myapp.db.DatabaseUtil
 import com.example.myapp.db.entity.GroupChatEntity
 import com.example.myapp.ui.directmessage.DirectMessageFragment
 import com.example.myapp.utils.Constants
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
+import java.io.*
 import java.net.InetAddress
 import java.net.Socket
 import java.util.*
@@ -20,27 +18,102 @@ class SendReceive(private var socket: Socket?) : Thread() {
     private val inetAddress: InetAddress
     private var inputStream: InputStream? = null
     private var outputStream: OutputStream? = null
+    private var inputStreamReader: InputStreamReader? = null
+    lateinit var bufferedReader: BufferedReader
+    lateinit var message :String
     var listening = true
+    var messageStarted = true
+    var messageStartedType = ""
+    val chatEntitySender = GroupChatEntity()
+
     override fun run() {
         val buffer = ByteArray(1024)
         var bytes: Int
-        while (socket != null && listening) {
+        while (socket != null && listening && bufferedReader!= null) {
            // var receivedGroupMessage:String
             try {
-                bytes = inputStream!!.read(buffer)
+//                bytes = inputStream!!.read(buffer)
+                /*
+                message = bufferedReader.readLine()
+                if(!messageStarted && (message.equals(Constants.MESSAGE_TYPE_GROUP) || message.equals(Constants.MESSAGE_TYPE_LEDGER))){
+                    messageStarted = true
+                    messageStartedType = message
+                } else if(messageStarted && message.equals(messageStartedType)){
+                    messageStartedType = ""
+                    messageStarted = false
+                    pass = 1
+                    if(message.equals(Constants.MESSAGE_TYPE_GROUP)){
+                        DirectMessageFragment.mChatListCompanion!!.add(chatEntitySender)
+//                    receiverMessageFlag = true
+                        var appDatabase = DirectMessageFragment.appDatabaseCompanion
+                        DatabaseUtil.addSenderGroupChatToDataBase(appDatabase, chatEntitySender)
+                    }
+                } else if(messageStarted && messageStartedType == Constants.MESSAGE_TYPE_GROUP) {
+                    if(pass++ == 1){    //first pass will contain the name of the sender
+                        chatEntitySender.chatType = Constants.MESSAGE_RECEIVER
+                        chatEntitySender.chatContent = ""
+                        chatEntitySender.date = Date()
+                        chatEntitySender.senderId= message
+                    } else if(pass++ > 1){
+                        chatEntitySender.chatContent += "\n" + message
+                    }
+                }
+                */
+
+                //new code
+                message = bufferedReader.readLine()
+                sendAlong(message + "\n")
+                Log.d("MessageReceived", message)
+                Log.d("MessageReceived", "size of string = ${message.length}")
+                if(message.equals(Constants.MESSAGE_TYPE_GROUP)){
+                    var pass = 1
+                    while(true){
+                        message = bufferedReader.readLine()
+                        Log.d("MessageReceived", message)
+                        Log.d("MessageReceived", "size of string = ${message.length}")
+                        sendAlong(message + "\n")
+                        if(message.equals(Constants.MESSAGE_TYPE_GROUP)){
+                            DirectMessageFragment.mChatListCompanion!!.add(chatEntitySender)
+//                    receiverMessageFlag = true
+                            var appDatabase = DirectMessageFragment.appDatabaseCompanion
+                            DatabaseUtil.addSenderGroupChatToDataBase(appDatabase, chatEntitySender)
+                            break
+                        }
+                        else{
+                            if(pass == 1){
+                                pass++
+                                chatEntitySender.chatType = Constants.MESSAGE_RECEIVER
+                                chatEntitySender.chatContent = ""
+                                chatEntitySender.date = Date()
+                                chatEntitySender.senderId = message
+                            }
+                            else{
+                                pass++
+                                chatEntitySender.chatContent += "\n" + message
+                            }
+                        }
+                    }
+                } else if(message.equals(Constants.MESSAGE_TYPE_LEDGER)){
+
+                }
+
+
+                /*bytes = message.length
+                if(bytes > 0){
+                    if(message.equals(Constants.MESSAGE_TYPE_GROUP)){
+
+                    }
+                }
                 if (bytes > 0) {
                     Log.d("MessageReceived", "from " + socket!!.inetAddress.hostAddress)
-                    receivedGroupMessage = String(buffer).trim().substring(0, bytes)
+//                    receivedGroupMessage = String(buffer).trim().substring(0, bytes)
+                    receivedGroupMessage = message
                     if(true){ //this is where we would check if the message is ledger fragment or group fragment
                         val chatEntitySender = GroupChatEntity()
                         chatEntitySender.chatType = Constants.MESSAGE_RECEIVER
                         chatEntitySender.chatContent = receivedGroupMessage
                         chatEntitySender.date = Date()
                         chatEntitySender.senderId= "Other device"
-                        DirectMessageFragment.mChatListCompanion!!.add(chatEntitySender)
-//                    receiverMessageFlag = true
-                        var appDatabase = DirectMessageFragment.appDatabaseCompanion
-                        DatabaseUtil.addSenderGroupChatToDataBase(appDatabase, chatEntitySender)
                     }
                     Log.d("MessageReceived", receivedGroupMessage)
                     Log.d("MessageReceived", "size of string = $bytes")
@@ -55,7 +128,7 @@ class SendReceive(private var socket: Socket?) : Thread() {
                             }
                         }
                     }
-                }
+                }*/
             } catch (e: Exception) {
                 e.printStackTrace()
                 if (inputStream == null) {
@@ -71,6 +144,20 @@ class SendReceive(private var socket: Socket?) : Thread() {
                     netAddrSendReceiveHashMap?.remove(inetAddress)
                     Log.d("Socket Closing", "Removed from sendReceiveHashMap")
                     Log.d("Socket Closing", "items in sendReceiveHashMap = " + netAddrSendReceiveHashMap!!.size)
+                }
+            }
+        }
+    }
+
+    fun sendAlong(msg:String){      //this function will forward the msg to every other node it is connected to on the network
+        if (netAddrSendReceiveHashMap?.size!! > 1) {               //this is greater than 1 only when device is either GO or bridge member
+            Log.d("Forwarding", "Start forwarding messages because there are at least 2 sockets open from my device")
+            Log.d("Forwarding", "which means I am either the GO, or bridge member")
+            for (sendReceiveDevice in netAddrSendReceiveHashMap!!.values) {
+                if (sendReceiveDevice !== this) {
+                    Log.d("Forwarding Message", "from " + socket!!.inetAddress.hostAddress + " to " + sendReceiveDevice.socket!!.inetAddress.hostAddress)
+                    sendReceiveDevice.write(msg.toByteArray())
+                    // receivedGroupMessage=receivedGroupMessage
                 }
             }
         }
@@ -99,6 +186,8 @@ class SendReceive(private var socket: Socket?) : Thread() {
         inetAddress = socket!!.inetAddress
         try {
             inputStream = socket!!.getInputStream()
+            inputStreamReader = InputStreamReader(inputStream)
+            bufferedReader = BufferedReader(inputStreamReader)
             outputStream = socket!!.getOutputStream()
         } catch (e: IOException) {
             e.printStackTrace()

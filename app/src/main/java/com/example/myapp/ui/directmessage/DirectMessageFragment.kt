@@ -102,7 +102,7 @@ class DirectMessageFragment : Fragment() {
         receiverMessageFlag = true
         DatabaseUtil.addSenderGroupChatToDataBase(appDatabase, chatEntitySender)
     }
-
+/*
     private fun addReceiverMessage() {
         Handler().postDelayed({
             val chatEntityReceiver = SendReceive.getMessage()
@@ -113,7 +113,7 @@ class DirectMessageFragment : Fragment() {
             receiverMessageFlag = false
             DatabaseUtil.addReceiverGroupChatToDataBase(appDatabase, chatEntityReceiver)
         }, 1000)
-    }
+    }*/
 
     override fun onCreateView(
         inflater: LayoutInflater,

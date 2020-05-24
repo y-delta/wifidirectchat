@@ -30,6 +30,7 @@ import com.example.myapp.ui.directmessage.DirectMessageFragment
 import com.example.myapp.ui.globalmessage.GlobalMessageFragment
 import com.example.myapp.ui.ledger.LedgerFragment
 import com.example.myapp.ui.main.ModalBottomSheet
+import com.example.myapp.utils.Constants
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.net.Inet4Address
 import java.net.InetAddress
@@ -649,10 +650,11 @@ class MainActivity : AppCompatActivity() {
         var nameOfGO: String? = null
         var nameOfConnectedGOHotspot: String? = null
 
-        fun broadcastMessage(msg: String, context: Context): Boolean {
+        fun broadcastMessage(msg: String, context: Context, messageType:String = Constants.MESSAGE_TYPE_GROUP): Boolean {
             if(sendReceive != null || netAddrSendReceiveHashMap?.size!! > 0) {
                 val broadcastMessageAsyncTask = BroadcastMessageAsyncTask()
-                broadcastMessageAsyncTask.execute(msg)
+                var msgWithStartEndString = messageType + "\n" + msg + "\n" + messageType + "\n"
+                broadcastMessageAsyncTask.execute(msgWithStartEndString)
                 return true
             }
             else{
