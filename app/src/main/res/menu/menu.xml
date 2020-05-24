@@ -17,18 +17,18 @@
         android:contentDescription="discover Peers"
         />
     <item
-        android:id="@+id/discoverPeersOnly"
+        android:id="@+id/connectToHotspot"
         android:title=""
         app:showAsAction="always"
         android:icon="@drawable/ic_send_button"
-        android:contentDescription="discoverPeersOnly"
+        android:contentDescription="connect to available hotspot"
         />
     <item
-        android:id="@+id/connectToHotspot"
+        android:id="@+id/discoverPeersOnly"
         android:title=""
         app:showAsAction="ifRoom"
         android:icon="@drawable/ic_chart_black_24dp"
-        android:contentDescription="connect to available hotspot"
+        android:contentDescription="discoverPeersOnly"
         />
     <!--    <item-->
     <!--        android:id="@+id/connectionGO"-->

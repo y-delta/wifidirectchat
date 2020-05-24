@@ -10,7 +10,6 @@ import android.net.nsd.NsdManager.DiscoveryListener
 import android.net.nsd.NsdManager.RegistrationListener
 import android.net.nsd.NsdServiceInfo
 import android.net.wifi.ScanResult
-import android.net.wifi.WifiConfiguration
 import android.net.wifi.WifiManager
 import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pManager
@@ -23,6 +22,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -263,7 +263,7 @@ class MainActivity : AppCompatActivity() {
             var createGroupOrConnect = CreateGroupOrConnect(mManager, mChannel, applicationContext)
             createGroupOrConnect.start()
         }
-        if(id == R.id.connectToHotspot){
+        /*if(id == R.id.connectToHotspot){
             val builder: AlertDialog.Builder = AlertDialog.Builder(this)
             builder.setTitle("Enter Username")
             val input =  EditText(this)
@@ -329,9 +329,20 @@ class MainActivity : AppCompatActivity() {
                 }
 
             }
-        }
-        if (id == R.id.discoverPeersOnly) { // do something here
-            Log.d("Clicked", "discover peers")
+        }*/
+        if (id == R.id.connectToHotspot){       // single button to connect to a hotspot
+            val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+            builder.setTitle("Please Enter Username")
+            val input =  EditText(this)
+            input.inputType = InputType.TYPE_CLASS_TEXT
+            builder.setView(input)
+            builder.setPositiveButton("Ok") { _, id ->
+                var text = input.getText().toString()
+                networkUsername = text
+            }
+            if(networkUsername.isNullOrEmpty())
+                builder.show()
+            wifiScannedAtleastOnce = false
             scanWifi()
             mManager!!.discoverPeers(mChannel, object : WifiP2pManager.ActionListener {
                 override fun onSuccess() {
@@ -342,7 +353,51 @@ class MainActivity : AppCompatActivity() {
                     Log.d("Discover Peers", "Nahi shuru ho payi discovery")
                 }
             })
+            HotspotConnection(this).start()
+        }
+        if (id == R.id.discoverPeersOnly) { // do something here
+            val alert = AlertDialog.Builder(this)
+            alert.setTitle("Please select")
+            var input = TextView (this);
+            alert.setView(input);
+            if(serverCreated && groupCreated){
+                mManager!!.requestGroupInfo(mChannel) { group ->
+                    input.text = ("PASSPHRASE =  ${group.passphrase}")
+                }
+            } else{
+                alert.setMessage("this device is not GO, click \"Create Group\" to manually become a GO")
+            }
+            alert.setPositiveButton("Ok") { _, id ->
 
+            }
+
+            alert.setNegativeButton("Create Group"){ _, id ->
+                Log.d("selected manual GO", "trying to create a group")
+                if(!groupCreated) {
+                    mManager!!.createGroup(mChannel, object : WifiP2pManager.ActionListener {
+                        override fun onSuccess() {
+                            Toast.makeText(
+                                applicationContext,
+                                "group successfully created ",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            Log.d("createGroup", "Successfully created a group")
+                            MainActivity.groupCreated = true
+
+                        }
+
+                        override fun onFailure(reason: Int) {
+                            Toast.makeText(
+                                applicationContext,
+                                "group not created!!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            Log.d("createGroup", "group creation failure")
+                        }
+                    })
+                }
+            }
+            alert.show()
         }
         return super.onOptionsItemSelected(item)
     }

@@ -22,9 +22,14 @@ class CreateGroupOrConnect (
     var mChannel: WifiP2pManager.Channel?,
     var applicationContext: Context
 ): Thread() {
-
+    private var scanCount = 0
+    private var maxScans = 20
     override fun run() {
         while(!wifiScannedAtleastOnce || !peersScannedAtleastOnce) {
+            if(scanCount++ > maxScans){
+                Log.d("CreateGroupOrConnect", "20 scans exceeded, terminating scan and creating group")
+                break //no wifi direct devices available nearby
+            }
             Log.d("CreateGroupOrConnect", "Waiting for wifi scan or peerlist scan")
             Log.d("CreateGroupOrConnect", "wifiScan = $wifiScannedAtleastOnce, peerScan = $peersScannedAtleastOnce")
             sleep(2000)
@@ -37,7 +42,7 @@ class CreateGroupOrConnect (
 //        }
 
         //aGkPCGl2
-        if(ssidList.size == 0){
+        if(scanCount > maxScans || ssidList.size == 0){
             Log.d("CreateGroupOrConnect", "I'll be GO because no other DIRECT groups available")
             if (!MainActivity.groupCreated) {
                 Log.d("Clicked", "group not created, trying to create a group")
