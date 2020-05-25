@@ -12,7 +12,10 @@ import com.example.myapp.MainActivity
 class HotspotConnection (var activity: MainActivity) : Thread() {
 
     override fun run() {
-
+        while(MainActivity.networkUsername.isNullOrEmpty()){
+            Log.d("CreateGroupOrConnect", "Username is not yet set")
+            sleep(1500)
+        }
         while(!MainActivity.wifiScannedAtleastOnce){
             Log.d("HotspotConnection", "Wifi not yet scanned")
             Thread.sleep(2000)

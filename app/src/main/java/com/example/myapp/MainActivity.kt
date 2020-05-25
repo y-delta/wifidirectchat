@@ -1,10 +1,7 @@
 package com.example.myapp
 
 import android.app.AlertDialog
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.net.nsd.NsdManager
 import android.net.nsd.NsdManager.DiscoveryListener
 import android.net.nsd.NsdManager.RegistrationListener
@@ -21,6 +18,7 @@ import android.text.InputType
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -247,17 +245,7 @@ class MainActivity : AppCompatActivity() {
                     Log.d("Discover Peers", "Nahi shuru ho payi discovery")
                 }
             })
-            val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-            builder.setTitle("Enter Username")
-            val input =  EditText(this)
-            input.inputType = InputType.TYPE_CLASS_TEXT
-            builder.setView(input)
-            builder.setPositiveButton("Ok") { _, id ->
-                var text = input.getText().toString()
-                networkUsername = text
-            }
-            if(networkUsername.isNullOrEmpty())
-                builder.show()
+            showAlertDialogForUsername()
 
             var createGroupOrConnect = CreateGroupOrConnect(mManager, mChannel, applicationContext)
             createGroupOrConnect.start()
@@ -330,17 +318,7 @@ class MainActivity : AppCompatActivity() {
             }
         }*/
         if (id == R.id.connectToHotspot){       // single button to connect to a hotspot
-            val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-            builder.setTitle("Please Enter Username")
-            val input =  EditText(this)
-            input.inputType = InputType.TYPE_CLASS_TEXT
-            builder.setView(input)
-            builder.setPositiveButton("Ok") { _, id ->
-                var text = input.getText().toString()
-                networkUsername = text
-            }
-            if(networkUsername.isNullOrEmpty())
-                builder.show()
+            showAlertDialogForUsername()
             wifiScannedAtleastOnce = false
             scanWifi()
             mManager!!.discoverPeers(mChannel, object : WifiP2pManager.ActionListener {
@@ -389,17 +367,7 @@ class MainActivity : AppCompatActivity() {
 
             alert.setNegativeButton("Create Group"){ _, id ->
                 Log.d("selected manual GO", "trying to create a group")
-                val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-                builder.setTitle("Enter Username")
-                val input =  EditText(this)
-                input.inputType = InputType.TYPE_CLASS_TEXT
-                builder.setView(input)
-                builder.setPositiveButton("Ok") { _, id ->
-                    var text = input.getText().toString()
-                    networkUsername = text
-                }
-                if(networkUsername.isNullOrEmpty())
-                    builder.show()
+                showAlertDialogForUsername()
                 if(!groupCreated) {
                     mManager!!.createGroup(mChannel, object : WifiP2pManager.ActionListener {
                         override fun onSuccess() {
@@ -474,6 +442,36 @@ class MainActivity : AppCompatActivity() {
 
         }
     }
+
+    fun showAlertDialogForUsername(){
+        val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+        builder.setTitle("Enter Username")
+        val input =  EditText(this)
+        var dialog:AlertDialog? = null
+        input.inputType = InputType.TYPE_CLASS_TEXT
+        builder.setView(input)
+        builder.setCancelable(false)
+        builder.setPositiveButton("Ok") { _, id ->
+            var text = input.text.toString()
+            networkUsername = text.trim()
+            if(!networkUsername.isNullOrEmpty()){
+                dialog?.cancel()
+            }
+        }
+        if(networkUsername.isNullOrEmpty()) {
+            dialog = builder.create()
+            dialog?.show()
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                .setOnClickListener {
+                    var text = input.text.toString()
+                    networkUsername = text.trim()
+                    if(!networkUsername.isNullOrEmpty()){
+                        dialog?.cancel()
+                    }
+                }
+        }
+    }
+
     private fun scanWifi() {
         registerReceiver(wifiReceiver, IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION))
         wifiManager?.startScan()

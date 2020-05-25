@@ -11,6 +11,7 @@ import com.example.myapp.MainActivity.Companion.checkedForGroups
 import com.example.myapp.MainActivity.Companion.deviceArray
 import com.example.myapp.MainActivity.Companion.deviceNameArray
 import com.example.myapp.MainActivity.Companion.nameOfGO
+import com.example.myapp.MainActivity.Companion.networkUsername
 import com.example.myapp.MainActivity.Companion.peers
 import com.example.myapp.MainActivity.Companion.peersScannedAtleastOnce
 import com.example.myapp.MainActivity.Companion.serverCreated
@@ -25,6 +26,10 @@ class CreateGroupOrConnect (
     private var scanCount = 0
     private var maxScans = 20
     override fun run() {
+        while(networkUsername.isNullOrEmpty()){
+            Log.d("CreateGroupOrConnect", "Username is not yet set")
+            sleep(1500)
+        }
         while(!wifiScannedAtleastOnce || !peersScannedAtleastOnce) {
             if(scanCount++ > maxScans){
                 Log.d("CreateGroupOrConnect", "20 scans exceeded, terminating scan and creating group")
