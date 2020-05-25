@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.nsd.NsdManager
 import android.util.Log
 import com.example.myapp.MainActivity.Companion.netAddrSendReceiveHashMap
-import com.example.myapp.MainActivity.Companion.sendReceive
 import java.io.IOException
 import java.net.InetAddress
 import java.net.ServerSocket
@@ -27,7 +26,7 @@ class ServerClass : Thread() {
                     "ServerClass",
                     "run() accepted connection from " + socket!!.getInetAddress().hostName
                 )
-                sendReceive = SendReceive(socket)
+                var sendReceive = SendReceive(socket)
                 //                    sendReceiveArrayList.add(sendReceive);
 //                    if(!sendReceiveHashMap.containsKey(socket.getInetAddress())) {
 //                        sendReceiveHashMap.put(socket.getInetAddress(), sendReceive);

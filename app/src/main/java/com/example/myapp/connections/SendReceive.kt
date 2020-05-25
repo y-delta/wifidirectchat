@@ -1,6 +1,7 @@
 package com.example.myapp.connections
 
 import android.util.Log
+import com.example.myapp.MainActivity.Companion.ipAddrMacIdHashMap
 import com.example.myapp.MainActivity.Companion.netAddrSendReceiveHashMap
 import com.example.myapp.MainActivity.Companion.receivedGroupMessage
 import com.example.myapp.MainActivity.Companion.serverCreated
@@ -32,36 +33,21 @@ class SendReceive(private var socket: Socket?) : Thread() {
         while (socket != null && listening && bufferedReader!= null) {
            // var receivedGroupMessage:String
             try {
-//                bytes = inputStream!!.read(buffer)
-                /*
-                message = bufferedReader.readLine()
-                if(!messageStarted && (message.equals(Constants.MESSAGE_TYPE_GROUP) || message.equals(Constants.MESSAGE_TYPE_LEDGER))){
-                    messageStarted = true
-                    messageStartedType = message
-                } else if(messageStarted && message.equals(messageStartedType)){
-                    messageStartedType = ""
-                    messageStarted = false
-                    pass = 1
-                    if(message.equals(Constants.MESSAGE_TYPE_GROUP)){
-                        DirectMessageFragment.mChatListCompanion!!.add(chatEntitySender)
-//                    receiverMessageFlag = true
-                        var appDatabase = DirectMessageFragment.appDatabaseCompanion
-                        DatabaseUtil.addSenderGroupChatToDataBase(appDatabase, chatEntitySender)
-                    }
-                } else if(messageStarted && messageStartedType == Constants.MESSAGE_TYPE_GROUP) {
-                    if(pass++ == 1){    //first pass will contain the name of the sender
-                        chatEntitySender.chatType = Constants.MESSAGE_RECEIVER
-                        chatEntitySender.chatContent = ""
-                        chatEntitySender.date = Date()
-                        chatEntitySender.senderId= message
-                    } else if(pass++ > 1){
-                        chatEntitySender.chatContent += "\n" + message
-                    }
-                }
-                */
-
                 //new code
                 message = bufferedReader.readLine()
+
+                //this message is not sent along if it is IP addr because this transmission is only from GM/Bridge to GO
+                if(message == Constants.DATA_TYPE_MAC_ID){  // this happens only for the first time that's why this message is not sendAlong
+                    message = bufferedReader.readLine()
+                    Log.d("MACID", message)
+                    ipAddrMacIdHashMap.put(this.inetAddress.hostAddress, message)
+                    Log.d("ipAddrMacIdHashMap", "size = ${ipAddrMacIdHashMap.size}")
+                    message = bufferedReader.readLine()
+                    if(message == Constants.DATA_TYPE_MAC_ID){
+                        Log.d("MACID", "done reading MAC ID")
+                        continue //go back to reading messages
+                    }
+                }
                 sendAlong(message + "\n")
                 Log.d("MessageReceived", message)
                 Log.d("MessageReceived", "size of string = ${message.length}")

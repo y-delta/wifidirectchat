@@ -42,7 +42,7 @@ class LedgerFragment : Fragment() {
     private lateinit var listView: ListView
     private lateinit var listAdapter: MyAdapter
     private lateinit var root: View
-    private lateinit var requiredItems:ArrayList<String>
+    private var requiredItems:ArrayList<String> = ArrayList()
     var binding: FragmentLedgerBinding? = null
     var appDatabase: AppDatabase? = null
 

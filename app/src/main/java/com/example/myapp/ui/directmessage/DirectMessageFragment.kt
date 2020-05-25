@@ -147,7 +147,7 @@ class DirectMessageFragment : Fragment() {
     }
 
     private fun sendChatMessage(): Boolean {
-        val broadcastMessage = broadcastMessage(chatText!!.text.toString(), requireContext())
+        val broadcastMessage = broadcastMessage(chatText!!.text.toString(), Constants.MESSAGE_TYPE_GROUP)
         if(chatText?.text.toString().trim().isNotEmpty()) {
             addSenderMessage()
             // clear edit text

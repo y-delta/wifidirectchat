@@ -62,7 +62,6 @@ class MainActivity : AppCompatActivity() {
 
     var serverClass: ServerClass? = null
     var clientClass: ClientClass? = null
-    var sendReceive: SendReceive? = null
 
 
     private val modalBottomSheet = ModalBottomSheet()
@@ -85,7 +84,6 @@ class MainActivity : AppCompatActivity() {
 
             mManager = getSystemService(Context.WIFI_P2P_SERVICE) as WifiP2pManager
             mChannel = mManager!!.initialize(this, mainLooper, null)
-
             mReceiver = WifiDirectBroadcastReceiver(mManager, mChannel!!, this)
             mIntentFilter = IntentFilter()
 
@@ -117,6 +115,7 @@ class MainActivity : AppCompatActivity() {
 //            }
         }
 
+        DEVICEMAC = wifiManager!!.connectionInfo.macAddress     //get mac address of wifi (not wifi direct)
 
         modalBottomSheet.show(supportFragmentManager, modalBottomSheet.tag) //implement this on WiFiDirectBroadcastReceiver when Prashant sends code
         modalBottomSheet.isCancelable = false //prevents cancelling
@@ -390,6 +389,17 @@ class MainActivity : AppCompatActivity() {
 
             alert.setNegativeButton("Create Group"){ _, id ->
                 Log.d("selected manual GO", "trying to create a group")
+                val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+                builder.setTitle("Enter Username")
+                val input =  EditText(this)
+                input.inputType = InputType.TYPE_CLASS_TEXT
+                builder.setView(input)
+                builder.setPositiveButton("Ok") { _, id ->
+                    var text = input.getText().toString()
+                    networkUsername = text
+                }
+                if(networkUsername.isNullOrEmpty())
+                    builder.show()
                 if(!groupCreated) {
                     mManager!!.createGroup(mChannel, object : WifiP2pManager.ActionListener {
                         override fun onSuccess() {
@@ -730,7 +740,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object{
         var netAddrSendReceiveHashMap: ConcurrentHashMap<InetAddress, SendReceive>? = ConcurrentHashMap()
-        var sendReceive: SendReceive? = null
+//        var sendReceive: SendReceive? = null
         var groupCreated = false
         var serverCreated = false
         const val MESSAGE_READ = 1
@@ -738,6 +748,9 @@ class MainActivity : AppCompatActivity() {
         var wifiScannedAtleastOnce = false
         var checkedForGroups = false
         var receivedGroupMessage: String = ""
+        var DEVICEMAC : String? = null
+
+        var ipAddrMacIdHashMap = ConcurrentHashMap<String, String>()
 
         const val SERVICE_TYPE = "_helpapp._tcp."
         var peers: ArrayList<WifiP2pDevice> = ArrayList<WifiP2pDevice>()
@@ -751,22 +764,27 @@ class MainActivity : AppCompatActivity() {
         var nameOfGO: String? = null
         var nameOfConnectedGOHotspot: String? = null
 
-        fun broadcastMessage(msg: String, context: Context, messageType:String = Constants.MESSAGE_TYPE_GROUP): Boolean {
-            if(sendReceive != null || netAddrSendReceiveHashMap?.size!! > 0) {
+        fun broadcastMessage(msg: String, messageType:String = Constants.MESSAGE_TYPE_GROUP): Boolean {
+            if(netAddrSendReceiveHashMap?.size!! > 0) {
                 val broadcastMessageAsyncTask = BroadcastMessageAsyncTask()
                 var username:String = ""
+                var msgWithStartEndString = ""
                 if(networkUsername.isNullOrEmpty()){
                     username = "username_not_set"
                 } else{
                     username = networkUsername
                 }
-                var msgWithStartEndString = messageType + "\n" + networkUsername + "\n" + msg + "\n" + messageType + "\n"
+                if(messageType == Constants.DATA_TYPE_MAC_ID){
+                    msgWithStartEndString = messageType + "\n" + msg + "\n" + messageType + "\n"
+                }else {
+                    msgWithStartEndString = messageType + "\n" + username + "\n" + msg + "\n" + messageType + "\n"
+                }
                 broadcastMessageAsyncTask.execute(msgWithStartEndString)
                 return true
             }
             else{
                 Log.d("broadcastMessage", "connection not established, cant send message")
-                Toast.makeText(context, "Connection not established. Cannot send message.", Toast.LENGTH_LONG)
+//                Toast.makeText(context, "Connection not established. Cannot send message.", Toast.LENGTH_LONG)
                 return false
             }
         }
