@@ -355,7 +355,7 @@ class MainActivity : AppCompatActivity() {
             })
             HotspotConnection(this).start()
         }
-        if (id == R.id.discoverPeersOnly) { // do something here
+        if (id == R.id.showNetworkInformation) { // do something here
             val alert = AlertDialog.Builder(this)
             alert.setTitle("Please select")
             var input = TextView (this);

@@ -24,11 +24,11 @@
         android:contentDescription="connect to available hotspot"
         />
     <item
-        android:id="@+id/discoverPeersOnly"
-        android:title="Discover Peers"
+        android:id="@+id/showNetworkInformation"
+        android:title="Show Network Information"
         app:showAsAction="never"
         android:icon="@drawable/ic_chart_black_24dp"
-        android:contentDescription="discoverPeersOnly"
+        android:contentDescription="Show extra network information"
         />
 
     <!--    <item-->
