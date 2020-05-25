@@ -2,7 +2,6 @@ package com.example.myapp.connections
 
 import android.content.Context
 import android.net.wifi.p2p.WifiP2pConfig
-import android.net.wifi.p2p.WifiP2pDeviceList
 import android.net.wifi.p2p.WifiP2pManager
 import android.util.Log
 import android.widget.Toast
@@ -11,10 +10,8 @@ import com.example.myapp.MainActivity.Companion.checkedForGroups
 import com.example.myapp.MainActivity.Companion.deviceArray
 import com.example.myapp.MainActivity.Companion.deviceNameArray
 import com.example.myapp.MainActivity.Companion.nameOfGO
-import com.example.myapp.MainActivity.Companion.networkUsername
-import com.example.myapp.MainActivity.Companion.peers
+import com.example.myapp.MainActivity.Companion.NETWORK_USERNAME
 import com.example.myapp.MainActivity.Companion.peersScannedAtleastOnce
-import com.example.myapp.MainActivity.Companion.serverCreated
 import com.example.myapp.MainActivity.Companion.ssidList
 import com.example.myapp.MainActivity.Companion.wifiScannedAtleastOnce
 
@@ -26,7 +23,7 @@ class CreateGroupOrConnect (
     private var scanCount = 0
     private var maxScans = 20
     override fun run() {
-        while(networkUsername.isNullOrEmpty()){
+        while(NETWORK_USERNAME.isNullOrEmpty()){
             Log.d("CreateGroupOrConnect", "Username is not yet set")
             sleep(1500)
         }

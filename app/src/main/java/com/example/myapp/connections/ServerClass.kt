@@ -1,8 +1,7 @@
 package com.example.myapp.connections
 
-import android.content.Context
-import android.net.nsd.NsdManager
 import android.util.Log
+import com.example.myapp.MainActivity.Companion.ipAddrUsernameHashMap
 import com.example.myapp.MainActivity.Companion.netAddrSendReceiveHashMap
 import java.io.IOException
 import java.net.InetAddress
@@ -53,6 +52,7 @@ class ServerClass : Thread() {
         } catch (se: IOException) {
             se.printStackTrace()
             try {
+                ipAddrUsernameHashMap?.remove(socket!!.inetAddress.hostAddress)
                 netAddrSendReceiveHashMap?.remove(socket!!.inetAddress)
             } catch (e: Exception) {
                 e.printStackTrace()

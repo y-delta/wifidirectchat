@@ -18,7 +18,6 @@ import android.text.InputType
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -453,19 +452,19 @@ class MainActivity : AppCompatActivity() {
         builder.setCancelable(false)
         builder.setPositiveButton("Ok") { _, id ->
             var text = input.text.toString()
-            networkUsername = text.trim()
-            if(!networkUsername.isNullOrEmpty()){
+            NETWORK_USERNAME = text.trim()
+            if(!NETWORK_USERNAME.isNullOrEmpty()){
                 dialog?.cancel()
             }
         }
-        if(networkUsername.isNullOrEmpty()) {
+        if(NETWORK_USERNAME.isNullOrEmpty()) {
             dialog = builder.create()
             dialog?.show()
             dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener {
                     var text = input.text.toString()
-                    networkUsername = text.trim()
-                    if(!networkUsername.isNullOrEmpty()){
+                    NETWORK_USERNAME = text.trim()
+                    if(!NETWORK_USERNAME.isNullOrEmpty()){
                         dialog?.cancel()
                     }
                 }
@@ -748,7 +747,7 @@ class MainActivity : AppCompatActivity() {
         var receivedGroupMessage: String = ""
         var DEVICEMAC : String? = null
 
-        var ipAddrMacIdHashMap = ConcurrentHashMap<String, String>()
+        var ipAddrUsernameHashMap = ConcurrentHashMap<String, String>()
 
         const val SERVICE_TYPE = "_helpapp._tcp."
         var peers: ArrayList<WifiP2pDevice> = ArrayList<WifiP2pDevice>()
@@ -757,7 +756,7 @@ class MainActivity : AppCompatActivity() {
         var SERVICE_NAME : String? = null
         lateinit var deviceNameArray: Array<String?>
         lateinit var deviceArray: Array<WifiP2pDevice?>
-        var networkUsername:String = ""
+        var NETWORK_USERNAME:String = ""
 
         var nameOfGO: String? = null
         var nameOfConnectedGOHotspot: String? = null
@@ -767,15 +766,15 @@ class MainActivity : AppCompatActivity() {
                 val broadcastMessageAsyncTask = BroadcastMessageAsyncTask()
                 var username:String = ""
                 var msgWithStartEndString = ""
-                if(networkUsername.isNullOrEmpty()){
+                if(NETWORK_USERNAME.isNullOrEmpty()){
                     username = "username_not_set"
                 } else{
-                    username = networkUsername
+                    username = NETWORK_USERNAME
                 }
-                if(messageType == Constants.DATA_TYPE_MAC_ID){
-                    msgWithStartEndString = messageType + "\n" + msg + "\n" + messageType + "\n"
+                msgWithStartEndString = if(messageType == Constants.DATA_TYPE_MAC_ID){
+                    messageType + "\n" + msg + "\n" + messageType + "\n"
                 }else {
-                    msgWithStartEndString = messageType + "\n" + username + "\n" + msg + "\n" + messageType + "\n"
+                    messageType + "\n" + username + "\n" + msg + "\n" + messageType + "\n"
                 }
                 broadcastMessageAsyncTask.execute(msgWithStartEndString)
                 return true

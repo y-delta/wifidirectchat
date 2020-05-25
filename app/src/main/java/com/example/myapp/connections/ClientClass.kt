@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.myapp.MainActivity
 import com.example.myapp.MainActivity.Companion.DEVICEMAC
 import com.example.myapp.MainActivity.Companion.broadcastMessage
+import com.example.myapp.MainActivity.Companion.NETWORK_USERNAME
 import com.example.myapp.utils.Constants
 import java.io.IOException
 import java.net.InetAddress
@@ -25,9 +26,9 @@ class ClientClass(hostAddress: InetAddress) : Thread() {
             Log.d("SendReceive Size", MainActivity.netAddrSendReceiveHashMap?.size.toString())
             Log.d("ClientClass", "run() added client to sendReceiveHashMap")
             sendReceive!!.start()
-            Log.d("ClientClass", "sending MAC ID of device to GO ${DEVICEMAC}")
-            broadcastMessage(DEVICEMAC!!, Constants.DATA_TYPE_MAC_ID)
-            Log.d("ClientClass", "sending MAC ID of device to GO ${DEVICEMAC}")
+            Log.d("ClientClass", "sending username of device to GO ${DEVICEMAC}")
+            broadcastMessage(NETWORK_USERNAME!!, Constants.DATA_TYPE_MAC_ID)
+            Log.d("ClientClass", "sending username of device to GO ${DEVICEMAC}")
         } catch (e: IOException) {
             socket = Socket()
             e.printStackTrace()

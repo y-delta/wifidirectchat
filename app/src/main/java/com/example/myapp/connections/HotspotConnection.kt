@@ -5,14 +5,13 @@ import android.net.nsd.NsdManager
 import android.net.wifi.WifiConfiguration
 import android.util.Log
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat.getSystemService
 import com.example.myapp.MainActivity
 
 class HotspotConnection (var activity: MainActivity) : Thread() {
 
     override fun run() {
-        while(MainActivity.networkUsername.isNullOrEmpty()){
+
+        while(MainActivity.NETWORK_USERNAME.isNullOrEmpty()){
             Log.d("CreateGroupOrConnect", "Username is not yet set")
             sleep(1500)
         }

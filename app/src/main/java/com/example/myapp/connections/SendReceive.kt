@@ -1,7 +1,7 @@
 package com.example.myapp.connections
 
 import android.util.Log
-import com.example.myapp.MainActivity.Companion.ipAddrMacIdHashMap
+import com.example.myapp.MainActivity.Companion.ipAddrUsernameHashMap
 import com.example.myapp.MainActivity.Companion.netAddrSendReceiveHashMap
 import com.example.myapp.MainActivity.Companion.receivedGroupMessage
 import com.example.myapp.MainActivity.Companion.serverCreated
@@ -39,12 +39,13 @@ class SendReceive(private var socket: Socket?) : Thread() {
                 //this message is not sent along if it is IP addr because this transmission is only from GM/Bridge to GO
                 if(message == Constants.DATA_TYPE_MAC_ID){  // this happens only for the first time that's why this message is not sendAlong
                     message = bufferedReader.readLine()
-                    Log.d("MACID", message)
-                    ipAddrMacIdHashMap.put(this.inetAddress.hostAddress, message)
-                    Log.d("ipAddrMacIdHashMap", "size = ${ipAddrMacIdHashMap.size}")
+                    Log.d("Username", message)
+                    ipAddrUsernameHashMap.put(this.inetAddress.hostAddress, message)
+                    Log.d("ipAddrUsernameHashMap", "${this.inetAddress.hostAddress}")
+                    Log.d("ipAddrUsernameHashMap", "size = ${ipAddrUsernameHashMap.size}")
                     message = bufferedReader.readLine()
                     if(message == Constants.DATA_TYPE_MAC_ID){
-                        Log.d("MACID", "done reading MAC ID")
+                        Log.d("Username", "done reading MAC ID")
                         continue //go back to reading messages
                     }
                 }
@@ -128,6 +129,7 @@ class SendReceive(private var socket: Socket?) : Thread() {
                 } catch (e2: Exception) {
                     e2.printStackTrace()
                 } finally {
+                    ipAddrUsernameHashMap?.remove(inetAddress.hostAddress)
                     netAddrSendReceiveHashMap?.remove(inetAddress)
                     Log.d("Socket Closing", "Removed from sendReceiveHashMap")
                     Log.d("Socket Closing", "items in sendReceiveHashMap = " + netAddrSendReceiveHashMap!!.size)
