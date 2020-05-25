@@ -1,13 +1,13 @@
-package com.example.myapp.ui.globalmessage
+package com.example.myapp.ui.groupmessage
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class DashboardViewModel : ViewModel() {
+class HomeViewModel : ViewModel() {
 
     private val _text = MutableLiveData<String>().apply {
-        value = "Global Message page in kotlin"
+        value = "Namaste"
     }
     val text: LiveData<String> = _text
 }

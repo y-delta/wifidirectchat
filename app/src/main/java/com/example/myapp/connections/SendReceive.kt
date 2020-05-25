@@ -7,7 +7,7 @@ import com.example.myapp.MainActivity.Companion.receivedGroupMessage
 import com.example.myapp.MainActivity.Companion.serverCreated
 import com.example.myapp.db.DatabaseUtil
 import com.example.myapp.db.entity.GroupChatEntity
-import com.example.myapp.ui.directmessage.DirectMessageFragment
+import com.example.myapp.ui.groupmessage.GroupMessageFragment
 import com.example.myapp.utils.Constants
 import java.io.*
 import java.net.InetAddress
@@ -60,9 +60,9 @@ class SendReceive(private var socket: Socket?) : Thread() {
                         Log.d("MessageReceived", "size of string = ${message.length}")
                         sendAlong(message + "\n")
                         if(message.equals(Constants.MESSAGE_TYPE_GROUP)){       //if you encounter this, the frame is ending
-                            DirectMessageFragment.mChatListCompanion!!.add(chatEntitySender)
+                            GroupMessageFragment.mChatListCompanion!!.add(chatEntitySender)
 //                    receiverMessageFlag = true
-                            var appDatabase = DirectMessageFragment.appDatabaseCompanion
+                            var appDatabase = GroupMessageFragment.appDatabaseCompanion
                             DatabaseUtil.addSenderGroupChatToDataBase(appDatabase, chatEntitySender)
                             break
                         }

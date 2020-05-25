@@ -26,8 +26,8 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.myapp.connections.*
+import com.example.myapp.ui.groupmessage.GroupMessageFragment
 import com.example.myapp.ui.directmessage.DirectMessageFragment
-import com.example.myapp.ui.globalmessage.GlobalMessageFragment
 import com.example.myapp.ui.ledger.LedgerFragment
 import com.example.myapp.ui.main.ModalBottomSheet
 import com.example.myapp.utils.Constants
@@ -44,8 +44,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var nsdManager: NsdManager
     private var peerCount = 0
 
-    var directMessageFragment: Fragment = DirectMessageFragment()
-    var globalMessageFragment: Fragment = GlobalMessageFragment()
+    var directMessageFragment: Fragment = GroupMessageFragment()
+    var globalMessageFragment: Fragment = DirectMessageFragment()
     var ledgerFragment: Fragment = LedgerFragment()
 
     var wifiManager: WifiManager? = null

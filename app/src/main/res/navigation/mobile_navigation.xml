@@ -7,13 +7,13 @@
 
     <fragment
         android:id="@+id/navigation_directmessage"
-        android:name="com.example.myapp.ui.globalmessage.GlobalMessageFragment"
+        android:name="com.example.myapp.ui.directmessage.DirectMessageFragment"
         android:label="Direct Message"
         tools:layout="@layout/fragment_globalmessage" />
 
     <fragment
         android:id="@+id/navigation_globalmessage"
-        android:name="com.example.myapp.ui.directmessage.DirectMessageFragment"
+        android:name="com.example.myapp.ui.groupmessage.GroupMessageFragment"
         android:label="Global Message"
         tools:layout="@layout/fragment_directmessage" />
 
