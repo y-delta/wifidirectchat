@@ -40,15 +40,17 @@ class LedgerFragment : Fragment() {
     private lateinit var notificationsViewModel: NotificationsViewModel
     var list = mutableListOf<Model>()
     private lateinit var listView: ListView
+    private lateinit var listAdapter: MyAdapter
     private lateinit var root: View
     private lateinit var requiredItems:ArrayList<String>
     var binding: FragmentLedgerBinding? = null
     var appDatabase: AppDatabase? = null
 
     var ledgerAdapter: LedgerAdapter? = null
-    var mChatList: MutableList<LedgerEntity>? = null
+    var mLedgerList: MutableList<LedgerEntity>? = null
     private var mObservableChats: LiveData<List<LedgerEntity>>? = null
     private var layoutManager: NPALinearLayoutManager? = null
+    private lateinit var pullToRefresh: SwipeRefreshLayout
 
     init{
         list.add(Model("Yelahanka", "Satellite bus station", img = R.drawable.helpwe))
@@ -68,13 +70,12 @@ class LedgerFragment : Fragment() {
         root = inflater.inflate(R.layout.fragment_ledger, container, false)
         listView = root.findViewById(R.id.listView)
         listView.adapter = MyAdapter(root.context, R.layout.row, list)
+        mLedgerList = ArrayList()
 
-//        binding = inflate(this.requireActivity(), R.layout.fragment_ledger)
         appDatabase = AppDatabase.getDatabase(activity?.application)
-       // chatHistory
 
-        val pullToRefresh = root.findViewById<SwipeRefreshLayout>(R.id.swiperefresh)
-        pullToRefresh.setOnRefreshListener {Toast.makeText(root.context, "Updated", Toast.LENGTH_LONG).show()
+        pullToRefresh = root.findViewById(R.id.swiperefresh)
+        pullToRefresh.setOnRefreshListener {refresh()
         }
 
         listView.setOnItemClickListener { parent: AdapterView<*>, view: View, position:Int, id:Long ->
@@ -121,27 +122,26 @@ class LedgerFragment : Fragment() {
 
     }
 
-    private val chatHistory: Unit
-        private get() {
-            mObservableChats = appDatabase!!.ledgerDao().loadAllChatHistory()
-            mObservableChats?.observe(
-                this,
-                androidx.lifecycle.Observer <MutableList<LedgerEntity>?>{
-                        chatsHistoryList ->
-                    if (chatsHistoryList != null) {
-                        mChatList = chatsHistoryList
-                        ledgerAdapter!!.refresh(mChatList)
-                        ledgerAdapter!!.notifyItemInserted(chatsHistoryList.size - 1)
-                        list=mChatList as MutableList<Model>
-                        if (chatsHistoryList.size > 0) layoutManager!!.scrollToPosition(
-                            list.size - 1
-                        )
-                    }
-                }
-            )
+    private fun refresh ()
+    {
+        //clears the existing list and then fetches from db and updates the list
+        //right now only current db entries show up
+        //merging db between devices might be the solution
+        var i = 0
+        while(i< mLedgerList?.size!!)
+        {
+            val fetchedData = mLedgerList!![i]
+
+            val fetchedLocation = fetchedData.location
+            val fetchedLandmark = fetchedData.landmark
+            list.add(Model(fetchedLocation,fetchedLandmark))
+            i++
         }
+        listView.adapter = MyAdapter(root.context, R.layout.row, list)
 
-
+        Toast.makeText(root.context, "Updated", Toast.LENGTH_LONG).show()
+        pullToRefresh.isRefreshing = false;
+    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -155,12 +155,12 @@ class LedgerFragment : Fragment() {
                 ledgerEntity.location = locationName
                 ledgerEntity.landmark = landmark
                 ledgerEntity.needs = requiredItems.toString()
-                ledgerEntity.date = Date()
+                ledgerEntity.date = Date() // date is added here
                 ledgerEntity.sender = "You"
                 Log.d("com.example.myapp.ui.ledger.LedgerFragment-onActivityResult", "location = $locationName")
                 Log.d("com.example.myapp.ui.ledger.LedgerFragment-onActivityResult", "landmark = $landmark")
                 Log.d("com.example.myapp.ui.ledger.LedgerFragment-onActivityResult", "landmark = $latLongAcc")
-                DatabaseUtil.addNewLedgerToDataBase(appDatabase,ledgerEntity)
+                DatabaseUtil.addNewLedgerToDataBase(appDatabase,ledgerEntity) //entry into db here
                 list.add(Model(locationName, landmark, latLongAcc, requiredItems))
                 listView.adapter = MyAdapter(root.context, R.layout.row, list)
             }

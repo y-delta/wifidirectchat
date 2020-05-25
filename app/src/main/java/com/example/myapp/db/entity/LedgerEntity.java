@@ -5,15 +5,19 @@ import androidx.room.PrimaryKey;
 
 import com.example.myapp.R;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Date;
 
-@Entity(tableName = "ledger")
+@Entity(tableName = "ledger", primaryKeys = {"landmark", "location", "date"})
 public class LedgerEntity {
-    @PrimaryKey(autoGenerate = true)
     private int id;
+    @NotNull
     private String landmark;
+    @NotNull
     private String location;
+    @NotNull
     private Date date;
     private String needs;
     private String sender;
@@ -44,20 +48,15 @@ public class LedgerEntity {
 
     public void setLandmark(String landmark) {this.landmark = landmark;}
 
-    public Date getDate() {
-        return date;
-    }
+    public Date getDate() {return date;}
 
-    public void setDate(Date date) {
-        this.date = date;
-    }
+    public void setDate(Date date) {this.date = date;}
 
     public String getNeeds() {return needs;}
 
     public void setNeeds(String needs) {this.needs = needs;}
 
-    public LedgerEntity() {
-    }
+    public LedgerEntity() {    }
 
     public LedgerEntity(String locationName, String landmarkName, ArrayList<String> latLongAcc, ArrayList<String> requiredItems, Integer img ){
 

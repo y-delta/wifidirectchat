@@ -75,7 +75,7 @@ class ChatListingActivity : AppCompatActivity() {
         Handler().postDelayed({
             val chatEntityReceiver = ChatEntity()
             chatEntityReceiver.chatType = Constants.MESSAGE_RECEIVER
-            chatEntityReceiver.chatContent = DatabaseUtil.generateRandomReceiverMessage()
+            chatEntityReceiver.chatContent = DatabaseUtil.getDirectChat()
             chatEntityReceiver.date = Date()
             mChatList!!.add(chatEntityReceiver)
             receiverMessageFlag = false

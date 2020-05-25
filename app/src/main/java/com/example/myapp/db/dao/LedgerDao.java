@@ -15,6 +15,9 @@ public interface LedgerDao {
     @Query("SELECT * FROM ledger")
     LiveData<List<LedgerEntity>> loadAllChatHistory();
 
+    @Query("SELECT COUNT(location) FROM ledger")
+    LiveData<Integer> getLedgerCount();
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(LedgerEntity products);
 }

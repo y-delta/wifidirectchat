@@ -1,6 +1,7 @@
 package com.example.myapp.db;
 
 import android.os.AsyncTask;
+import android.provider.ContactsContract;
 
 import com.example.myapp.MainActivity;
 import com.example.myapp.connections.SendReceive;
@@ -8,6 +9,7 @@ import com.example.myapp.db.entity.ChatEntity;
 import com.example.myapp.db.entity.GroupChatEntity;
 import com.example.myapp.db.entity.LedgerEntity;
 
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -34,22 +36,23 @@ public class DatabaseUtil {
 //        return entry;
 //    }
 
-    public static LedgerEntity getLedger()
+    public static String getLedger()
     {
-        LedgerEntity updatedLedger = new LedgerEntity();
+        //yet to implement
+        List<LedgerEntity> updatedLedgerList;
 
-        String location;
+        String location = "";
         String landmark;
         //fetch from mainActivity/SendRecieve and add to this object
 
-        return updatedLedger;
+        return location;
     }
+    public static String getDirectChat()
+    {
+        String msg = DatabaseUtil.RECEIVER_MESSAGES[1];
+        //fetch from mainActivity/SendRecieve and add to this object
 
-    public static String generateRandomReceiverMessage() {
-        Random rnd = new Random();
-        int commentsNumber = rnd.nextInt(5) + 1;
-         return RECEIVER_MESSAGES[commentsNumber];
-//        return SendReceive.getMessage().getChatContent(); //might crash
+        return msg;
     }
 
     public static void addSenderChatToDataBase(AppDatabase db, ChatEntity chatEntitySender) {
