@@ -9,27 +9,28 @@
     <!--        android:icon="@drawable/ic_near_black_24dp"-->
     <!--        android:contentDescription="scan wifi"-->
     <!--        />-->
-    <item
+<item
         android:id="@+id/connection"
-        android:title=""
-        app:showAsAction="always"
+        android:title="Establish Connection"
+        app:showAsAction="never"
         android:icon="@drawable/ic_wifi"
         android:contentDescription="discover Peers"
         />
     <item
         android:id="@+id/connectToHotspot"
-        android:title=""
-        app:showAsAction="always"
+        android:title="Connect to a network"
+        app:showAsAction="never"
         android:icon="@drawable/ic_send_button"
         android:contentDescription="connect to available hotspot"
         />
     <item
         android:id="@+id/discoverPeersOnly"
-        android:title=""
-        app:showAsAction="ifRoom"
+        android:title="Discover Peers"
+        app:showAsAction="never"
         android:icon="@drawable/ic_chart_black_24dp"
         android:contentDescription="discoverPeersOnly"
         />
+
     <!--    <item-->
     <!--        android:id="@+id/connectionGO"-->
     <!--        android:title=""-->
