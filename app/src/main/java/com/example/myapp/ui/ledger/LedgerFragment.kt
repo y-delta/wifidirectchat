@@ -29,8 +29,10 @@ import com.example.myapp.db.entity.GroupChatEntity
 import com.example.myapp.db.entity.LedgerEntity
 import com.example.myapp.ui.adapter.GroupMessageAdapter
 import com.example.myapp.ui.adapter.LedgerAdapter
+import com.example.myapp.ui.groupmessage.GroupMessageFragment
 import com.example.myapp.ui.main.Model
 import com.example.myapp.ui.main.MyAdapter
+import com.example.myapp.utils.Constants
 import com.example.myapp.utils.NPALinearLayoutManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.*
@@ -74,6 +76,8 @@ class LedgerFragment : Fragment() {
         root = inflater.inflate(R.layout.fragment_ledger, container, false)
         listView = root.findViewById(R.id.listView)
         listView.adapter = MyAdapter(root.context, R.layout.row, list)
+
+        ledgerFragmentCompanion = this
 
         appDatabase = AppDatabase.getDatabase(activity?.application)
         mLedgerList = ArrayList()
@@ -142,7 +146,7 @@ class LedgerFragment : Fragment() {
             )
         }
 
-    private fun refresh ()
+    fun refresh ()
     {
         //clears the existing list and then fetches from db and updates the list
         //right now only current db entries show up
@@ -189,19 +193,46 @@ class LedgerFragment : Fragment() {
                 ledgerEntity.location = locationName.replace("\n", " ")
                 ledgerEntity.landmark = landmark.replace("\n", " ")
                 ledgerEntity.needs = requiredItems.joinToString(separator=",", transform = {it.toLowerCase().trim()})
-                ledgerEntity.date = Date() // date is added here
+                var dateAdded = Date()
+                ledgerEntity.date = dateAdded // date is added here
                 ledgerEntity.sender = "You"
                 ledgerEntity.latitude=latLongAcc[0]
                 ledgerEntity.longitude= latLongAcc[1]
                 ledgerEntity.accuracy= latLongAcc[2]
+
                 Log.d("com.example.myapp.ui.ledger.LedgerFragment-onActivityResult", "location = $locationName")
                 Log.d("com.example.myapp.ui.ledger.LedgerFragment-onActivityResult", "landmark = $landmark")
                 Log.d("com.example.myapp.ui.ledger.LedgerFragment-onActivityResult", "landmark = $latLongAcc")
                 DatabaseUtil.addNewLedgerToDataBase(appDatabase,ledgerEntity) //entry into db here
                 list.add(Model(locationName, landmark, latLongAcc, requiredItems))
                 listView.adapter = MyAdapter(root.context, R.layout.row, list)
+
+                //this code will broadcast the newly added
+//                Log.d("Ledger list items", ledgerItem.needs)
+                var preparedMsg = ""
+                preparedMsg += dateAdded.toString() + "\n"        //date, landmark, location, needs, latitude, longitude, accuracy
+                preparedMsg += landmark.replace("\n", " ") + "\n"
+                preparedMsg += locationName.replace("\n", " ") + "\n"
+                preparedMsg += requiredItems.joinToString(separator=",", transform = {it.toLowerCase().trim()}) + "\n"
+                preparedMsg += latLongAcc[0] + "\n"
+                preparedMsg += latLongAcc[1] + "\n"
+                preparedMsg += latLongAcc[2] + "\n"
+                preparedMsg += MainActivity.NETWORK_USERNAME + "\n"
+                Log.d("PreparedMessageLedger", preparedMsg)
+                Log.d("TakeInput", "broadcasting this prepared message")
+                MainActivity.broadcastMessage(preparedMsg, Constants.MESSAGE_TYPE_LEDGER)
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("onDestroy()","yes")
+        ledgerFragmentCompanion = null
+    }
+
+    companion object{
+        var ledgerFragmentCompanion:LedgerFragment? = null
     }
 
 

@@ -1,6 +1,7 @@
 package com.example.myapp.connections
 
 import android.util.Log
+import com.example.myapp.MainActivity
 import com.example.myapp.MainActivity.Companion.ipAddrUsernameHashMap
 import com.example.myapp.MainActivity.Companion.netAddrSendReceiveHashMap
 import com.example.myapp.MainActivity.Companion.receivedGroupMessage
@@ -10,6 +11,8 @@ import com.example.myapp.db.entity.GroupChatEntity
 import com.example.myapp.db.entity.LedgerEntity
 import com.example.myapp.ui.groupmessage.GroupMessageFragment
 import com.example.myapp.ui.groupmessage.GroupMessageFragment.Companion.appDatabaseCompanion
+import com.example.myapp.ui.ledger.LedgerFragment
+import com.example.myapp.ui.ledger.LedgerFragment.Companion.ledgerFragmentCompanion
 import com.example.myapp.utils.Constants
 import java.io.*
 import java.net.InetAddress
@@ -51,6 +54,31 @@ class SendReceive(private var socket: Socket?) : Thread() {
                         Log.d("Username", "done reading MAC ID")
                         continue@outloop //go back to reading messages
                     }
+                } else if(message.equals(Constants.REQUEST_TYPE_LEDGER_LIST)){
+                    do{
+                        message = bufferedReader.readLine()
+                    }while(!message.equals(Constants.REQUEST_TYPE_LEDGER_LIST))
+                    var ledgerList = appDatabaseCompanion!!.ledgerDao().loadAllLedgers()
+                    var i = 0
+                    while(i < ledgerList!!.size){               //this will be sent to GO
+                        var ledgerItem = ledgerList[i]!!
+//                Log.d("Ledger list items", ledgerItem.needs)
+                        var preparedMsg = ""
+                        preparedMsg += Constants.REQUEST_TYPE_LEDGER_LIST + "\n"
+                        preparedMsg += ledgerItem.date.toString() + "\n"        //date, landmark, location, needs, latitude, longitude, accuracy
+                        preparedMsg += ledgerItem.landmark + "\n"
+                        preparedMsg += ledgerItem.location + "\n"
+                        preparedMsg += ledgerItem.needs + "\n"
+                        preparedMsg += ledgerItem.latitude + "\n"
+                        preparedMsg += ledgerItem.longitude + "\n"
+                        preparedMsg += ledgerItem.accuracy + "\n"
+                        preparedMsg += MainActivity.NETWORK_USERNAME + "\n"
+                        preparedMsg += Constants.REQUEST_TYPE_LEDGER_LIST + "\n"
+                        Log.d("PreparedMessageLedger", preparedMsg)
+                        this.write(preparedMsg.toByteArray())
+                        i++
+                    }
+                    continue@outloop
                 }
 
                 sendAlong(message + "\n")
@@ -153,8 +181,6 @@ class SendReceive(private var socket: Socket?) : Thread() {
                             }
                         }
                     }
-                } else if(message.equals(Constants.REQUEST_TYPE_LEDGER_LIST)){
-
                 }
 
 
