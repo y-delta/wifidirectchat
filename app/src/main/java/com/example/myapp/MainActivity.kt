@@ -81,6 +81,7 @@ class MainActivity : AppCompatActivity() {
             //supportFragmentManager.beginTransaction()
             //  .add(R.id.nav_host_fragment, globalMessageFragment, "putGlobalMessageFragment")
             //.commit()
+            Log.d("first", "run once")
 
             wifiManager =
                 applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager    //DIRECT-KE-Moto G (4)_4eaa DIRECT-sG-potter_n

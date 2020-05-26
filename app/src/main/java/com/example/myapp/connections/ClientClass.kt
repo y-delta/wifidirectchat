@@ -17,6 +17,7 @@ import java.io.IOException
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.Socket
+import java.util.*
 
 class ClientClass(hostAddress: InetAddress) : Thread() {
     var socket: Socket? = null
@@ -57,6 +58,23 @@ class ClientClass(hostAddress: InetAddress) : Thread() {
                     }
                 }
             )*/
+            var ledgerList = appDatabaseCompanion!!.ledgerDao().loadAllLedgers()
+            var i = 0
+            while(i < ledgerList!!.size){               //this will be sent to GO
+                var ledgerItem = ledgerList[i]!!
+                Log.d("Ledger list items", ledgerItem.needs)
+                var preparedMsg = ""
+                preparedMsg += ledgerItem.date.toString() + "\n"
+                preparedMsg += ledgerItem.landmark + "\n"
+                preparedMsg += ledgerItem.location + "\n"
+                preparedMsg += ledgerItem.needs + "\n"
+                preparedMsg += ledgerItem.latitude + "\n"
+                preparedMsg += ledgerItem.longitude + "\n"
+                preparedMsg += ledgerItem.accuracy + "\n"
+                preparedMsg += NETWORK_USERNAME + "\n"
+                Log.d("PreparedMessageLedger", preparedMsg)
+                i++
+            }
         } catch (e: IOException) {
             socket = Socket()
             e.printStackTrace()

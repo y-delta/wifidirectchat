@@ -78,10 +78,8 @@ class LedgerFragment : Fragment() {
         mLedgerList = ArrayList()
         chatHistory
 
-
         pullToRefresh = root.findViewById(R.id.swiperefresh)
-        pullToRefresh.setOnRefreshListener {refresh()
-        }
+        pullToRefresh.setOnRefreshListener { refresh() }
 
         listView.setOnItemClickListener { parent: AdapterView<*>, view: View, position:Int, id:Long ->
             Toast.makeText(root.context, "Clicked on" + list[position].landmarkName, Toast.LENGTH_LONG).show()
@@ -89,9 +87,9 @@ class LedgerFragment : Fragment() {
             builder.setTitle(Html.fromHtml("<font size = '18'><b>Help!</b>"))
 
             val message = StringBuilder()
-            if(requiredItems.isNotEmpty()) {
+            if(!list[position].requiredItems.isNullOrEmpty()) {
                 message.append("I am in great need of:").append("\n\n")
-                for (item in requiredItems) {
+                for (item in list[position].requiredItems) {
                     message.append("     ○  ").append(item).append("\n\n")
                 }
                 message.delete(message.length - 2, message.length)
@@ -116,12 +114,14 @@ class LedgerFragment : Fragment() {
             }
              builder.create().show()
         }
+
         val add = root.findViewById<FloatingActionButton>(R.id.add)
         add.setOnClickListener{
             val intent = Intent(root.context, TakeInput::class.java)
             intent.putExtra("key", "value")
             startActivityForResult(intent, 6969)
         }
+
 
         return root
 
@@ -148,6 +148,7 @@ class LedgerFragment : Fragment() {
         //merging db between devices might be the solution
         list.clear()
         var i = 0
+        Log.d("refresh()", "refresh called, now updating list")
         while(i< mLedgerList?.size!!)
         {
             val fetchedData = mLedgerList!![i]
@@ -160,6 +161,7 @@ class LedgerFragment : Fragment() {
             val fetchedNeeds = ArrayList(fetchedData.needs.split(","))
             list.add(Model(fetchedLocation,fetchedLandmark , arrayListOf(fetchedLatitude, fetchedLongitude, fetchedAccuracy), fetchedNeeds))
             i++
+//            Log.d("refresh()", fetchedData.location)
         }
         listView.adapter = MyAdapter(root.context, R.layout.row, list)
 
