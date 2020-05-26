@@ -780,10 +780,10 @@ class MainActivity : AppCompatActivity() {
                 } else{
                     username = NETWORK_USERNAME
                 }
-                msgWithStartEndString = if(messageType == Constants.DATA_TYPE_MAC_ID){
-                    messageType + "\n" + msg + "\n" + messageType + "\n"
-                }else {
+                msgWithStartEndString = if(messageType == Constants.MESSAGE_TYPE_GROUP){
                     messageType + "\n" + username + "\n" + msg + "\n" + messageType + "\n"
+                }else {
+                    messageType + "\n" + msg + "\n" + messageType + "\n"
                 }
                 broadcastMessageAsyncTask.execute(msgWithStartEndString)
                 return true

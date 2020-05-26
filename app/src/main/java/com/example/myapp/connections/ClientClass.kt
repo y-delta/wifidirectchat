@@ -36,7 +36,6 @@ class ClientClass(hostAddress: InetAddress) : Thread() {
             sendReceive!!.start()
             Log.d("ClientClass", "sending username of device to GO ${DEVICEMAC}")
             broadcastMessage(NETWORK_USERNAME!!, Constants.DATA_TYPE_MAC_ID)
-            Log.d("ClientClass", "sending username of device to GO ${DEVICEMAC}")
             /*var ledger = appDatabaseCompanion!!.ledgerDao().loadAllChatHistory()
             ledger.observe(
                 directMessageActivityCompanion!!,
@@ -62,9 +61,9 @@ class ClientClass(hostAddress: InetAddress) : Thread() {
             var i = 0
             while(i < ledgerList!!.size){               //this will be sent to GO
                 var ledgerItem = ledgerList[i]!!
-                Log.d("Ledger list items", ledgerItem.needs)
+//                Log.d("Ledger list items", ledgerItem.needs)
                 var preparedMsg = ""
-                preparedMsg += ledgerItem.date.toString() + "\n"
+                preparedMsg += ledgerItem.date.toString() + "\n"        //date, landmark, location, needs, latitude, longitude, accuracy
                 preparedMsg += ledgerItem.landmark + "\n"
                 preparedMsg += ledgerItem.location + "\n"
                 preparedMsg += ledgerItem.needs + "\n"
@@ -73,6 +72,7 @@ class ClientClass(hostAddress: InetAddress) : Thread() {
                 preparedMsg += ledgerItem.accuracy + "\n"
                 preparedMsg += NETWORK_USERNAME + "\n"
                 Log.d("PreparedMessageLedger", preparedMsg)
+                broadcastMessage(preparedMsg, Constants.MESSAGE_TYPE_LEDGER)
                 i++
             }
         } catch (e: IOException) {

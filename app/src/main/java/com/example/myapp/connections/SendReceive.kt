@@ -7,7 +7,9 @@ import com.example.myapp.MainActivity.Companion.receivedGroupMessage
 import com.example.myapp.MainActivity.Companion.serverCreated
 import com.example.myapp.db.DatabaseUtil
 import com.example.myapp.db.entity.GroupChatEntity
+import com.example.myapp.db.entity.LedgerEntity
 import com.example.myapp.ui.groupmessage.GroupMessageFragment
+import com.example.myapp.ui.groupmessage.GroupMessageFragment.Companion.appDatabaseCompanion
 import com.example.myapp.utils.Constants
 import java.io.*
 import java.net.InetAddress
@@ -30,10 +32,11 @@ class SendReceive(private var socket: Socket?) : Thread() {
     override fun run() {
         val buffer = ByteArray(1024)
         var bytes: Int
-        while (socket != null && listening && bufferedReader!= null) {
+        outloop@while (socket != null && listening && bufferedReader!= null) {
            // var receivedGroupMessage:String
             try {
                 //new code
+                Log.d("SendReceive", "Reading fresh new message")
                 message = bufferedReader.readLine()
 
                 //this message is not sent along if it is IP addr because this transmission is only from GM/Bridge to GO
@@ -46,9 +49,10 @@ class SendReceive(private var socket: Socket?) : Thread() {
                     message = bufferedReader.readLine()
                     if(message == Constants.DATA_TYPE_MAC_ID){
                         Log.d("Username", "done reading MAC ID")
-                        continue //go back to reading messages
+                        continue@outloop //go back to reading messages
                     }
                 }
+
                 sendAlong(message + "\n")
                 Log.d("MessageReceived", message)
                 Log.d("MessageReceived", "size of string = ${message.length}")
@@ -82,6 +86,74 @@ class SendReceive(private var socket: Socket?) : Thread() {
                         }
                     }
                 } else if(message.equals(Constants.MESSAGE_TYPE_LEDGER)){
+                    var messagePass = 0
+                    var ledgerEntity = LedgerEntity()
+                    loop@ while(true){
+                        var debugMessage = ""
+                        message = bufferedReader.readLine()
+                        sendAlong(message + "\n")
+                        when(messagePass){  //date, landmark, location, needs, latitude, longitude, accuracy
+                            0 -> {
+                                Log.d("ledgerreceive0date", message)
+                                ledgerEntity.date = Date(message) // date is added here //entry into db here
+                                messagePass++
+                                debugMessage += message + "\n"
+                            }
+                            1 -> {
+                                Log.d("ledgerreceive1landmark", message)
+                                ledgerEntity.landmark = message
+                                messagePass++
+                                debugMessage += message + "\n"
+                            }
+                            2 -> {
+                                Log.d("ledgerreceive2location", message)
+                                ledgerEntity.location = message
+                                messagePass++
+                                debugMessage += message + "\n"
+                            }
+                            3 -> {
+                                Log.d("ledgerreceive3needs", message)
+                                ledgerEntity.needs = message
+                                messagePass++
+                                debugMessage += message + "\n"
+                            }
+                            4 -> {
+                                Log.d("ledgerreceive4latitude", message)
+                                ledgerEntity.latitude = message
+                                messagePass++
+                                debugMessage += message + "\n"
+                            }
+                            5 -> {
+                                Log.d("ledgerreceive5longitude", message)
+                                ledgerEntity.longitude = message
+                                messagePass++
+                                debugMessage += message + "\n"
+                            }
+                            6 -> {
+                                Log.d("ledgerreceive6accuracy", message)
+                                ledgerEntity.accuracy = message
+                                messagePass++
+                                debugMessage += message + "\n"
+                            }
+                            7 -> {
+                                Log.d("ledgerreceive7sender", message)
+                                ledgerEntity.sender = message
+                                messagePass++
+                                debugMessage += message + "\n"
+                            }
+                            8 -> {
+                                Log.d("ledgerreceive8", message)
+                                if(message.equals(Constants.MESSAGE_TYPE_LEDGER)){
+                                    Log.d("LedgerInput", "Attempting to insert item into database")
+                                    DatabaseUtil.addNewLedgerToDataBase(appDatabaseCompanion,ledgerEntity)
+                                    Log.d("LedgerInput", "Inserted this message to database:-")
+                                    Log.d("LedgerInput", debugMessage)
+                                    break@loop
+                                }
+                            }
+                        }
+                    }
+                } else if(message.equals(Constants.REQUEST_TYPE_LEDGER_LIST)){
 
                 }
 

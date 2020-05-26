@@ -18,6 +18,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.observe
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.example.myapp.MainActivity
 import com.example.myapp.R
 import com.example.myapp.databinding.ActivityChatListingBinding.inflate
 import com.example.myapp.databinding.FragmentDirectmessageBinding
@@ -159,7 +160,14 @@ class LedgerFragment : Fragment() {
             val fetchedLongitude = fetchedData.longitude
             val fetchedAccuracy = fetchedData.accuracy
             val fetchedNeeds = ArrayList(fetchedData.needs.split(","))
-            list.add(Model(fetchedLocation,fetchedLandmark , arrayListOf(fetchedLatitude, fetchedLongitude, fetchedAccuracy), fetchedNeeds))
+
+            Log.d("fetchedLocation", fetchedLocation)
+            Log.d("fetchedLandmark", fetchedLandmark)
+            Log.d("fetchedLatitude", fetchedLatitude)
+            Log.d("fetchedLongitude", fetchedLongitude)
+            Log.d("fetchedAccuracy", fetchedAccuracy)
+            Log.d("fetchedNeeds", fetchedNeeds.toString())
+            list.add(Model(fetchedLocation, fetchedLandmark, arrayListOf(fetchedLatitude, fetchedLongitude, fetchedAccuracy), fetchedNeeds))
             i++
 //            Log.d("refresh()", fetchedData.location)
         }
@@ -178,8 +186,8 @@ class LedgerFragment : Fragment() {
                 val landmark = data!!.getStringExtra("Landmark")
                 val latLongAcc= data!!.getStringArrayListExtra("LatLongAcc")
                 requiredItems = data!!.getStringArrayListExtra("CheckedItems")
-                ledgerEntity.location = locationName
-                ledgerEntity.landmark = landmark
+                ledgerEntity.location = locationName.replace("\n", " ")
+                ledgerEntity.landmark = landmark.replace("\n", " ")
                 ledgerEntity.needs = requiredItems.joinToString(separator=",", transform = {it.toLowerCase().trim()})
                 ledgerEntity.date = Date() // date is added here
                 ledgerEntity.sender = "You"
