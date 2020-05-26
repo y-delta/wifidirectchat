@@ -15,6 +15,9 @@ public interface LedgerDao {
     @Query("SELECT * FROM ledger")
     LiveData<List<LedgerEntity>> loadAllChatHistory();
 
+    @Query("SELECT * FROM ledger")
+    List<LedgerEntity> loadAllLedgers();
+
     @Query("SELECT COUNT(location) FROM ledger")
     LiveData<Integer> getLedgerCount();
 

@@ -33,6 +33,9 @@ import com.example.myapp.ui.main.MyAdapter
 import com.example.myapp.utils.NPALinearLayoutManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.*
+import java.util.concurrent.Callable
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executors
 import kotlin.collections.ArrayList
 
 class LedgerFragment : Fragment() {
@@ -70,9 +73,11 @@ class LedgerFragment : Fragment() {
         root = inflater.inflate(R.layout.fragment_ledger, container, false)
         listView = root.findViewById(R.id.listView)
         listView.adapter = MyAdapter(root.context, R.layout.row, list)
-        mLedgerList = ArrayList()
 
         appDatabase = AppDatabase.getDatabase(activity?.application)
+        mLedgerList = ArrayList()
+        chatHistory
+
 
         pullToRefresh = root.findViewById(R.id.swiperefresh)
         pullToRefresh.setOnRefreshListener {refresh()
@@ -122,11 +127,26 @@ class LedgerFragment : Fragment() {
 
     }
 
+    private val chatHistory: Unit
+        private get() {
+            val ledger = appDatabase?.ledgerDao()?.loadAllChatHistory()
+            ledger?.observe(
+                this,
+                androidx.lifecycle.Observer <MutableList<LedgerEntity>>{
+                        ledger ->
+                    if (ledger != null) {
+                        mLedgerList = ledger
+                    }
+                }
+            )
+        }
+
     private fun refresh ()
     {
         //clears the existing list and then fetches from db and updates the list
         //right now only current db entries show up
         //merging db between devices might be the solution
+        list.clear()
         var i = 0
         while(i< mLedgerList?.size!!)
         {
@@ -138,7 +158,7 @@ class LedgerFragment : Fragment() {
             val fetchedLongitude = fetchedData.longitude
             val fetchedAccuracy = fetchedData.accuracy
             val fetchedNeeds = ArrayList(fetchedData.needs.split(","))
-            list.add(Model(fetchedLocation,fetchedLandmark, arrayListOf(fetchedLatitude, fetchedLongitude, fetchedAccuracy), fetchedNeeds))
+            list.add(Model(fetchedLocation,fetchedLandmark , arrayListOf(fetchedLatitude, fetchedLongitude, fetchedAccuracy), fetchedNeeds))
             i++
         }
         listView.adapter = MyAdapter(root.context, R.layout.row, list)
@@ -161,6 +181,9 @@ class LedgerFragment : Fragment() {
                 ledgerEntity.needs = requiredItems.joinToString(separator=",", transform = {it.toLowerCase().trim()})
                 ledgerEntity.date = Date() // date is added here
                 ledgerEntity.sender = "You"
+                ledgerEntity.latitude=latLongAcc[0]
+                ledgerEntity.longitude= latLongAcc[1]
+                ledgerEntity.accuracy= latLongAcc[2]
                 Log.d("com.example.myapp.ui.ledger.LedgerFragment-onActivityResult", "location = $locationName")
                 Log.d("com.example.myapp.ui.ledger.LedgerFragment-onActivityResult", "landmark = $landmark")
                 Log.d("com.example.myapp.ui.ledger.LedgerFragment-onActivityResult", "landmark = $latLongAcc")
