@@ -1,10 +1,16 @@
 package com.example.myapp.connections
 
 import android.util.Log
+import android.webkit.URLUtil
 import com.example.myapp.MainActivity
 import com.example.myapp.MainActivity.Companion.DEVICEMAC
 import com.example.myapp.MainActivity.Companion.broadcastMessage
 import com.example.myapp.MainActivity.Companion.NETWORK_USERNAME
+import com.example.myapp.MainActivity.Companion.mainActivityCompanion
+import com.example.myapp.db.entity.GroupChatEntity
+import com.example.myapp.db.entity.LedgerEntity
+import com.example.myapp.ui.directmessage.DirectMessageFragment
+import com.example.myapp.ui.directmessage.DirectMessageFragment.Companion.directMessageActivityCompanion
 import com.example.myapp.ui.groupmessage.GroupMessageFragment.Companion.appDatabaseCompanion
 import com.example.myapp.utils.Constants
 import java.io.IOException
@@ -30,12 +36,34 @@ class ClientClass(hostAddress: InetAddress) : Thread() {
             Log.d("ClientClass", "sending username of device to GO ${DEVICEMAC}")
             broadcastMessage(NETWORK_USERNAME!!, Constants.DATA_TYPE_MAC_ID)
             Log.d("ClientClass", "sending username of device to GO ${DEVICEMAC}")
-            var ledger = appDatabaseCompanion!!.ledgerDao().loadAllChatHistory()
+            /*var ledger = appDatabaseCompanion!!.ledgerDao().loadAllChatHistory()
+            ledger.observe(
+                directMessageActivityCompanion!!,
+                androidx.lifecycle.Observer <MutableList<LedgerEntity>?>{
+                        ledgerList ->
+                    var i = 0
+                    while(i < ledgerList!!.size){
+                        var ledgerItem = ledgerList[i]!!
+                        Log.d("Ledger list items", ledgerItem.needs)
+                        var preparedMsg = ""
+                        preparedMsg += ledgerItem.date
+                        preparedMsg += ledgerItem.landmark
+                        preparedMsg += ledgerItem.location
+                        preparedMsg += ledgerItem.needs
+                        preparedMsg += ledgerItem.latitude
+                        preparedMsg += ledgerItem.longitude
+                        preparedMsg += ledgerItem.accuracy
+                        preparedMsg += NETWORK_USERNAME
+                    }
+                }
+            )*/
         } catch (e: IOException) {
             socket = Socket()
             e.printStackTrace()
         }
     }
+
+
 
     init {
         hostAdd = hostAddress.hostAddress

@@ -26,8 +26,10 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.myapp.connections.*
+import com.example.myapp.db.AppDatabase
 import com.example.myapp.ui.groupmessage.GroupMessageFragment
 import com.example.myapp.ui.directmessage.DirectMessageFragment
+import com.example.myapp.ui.groupmessage.GroupMessageFragment.Companion.appDatabaseCompanion
 import com.example.myapp.ui.ledger.LedgerFragment
 import com.example.myapp.ui.main.ModalBottomSheet
 import com.example.myapp.utils.Constants
@@ -71,7 +73,11 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment)
         navView.setupWithNavController(navController)
 
+        mainActivityCompanion = this
+
         if (savedInstanceState == null) {
+            var appDatabase = AppDatabase.getDatabase(this.application)
+            appDatabaseCompanion = appDatabase
             //supportFragmentManager.beginTransaction()
             //  .add(R.id.nav_host_fragment, globalMessageFragment, "putGlobalMessageFragment")
             //.commit()
@@ -746,6 +752,8 @@ class MainActivity : AppCompatActivity() {
         var checkedForGroups = false
         var receivedGroupMessage: String = ""
         var DEVICEMAC : String? = null
+
+        lateinit var mainActivityCompanion:MainActivity
 
         var ipAddrUsernameHashMap = ConcurrentHashMap<String, String>()
 

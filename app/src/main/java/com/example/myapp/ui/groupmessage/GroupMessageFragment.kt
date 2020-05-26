@@ -40,13 +40,12 @@ class GroupMessageFragment : Fragment() {
     private var layoutManager: NPALinearLayoutManager? = null
 
     init {
-        Log.d("DirectMessageFragment", "Init")
+        Log.d("GroupMessageFragment", "Init")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         appDatabase = AppDatabase.getDatabase(this.activity?.application)
-        appDatabaseCompanion = appDatabase
         globalContext = this.activity
 //        addReceiverMessage()
     }

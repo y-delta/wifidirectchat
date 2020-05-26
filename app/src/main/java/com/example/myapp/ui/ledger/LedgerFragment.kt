@@ -134,7 +134,11 @@ class LedgerFragment : Fragment() {
 
             val fetchedLocation = fetchedData.location
             val fetchedLandmark = fetchedData.landmark
-            list.add(Model(fetchedLocation,fetchedLandmark))
+            val fetchedLatitude = fetchedData.latitude
+            val fetchedLongitude = fetchedData.longitude
+            val fetchedAccuracy = fetchedData.accuracy
+            val fetchedNeeds = ArrayList(fetchedData.needs.split(","))
+            list.add(Model(fetchedLocation,fetchedLandmark, arrayListOf(fetchedLatitude, fetchedLongitude, fetchedAccuracy), fetchedNeeds))
             i++
         }
         listView.adapter = MyAdapter(root.context, R.layout.row, list)
@@ -154,7 +158,7 @@ class LedgerFragment : Fragment() {
                 requiredItems = data!!.getStringArrayListExtra("CheckedItems")
                 ledgerEntity.location = locationName
                 ledgerEntity.landmark = landmark
-                ledgerEntity.needs = requiredItems.toString()
+                ledgerEntity.needs = requiredItems.joinToString(separator=",", transform = {it.toLowerCase().trim()})
                 ledgerEntity.date = Date() // date is added here
                 ledgerEntity.sender = "You"
                 Log.d("com.example.myapp.ui.ledger.LedgerFragment-onActivityResult", "location = $locationName")

@@ -1,5 +1,6 @@
 package com.example.myapp.ui.directmessage
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -10,6 +11,7 @@ import android.widget.AdapterView
 import android.widget.ListView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProviders
 import com.example.myapp.MainActivity
 import com.example.myapp.R
@@ -25,7 +27,7 @@ class DirectMessageFragment : Fragment() {
         contactList.add(ChatMessage("Machan69", "bsdk"))
         contactList.add(ChatMessage("Panda", "kaam kr"))
         contactList.add(ChatMessage("A-Bot", "pls kaam kr"))
-        Log.d("GlobalMessageFragment", "Init")
+        Log.d("DirectMessageFragment", "Init")
     }
 
 
@@ -50,7 +52,9 @@ class DirectMessageFragment : Fragment() {
             startActivityForResult(intent, 6969)
         }
 
-        Log.d("GlobalMessageFragment", "onCreateView")
+        directMessageActivityCompanion = this.activity
+
+        Log.d("DirectMessageFragment", "onCreateView")
         var mainActivity: MainActivity = context as MainActivity
         mainActivity.testDisplay("Yeno bhadwa rascal")
         return root
@@ -63,5 +67,9 @@ class DirectMessageFragment : Fragment() {
 
             }
         }
+    }
+
+    companion object{
+        var directMessageActivityCompanion: LifecycleOwner? = null
     }
 }

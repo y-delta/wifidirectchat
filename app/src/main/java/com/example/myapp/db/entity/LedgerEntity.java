@@ -21,6 +21,21 @@ public class LedgerEntity {
     private Date date;
     private String needs;
     private String sender;
+    private String latitude;
+    private String longitude;
+    private String accuracy;
+
+    public void setLatitude(String latitude) { this.latitude = latitude; }
+
+    public void setLongitude(String longitude) { this.longitude = longitude; }
+
+    public void setAccuracy(String accuracy) { this.accuracy = accuracy; }
+
+    public String getLatitude() { return latitude; }
+
+    public String getLongitude() { return longitude; }
+
+    public String getAccuracy() { return accuracy; }
 
     public String getSender() {return sender;}
 
