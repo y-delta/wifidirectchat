@@ -151,6 +151,7 @@ class LedgerFragment : Fragment() {
         //clears the existing list and then fetches from db and updates the list
         //right now only current db entries show up
         //merging db between devices might be the solution
+        refreshCount++
         list.clear()
         var i = 0
         Log.d("refresh()", "refresh called, now updating list")
@@ -176,6 +177,10 @@ class LedgerFragment : Fragment() {
 //            Log.d("refresh()", fetchedData.location)
         }
         listView.adapter = MyAdapter(root.context, R.layout.row, list)
+
+        if(refreshCount%5==0){
+            MainActivity.broadcastMessage("", Constants.REQUEST_TYPE_LEDGER_LIST)
+        }
 
         Toast.makeText(root.context, "Updated", Toast.LENGTH_LONG).show()
         pullToRefresh.isRefreshing = false;
@@ -233,6 +238,7 @@ class LedgerFragment : Fragment() {
 
     companion object{
         var ledgerFragmentCompanion:LedgerFragment? = null
+        var refreshCount = 0
     }
 
 

@@ -55,16 +55,19 @@ class SendReceive(private var socket: Socket?) : Thread() {
                         continue@outloop //go back to reading messages
                     }
                 } else if(message.equals(Constants.REQUEST_TYPE_LEDGER_LIST)){
+                    Log.d("REQUESTLEDGER", "Request received $message")
                     do{
                         message = bufferedReader.readLine()
+                        Log.d("REQUESTLEDGER", "$message")
                     }while(!message.equals(Constants.REQUEST_TYPE_LEDGER_LIST))
+                    Log.d("REQUESTLEDGER", "$message")
                     var ledgerList = appDatabaseCompanion!!.ledgerDao().loadAllLedgers()
                     var i = 0
                     while(i < ledgerList!!.size){               //this will be sent to GO
                         var ledgerItem = ledgerList[i]!!
 //                Log.d("Ledger list items", ledgerItem.needs)
                         var preparedMsg = ""
-                        preparedMsg += Constants.REQUEST_TYPE_LEDGER_LIST + "\n"
+                        preparedMsg += Constants.MESSAGE_TYPE_LEDGER + "\n"
                         preparedMsg += ledgerItem.date.toString() + "\n"        //date, landmark, location, needs, latitude, longitude, accuracy
                         preparedMsg += ledgerItem.landmark + "\n"
                         preparedMsg += ledgerItem.location + "\n"
@@ -73,7 +76,7 @@ class SendReceive(private var socket: Socket?) : Thread() {
                         preparedMsg += ledgerItem.longitude + "\n"
                         preparedMsg += ledgerItem.accuracy + "\n"
                         preparedMsg += MainActivity.NETWORK_USERNAME + "\n"
-                        preparedMsg += Constants.REQUEST_TYPE_LEDGER_LIST + "\n"
+                        preparedMsg += Constants.MESSAGE_TYPE_LEDGER + "\n"
                         Log.d("PreparedMessageLedger", preparedMsg)
                         this.write(preparedMsg.toByteArray())
                         i++
@@ -92,7 +95,7 @@ class SendReceive(private var socket: Socket?) : Thread() {
                         Log.d("MessageReceived", "size of string = ${message.length}")
                         sendAlong(message + "\n")
                         if(message.equals(Constants.MESSAGE_TYPE_GROUP)){       //if you encounter this, the frame is ending
-                            GroupMessageFragment.mChatListCompanion!!.add(chatEntitySender)
+//                            GroupMessageFragment.mChatListCompanion!!.add(chatEntitySender)
 //                    receiverMessageFlag = true
                             var appDatabase = GroupMessageFragment.appDatabaseCompanion
                             DatabaseUtil.addSenderGroupChatToDataBase(appDatabase, chatEntitySender)

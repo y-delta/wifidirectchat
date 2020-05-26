@@ -782,7 +782,9 @@ class MainActivity : AppCompatActivity() {
                 }
                 msgWithStartEndString = if(messageType == Constants.MESSAGE_TYPE_GROUP){
                     messageType + "\n" + username + "\n" + msg + "\n" + messageType + "\n"
-                }else {
+                }else if(messageType == Constants.REQUEST_TYPE_LEDGER_LIST){
+                    messageType + "\n" + messageType
+                } else {
                     messageType + "\n" + msg + "\n" + messageType + "\n"
                 }
                 broadcastMessageAsyncTask.execute(msgWithStartEndString)
