@@ -1,5 +1,6 @@
 package com.example.myapp.ui.main
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
@@ -34,6 +35,9 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        //Request Location Permission if not given
+        requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), 10)
+
         val root = inflater.inflate(layout.bottom_sheet, container, false)
         continueButton = root.findViewById(R.id.cont)
         wifiButton = root.findViewById(R.id.wifi_on)
