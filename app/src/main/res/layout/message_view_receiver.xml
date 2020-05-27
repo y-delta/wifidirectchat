@@ -17,7 +17,8 @@
             android:layout_marginEnd="40dp"
             android:background="@drawable/their_msg"
             android:orientation="vertical"
-            android:layout_marginTop="15dp">
+            android:layout_marginTop="15dp"
+            android:minWidth="69dp">
 
             <TextView
                 android:id="@+id/textview_message_receiver"
@@ -48,7 +49,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="SenderName"
-            android:textSize="12sp"
+            android:textSize="10sp"
             android:textColor="@android:color/tertiary_text_light"
             />
 
