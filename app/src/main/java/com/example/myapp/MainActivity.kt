@@ -82,6 +82,35 @@ class MainActivity : AppCompatActivity() {
             || checkCallingOrSelfPermission(applicationContext,permissions[1])== PERMISSION_DENIED)
         {requestPermissions(permissions, 10)}
 
+        val sharedPref = this.getPreferences(Context.MODE_PRIVATE) ?: return
+        val USERID = sharedPref.getString(getString(R.string.SHARED_PREF_USERID), "")
+        val USERNAME = sharedPref.getString(getString(R.string.SHARED_PREF_USERNAME), "")
+
+        Log.d("USERID", USERID)
+        Log.d("USERNAME", USERNAME)
+
+        if(USERID.isNullOrEmpty()){
+            val randomString = UUID.randomUUID().toString().substring(0,8)
+            with(sharedPref.edit()){
+                putString(getString(R.string.SHARED_PREF_USERID), randomString)
+                commit()
+            }
+            NETWORK_USERID = randomString
+        } else{
+            NETWORK_USERID = USERID
+        }
+
+        if(USERNAME.isNullOrEmpty()){
+            NETWORK_USERNAME = "name_not_set"
+        } else{
+            NETWORK_USERNAME = USERNAME
+        }
+
+
+        Log.d("USERID-", NETWORK_USERID)
+        Log.d("USERNAME-", NETWORK_USERNAME)
+
+
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
         val navController = findNavController(R.id.nav_host_fragment)
         navView.setupWithNavController(navController)
@@ -375,6 +404,8 @@ class MainActivity : AppCompatActivity() {
             if(serverCreated){
                 inputText += "Server created = true\n"
             }
+            inputText += "USERNAME = $NETWORK_USERNAME\n"
+            inputText += "USERID = $NETWORK_USERID\n"
             if(!groupCreated && !serverCreated){
                 if(netAddrSendReceiveHashMap!!.size > 0)
                     inputText += "I am a client\n"
@@ -416,6 +447,9 @@ class MainActivity : AppCompatActivity() {
             }
             input.text = inputText
             alert.show()
+        }
+        if(id == R.id.setUsername){
+            showAlertDialogForUsername(true)
         }
         return super.onOptionsItemSelected(item)
     }
@@ -465,7 +499,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun showAlertDialogForUsername(){
+    fun showAlertDialogForUsername(forceShow: Boolean = false){
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
         builder.setTitle("Enter Username")
         val input =  EditText(this)
@@ -473,21 +507,35 @@ class MainActivity : AppCompatActivity() {
         input.inputType = InputType.TYPE_CLASS_TEXT
         builder.setView(input)
         builder.setCancelable(false)
-        builder.setPositiveButton("Ok") { _, id ->
+        builder.setPositiveButton("Set Username") { _, id ->
             var text = input.text.toString()
-            NETWORK_USERNAME = text.trim()
+            NETWORK_USERNAME = text.trim().replace("\n", "")
             if(!NETWORK_USERNAME.isNullOrEmpty()){
                 dialog?.cancel()
             }
         }
-        if(NETWORK_USERNAME.isNullOrEmpty()) {
+        builder.setNegativeButton("Cancel") { _, id ->
+
+        }
+        if(forceShow || NETWORK_USERNAME.equals("name_not_set")) {
             dialog = builder.create()
             dialog?.show()
             dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener {
                     var text = input.text.toString()
                     NETWORK_USERNAME = text.trim()
-                    if(!NETWORK_USERNAME.isNullOrEmpty()){
+                    val sharedPref = this.getPreferences(Context.MODE_PRIVATE)
+                    with(sharedPref.edit()){
+                        putString(getString(com.example.myapp.R.string.SHARED_PREF_USERNAME), NETWORK_USERNAME)
+                        commit()
+                    }
+                    if(!NETWORK_USERNAME.isNullOrEmpty() && !NETWORK_USERNAME.equals("name_not_set")){
+                        dialog?.cancel()
+                    }
+                }
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+                .setOnClickListener {
+                    if(!NETWORK_USERNAME.equals("name_not_set")){
                         dialog?.cancel()
                     }
                 }
@@ -784,6 +832,7 @@ class MainActivity : AppCompatActivity() {
         lateinit var deviceNameArray: Array<String?>
         lateinit var deviceArray: Array<WifiP2pDevice?>
         var NETWORK_USERNAME:String = ""
+        var NETWORK_USERID:String = ""
 
         var nameOfGO: String? = null
         var nameOfConnectedGOHotspot: String? = null

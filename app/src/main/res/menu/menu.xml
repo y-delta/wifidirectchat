@@ -30,6 +30,13 @@
         android:icon="@drawable/ic_chart_black_24dp"
         android:contentDescription="Show extra network information"
         />
+    <item
+        android:id="@+id/setUsername"
+        android:title="Set User Name"
+        app:showAsAction="never"
+        android:icon="@drawable/ic_chart_black_24dp"
+        android:contentDescription="Set a username for the network manually"
+        />
 
     <!--    <item-->
     <!--        android:id="@+id/connectionGO"-->
