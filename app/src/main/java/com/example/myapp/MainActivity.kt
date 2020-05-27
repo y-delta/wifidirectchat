@@ -1,7 +1,9 @@
 package com.example.myapp
 
+import android.Manifest
 import android.app.AlertDialog
 import android.content.*
+import android.content.pm.PackageManager
 import android.net.nsd.NsdManager
 import android.net.nsd.NsdManager.DiscoveryListener
 import android.net.nsd.NsdManager.RegistrationListener
@@ -22,9 +24,12 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.PermissionChecker
+import androidx.core.content.PermissionChecker.*
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
+import androidx.test.core.app.ApplicationProvider
 import com.example.myapp.connections.*
 import com.example.myapp.db.AppDatabase
 import com.example.myapp.ui.groupmessage.GroupMessageFragment
@@ -62,12 +67,18 @@ class MainActivity : AppCompatActivity() {
     var serverClass: ServerClass? = null
     var clientClass: ClientClass? = null
 
+    private var permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
 
     private val modalBottomSheet = ModalBottomSheet()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        //Request Location Permission if not given
+        if (checkCallingOrSelfPermission(applicationContext,permissions[0]) == PERMISSION_DENIED
+            || checkCallingOrSelfPermission(applicationContext,permissions[1])== PERMISSION_DENIED)
+        {requestPermissions(permissions, 10)}
 
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
         val navController = findNavController(R.id.nav_host_fragment)

@@ -73,7 +73,4 @@ public class LedgerEntity {
 
     public LedgerEntity() {    }
 
-    public LedgerEntity(String locationName, String landmarkName, ArrayList<String> latLongAcc, ArrayList<String> requiredItems, Integer img ){
-
-    }
 }

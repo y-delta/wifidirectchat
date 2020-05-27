@@ -66,9 +66,9 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         } else if (holder instanceof MessageLeftViewHolder) {
 
             final ChatEntity message = mMessagesList.get(position);
+            ((MessageLeftViewHolder) holder).binding.senderName.setText("");
             ((MessageLeftViewHolder) holder).binding.textviewMessageReceiver.setText(message.getChatContent());
             ((MessageLeftViewHolder) holder).binding.textviewMessageReceiverTime.setText(DateUtils.getFormattedTime(message.getDate()));
-
         }
     }
 

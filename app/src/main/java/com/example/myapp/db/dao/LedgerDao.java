@@ -12,10 +12,10 @@ import java.util.List;
 
 @Dao
 public interface LedgerDao {
-    @Query("SELECT * FROM ledger")
+    @Query("SELECT * FROM ledger ORDER BY date")
     LiveData<List<LedgerEntity>> loadAllChatHistory();
 
-    @Query("SELECT * FROM ledger")
+    @Query("SELECT * FROM ledger ORDER BY date")
     List<LedgerEntity> loadAllLedgers();
 
     @Query("SELECT COUNT(location) FROM ledger")
