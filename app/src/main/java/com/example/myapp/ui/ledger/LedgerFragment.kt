@@ -135,6 +135,8 @@ class LedgerFragment : Fragment() {
             val fetchedLatitude = fetchedData.latitude
             val fetchedLongitude = fetchedData.longitude
             val fetchedAccuracy = fetchedData.accuracy
+            val fetchedDate = fetchedData.date
+            val fetchedSender = fetchedData.sender
             val fetchedNeeds = ArrayList(fetchedData.needs.split(","))
 
             Log.d("fetchedLocation", fetchedLocation)
@@ -143,6 +145,8 @@ class LedgerFragment : Fragment() {
             Log.d("fetchedLongitude", fetchedLongitude)
             Log.d("fetchedAccuracy", fetchedAccuracy)
             Log.d("fetchedNeeds", fetchedNeeds.toString())
+            Log.d("fetchedDate", fetchedDate.toString())
+            Log.d("fetchedSender", fetchedSender)
 
             list.add(Model(fetchedLocation, fetchedLandmark, arrayListOf(fetchedLatitude, fetchedLongitude, fetchedAccuracy), fetchedNeeds))
             i++
@@ -175,9 +179,9 @@ class LedgerFragment : Fragment() {
         Log.d("refresh()", "refresh called, now updating list")
         fetchLedgers()
 
-        if(refreshCount%5==0){
+        /*if(refreshCount%5==0){
             MainActivity.broadcastMessage("", Constants.REQUEST_TYPE_LEDGER_LIST)
-        }
+        }*/
 
         Toast.makeText(root.context, "Updated", Toast.LENGTH_LONG).show()
         pullToRefresh.isRefreshing = false;

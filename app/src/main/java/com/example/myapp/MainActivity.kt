@@ -44,6 +44,8 @@ import java.net.InetAddress
 import java.net.NetworkInterface
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
 
 
 class MainActivity : AppCompatActivity() {
@@ -87,6 +89,9 @@ class MainActivity : AppCompatActivity() {
         mainActivityCompanion = this
 
         if (savedInstanceState == null) {
+
+            MAIN_EXECUTOR = Executors.newSingleThreadExecutor()
+
             var appDatabase = AppDatabase.getDatabase(this.application)
             appDatabaseCompanion = appDatabase
             //supportFragmentManager.beginTransaction()
@@ -130,7 +135,7 @@ class MainActivity : AppCompatActivity() {
 //            }
         }
 
-        DEVICEMAC = wifiManager!!.connectionInfo.macAddress     //get mac address of wifi (not wifi direct)
+//        DEVICEMAC = wifiManager!!.connectionInfo.macAddress     //get mac address of wifi (not wifi direct)
 
         modalBottomSheet.show(supportFragmentManager, modalBottomSheet.tag) //implement this on WiFiDirectBroadcastReceiver when Prashant sends code
         modalBottomSheet.isCancelable = false //prevents cancelling
@@ -765,6 +770,8 @@ class MainActivity : AppCompatActivity() {
         var receivedGroupMessage: String = ""
         var DEVICEMAC : String? = null
 
+        var MAIN_EXECUTOR: Executor? = null
+
         lateinit var mainActivityCompanion:MainActivity
 
         var ipAddrUsernameHashMap = ConcurrentHashMap<String, String>()
@@ -786,6 +793,9 @@ class MainActivity : AppCompatActivity() {
                 val broadcastMessageAsyncTask = BroadcastMessageAsyncTask()
                 var username:String = ""
                 var msgWithStartEndString = ""
+                if(msg.endsWith("\n") && !msg.isNullOrEmpty()){
+                    msg.substring(0, msg.length - 1)
+                }
                 if(NETWORK_USERNAME.isNullOrEmpty()){
                     username = "username_not_set"
                 } else{
@@ -798,13 +808,37 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     messageType + "\n" + msg + "\n" + messageType + "\n"
                 }
-                broadcastMessageAsyncTask.execute(msgWithStartEndString)
+//                broadcastMessageAsyncTask.execute(msgWithStartEndString)
+                if(MAIN_EXECUTOR!=null)
+                    MAIN_EXECUTOR!!.execute(BroadcastMessageRunnable(msgWithStartEndString))
                 return true
             }
             else{
                 Log.d("broadcastMessage", "connection not established, cant send message")
 //                Toast.makeText(context, "Connection not established. Cannot send message.", Toast.LENGTH_LONG)
                 return false
+            }
+        }
+
+    }
+
+    class BroadcastMessageRunnable(msg:String) : Runnable {
+        var msg = msg
+
+        override fun run() {
+            try {
+                if (netAddrSendReceiveHashMap?.size!! > 0) {
+                    for (sendReceiveDevice in netAddrSendReceiveHashMap!!.values) {
+                        try {
+                            sendReceiveDevice.write(msg?.toByteArray())
+                        } catch (e: Exception) {
+                            Log.e("Exception is ", e.toString())
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Log.d("broadcastMessage", "Error occurred, device is probably not connected to anything")
             }
         }
 
