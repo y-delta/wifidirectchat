@@ -4,11 +4,13 @@ import android.os.Bundle
 import android.os.Handler
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.example.myapp.R
 import com.example.myapp.databinding.ActivityChatListingBinding
@@ -16,6 +18,7 @@ import com.example.myapp.db.AppDatabase
 import com.example.myapp.db.DatabaseUtil
 import com.example.myapp.db.entity.ChatEntity
 import com.example.myapp.ui.adapter.MessageAdapter
+import com.example.myapp.ui.directmessage.DirectMessageFragment
 import com.example.myapp.utils.AppUtils
 import com.example.myapp.utils.Constants
 import com.example.myapp.utils.NPALinearLayoutManager
@@ -31,6 +34,7 @@ class ChatListingActivity : AppCompatActivity() {
     var adapter: MessageAdapter? = null
     var mChatList: MutableList<ChatEntity>? = null
     var appDatabase: AppDatabase? = null
+    private var recyclerView: RecyclerView? = null
     private var mObservableChats: LiveData<List<ChatEntity>>? = null
     private var layoutManager: NPALinearLayoutManager? = null
     private var receiverMessageFlag = false
@@ -39,6 +43,9 @@ class ChatListingActivity : AppCompatActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_chat_listing)
         appDatabase = AppDatabase.getDatabase(this.application)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = intent.getStringExtra("contactName")
+
+        recyclerView = findViewById(R.id.recyclerview_message_view)
         initRecyclerView()
         chatHistory
         clickListeners()
@@ -56,7 +63,7 @@ class ChatListingActivity : AppCompatActivity() {
                 // clear edit text
                 binding!!.editTextChat.setText("")
             } else {
-                AppUtils.toastMessage(this@ChatListingActivity, "Please enter some message")
+                Toast.makeText(this@ChatListingActivity,"Please enter some message",Toast.LENGTH_LONG).show()
             }
         })
     }
@@ -66,6 +73,8 @@ class ChatListingActivity : AppCompatActivity() {
         chatEntitySender.chatType = Constants.MESSAGE_SENDER
         chatEntitySender.chatContent = binding!!.editTextChat.text.toString()
         chatEntitySender.date = Date()
+        chatEntitySender.sender = "You"
+        chatEntitySender.receiver = intent.getStringExtra("contactName")
         mChatList!!.add(chatEntitySender)
         receiverMessageFlag = true
         DatabaseUtil.addSenderChatToDataBase(appDatabase, chatEntitySender)
@@ -77,6 +86,8 @@ class ChatListingActivity : AppCompatActivity() {
             chatEntityReceiver.chatType = Constants.MESSAGE_RECEIVER
             chatEntityReceiver.chatContent = DatabaseUtil.getDirectChat()
             chatEntityReceiver.date = Date()
+            chatEntityReceiver.sender = intent.getStringExtra("contactName")
+            chatEntityReceiver.receiver = "You"
             mChatList!!.add(chatEntityReceiver)
             receiverMessageFlag = false
             DatabaseUtil.addReceiverChatToDataBase(appDatabase, chatEntityReceiver)
@@ -92,20 +103,22 @@ class ChatListingActivity : AppCompatActivity() {
         layoutManager = NPALinearLayoutManager(this)
         val itemAnimator: SimpleItemAnimator = DefaultItemAnimator()
         itemAnimator.supportsChangeAnimations = false
-        binding!!.recyclerviewMessageView.setHasFixedSize(true)
-        binding!!.recyclerviewMessageView.layoutManager = layoutManager
-        binding!!.recyclerviewMessageView.itemAnimator = itemAnimator
-        binding!!.recyclerviewMessageView.setItemViewCacheSize(20)
-        binding!!.recyclerviewMessageView.isDrawingCacheEnabled = true
-        binding!!.recyclerviewMessageView.drawingCacheQuality = View.DRAWING_CACHE_QUALITY_HIGH
+        recyclerView?.setHasFixedSize(true)
+        recyclerView?.layoutManager = layoutManager
+        recyclerView?.itemAnimator = itemAnimator
+        recyclerView?.setItemViewCacheSize(20)
+        recyclerView?.isDrawingCacheEnabled = true
+        recyclerView?.drawingCacheQuality = View.DRAWING_CACHE_QUALITY_HIGH
         mChatList = ArrayList()
         adapter = MessageAdapter(this@ChatListingActivity, mChatList)
-        binding!!.recyclerviewMessageView.adapter = adapter
+        recyclerView?.adapter = adapter
     }
 
     private val chatHistory: Unit
         private get() {
-            mObservableChats = appDatabase!!.chatDao().loadAllChatHistory()
+//            mObservableChats = appDatabase!!.chatDao().loadAllChatHistory()
+            mObservableChats = appDatabase!!.chatDao().loadAllChatHistoryByUser(intent.getStringExtra("contactName"))
+
             mObservableChats?.observe(
                 this,
                 Observer<MutableList<ChatEntity>?> { chatsHistoryList ->

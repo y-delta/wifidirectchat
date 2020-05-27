@@ -46,23 +46,15 @@ class LedgerFragment : Fragment() {
     private lateinit var notificationsViewModel: NotificationsViewModel
     var list = mutableListOf<Model>()
     private lateinit var listView: ListView
-    private lateinit var listAdapter: MyAdapter
     private lateinit var root: View
     private var requiredItems:ArrayList<String> = ArrayList()
     var binding: FragmentLedgerBinding? = null
     var appDatabase: AppDatabase? = null
 
-    var ledgerAdapter: LedgerAdapter? = null
     var mLedgerList: MutableList<LedgerEntity>? = null
-    private var mObservableChats: LiveData<List<LedgerEntity>>? = null
-    private var layoutManager: NPALinearLayoutManager? = null
     private lateinit var pullToRefresh: SwipeRefreshLayout
 
     init{
-        list.add(Model("Yelahanka", "Satellite bus station", img = R.drawable.helpwe))
-        list.add(Model("SVIT", "Canteen"))
-        list.add(Model("SVIT", "Boys Hostel"))
-
         Log.d("com.example.myapp.ui.ledger.LedgerFragment", "Init")
     }
 
@@ -82,12 +74,13 @@ class LedgerFragment : Fragment() {
         appDatabase = AppDatabase.getDatabase(activity?.application)
         mLedgerList = ArrayList()
         chatHistory
+        fetchLedgers()
 
         pullToRefresh = root.findViewById(R.id.swiperefresh)
         pullToRefresh.setOnRefreshListener { refresh() }
 
-        listView.setOnItemClickListener { parent: AdapterView<*>, view: View, position:Int, id:Long ->
-            Toast.makeText(root.context, "Clicked on" + list[position].landmarkName, Toast.LENGTH_LONG).show()
+        listView.setOnItemClickListener { _: AdapterView<*>, _: View, position:Int, _:Long ->
+            //Toast.makeText(root.context, "Clicked on" + list[position].landmarkName, Toast.LENGTH_LONG).show()
             val builder = AlertDialog.Builder(context)
             builder.setTitle(Html.fromHtml("<font size = '18'><b>Help!</b>"))
 
@@ -126,35 +119,13 @@ class LedgerFragment : Fragment() {
             intent.putExtra("key", "value")
             startActivityForResult(intent, 6969)
         }
-
-
         return root
-
     }
 
-    private val chatHistory: Unit
-        private get() {
-            val ledger = appDatabase?.ledgerDao()?.loadAllChatHistory()
-            ledger?.observe(
-                this,
-                androidx.lifecycle.Observer <MutableList<LedgerEntity>>{
-                        ledger ->
-                    if (ledger != null) {
-                        mLedgerList = ledger
-                    }
-                }
-            )
-        }
-
-    fun refresh ()
+    private fun fetchLedgers()
     {
-        //clears the existing list and then fetches from db and updates the list
-        //right now only current db entries show up
-        //merging db between devices might be the solution
-        refreshCount++
         list.clear()
         var i = 0
-        Log.d("refresh()", "refresh called, now updating list")
         while(i< mLedgerList?.size!!)
         {
             val fetchedData = mLedgerList!![i]
@@ -172,11 +143,37 @@ class LedgerFragment : Fragment() {
             Log.d("fetchedLongitude", fetchedLongitude)
             Log.d("fetchedAccuracy", fetchedAccuracy)
             Log.d("fetchedNeeds", fetchedNeeds.toString())
+
             list.add(Model(fetchedLocation, fetchedLandmark, arrayListOf(fetchedLatitude, fetchedLongitude, fetchedAccuracy), fetchedNeeds))
             i++
-//            Log.d("refresh()", fetchedData.location)
         }
         listView.adapter = MyAdapter(root.context, R.layout.row, list)
+    }
+
+    private val chatHistory: Unit
+        private get() {
+            val ledger = appDatabase?.ledgerDao()?.loadAllChatHistory()
+            ledger?.observe(
+                this,
+                androidx.lifecycle.Observer <MutableList<LedgerEntity>>{
+                        ledger ->
+                    if (ledger != null) {
+                        mLedgerList = ledger
+                        fetchLedgers() //updates the list for every change in db
+                        //but it's called every time the fragment loads up
+                    }
+                }
+            )
+        }
+
+    private fun refresh ()
+    {
+        //clears the existing list and then fetches from db and updates the list
+        //right now only current db entries show up
+        //merging db between devices might be the solution
+        refreshCount++
+        Log.d("refresh()", "refresh called, now updating list")
+        fetchLedgers()
 
         if(refreshCount%5==0){
             MainActivity.broadcastMessage("", Constants.REQUEST_TYPE_LEDGER_LIST)
@@ -198,7 +195,7 @@ class LedgerFragment : Fragment() {
                 ledgerEntity.location = locationName.replace("\n", " ")
                 ledgerEntity.landmark = landmark.replace("\n", " ")
                 ledgerEntity.needs = requiredItems.joinToString(separator=",", transform = {it.toLowerCase().trim()})
-                var dateAdded = Date()
+                val dateAdded = Date()
                 ledgerEntity.date = dateAdded // date is added here
                 ledgerEntity.sender = "You"
                 ledgerEntity.latitude=latLongAcc[0]
@@ -209,8 +206,6 @@ class LedgerFragment : Fragment() {
                 Log.d("com.example.myapp.ui.ledger.LedgerFragment-onActivityResult", "landmark = $landmark")
                 Log.d("com.example.myapp.ui.ledger.LedgerFragment-onActivityResult", "landmark = $latLongAcc")
                 DatabaseUtil.addNewLedgerToDataBase(appDatabase,ledgerEntity) //entry into db here
-                list.add(Model(locationName, landmark, latLongAcc, requiredItems))
-                listView.adapter = MyAdapter(root.context, R.layout.row, list)
 
                 //this code will broadcast the newly added
 //                Log.d("Ledger list items", ledgerItem.needs)

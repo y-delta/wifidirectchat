@@ -36,17 +36,6 @@ public class DatabaseUtil {
 //        return entry;
 //    }
 
-    public static String getLedger()
-    {
-        //yet to implement
-        List<LedgerEntity> updatedLedgerList;
-
-        String location = "";
-        String landmark;
-        //fetch from mainActivity/SendRecieve and add to this object
-
-        return location;
-    }
     public static String getDirectChat()
     {
         String msg = DatabaseUtil.RECEIVER_MESSAGES[1];
@@ -73,10 +62,6 @@ public class DatabaseUtil {
 
     public static void addNewLedgerToDataBase(AppDatabase db, LedgerEntity ledgerEntitySender) {
         new addAsyncTask2(db).execute(ledgerEntitySender);
-    }
-
-    public static void addReceiverGroupChatToDataBase(AppDatabase db, LedgerEntity ledgerEntityReceiver) {
-        new addAsyncTask2(db).execute(ledgerEntityReceiver);
     }
 
     /**

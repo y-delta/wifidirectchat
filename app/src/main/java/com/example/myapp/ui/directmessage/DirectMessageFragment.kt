@@ -48,7 +48,7 @@ class DirectMessageFragment : Fragment() {
                 Toast.LENGTH_LONG
             ).show()
             val intent = Intent(root.context, ChatListingActivity::class.java)
-            intent.putExtra("key", "value")
+            intent.putExtra("contactName", contactList[position].name)
             startActivityForResult(intent, 6969)
         }
 
@@ -71,5 +71,7 @@ class DirectMessageFragment : Fragment() {
 
     companion object{
         var directMessageActivityCompanion: LifecycleOwner? = null
+        var contactList = mutableListOf<ChatMessage>()
+
     }
 }

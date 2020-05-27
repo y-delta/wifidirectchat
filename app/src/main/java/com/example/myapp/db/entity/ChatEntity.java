@@ -1,7 +1,10 @@
 package com.example.myapp.db.entity;
 
+import androidx.navigation.NavOptionsDsl;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
 
@@ -9,13 +12,14 @@ import java.util.Date;
  * Represent a table in database
  */
 
-@Entity(tableName = "chats")
+@Entity(tableName = "chats", primaryKeys = {"sender", "receiver", "date"})
 public class ChatEntity {
-    @PrimaryKey(autoGenerate = true)
     private int id;
     private String chatType;
     private String chatContent;
-    private Date date;
+    @NotNull private Date date;
+    @NotNull private String sender;
+    @NotNull private String receiver;
 
     public int getId() {
         return id;
@@ -24,6 +28,16 @@ public class ChatEntity {
     public void setId(int id) {
         this.id = id;
     }
+
+    @NotNull
+    public String getSender() {return sender;}
+
+    public void setSender(String sender) {this.sender = sender;}
+
+    @NotNull
+    public String getReceiver() {return receiver;}
+
+    public void setReceiver(String receiver) {this.receiver = receiver;}
 
     public String getChatType() {
         return chatType;

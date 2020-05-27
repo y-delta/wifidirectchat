@@ -24,9 +24,7 @@ public class GroupChatEntity {
         this.id = id;
     }
 
-    public String getChatType() {
-        return chatType;
-    }
+    public String getChatType() {return chatType;}
 
     public void setChatType(String chatType) {
         this.chatType = chatType;

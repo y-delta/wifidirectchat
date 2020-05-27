@@ -18,6 +18,9 @@ public interface ChatDao {
     @Query("SELECT * FROM chats")
     LiveData<List<ChatEntity>> loadAllChatHistory();
 
+    @Query("SELECT * FROM chats WHERE sender=:sender ORDER BY date")
+    LiveData<List<ChatEntity>> loadAllChatHistoryByUser(String sender);
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insert(ChatEntity products);
+    void insert(ChatEntity chats);
 }
