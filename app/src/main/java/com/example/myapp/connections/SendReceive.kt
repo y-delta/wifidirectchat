@@ -2,6 +2,8 @@ package com.example.myapp.connections
 
 import android.util.Log
 import com.example.myapp.MainActivity
+import com.example.myapp.MainActivity.Companion.MAIN_EXECUTOR
+import com.example.myapp.MainActivity.Companion.broadcastMessage
 import com.example.myapp.MainActivity.Companion.ipAddrUsernameHashMap
 import com.example.myapp.MainActivity.Companion.netAddrSendReceiveHashMap
 import com.example.myapp.MainActivity.Companion.receivedGroupMessage
@@ -39,6 +41,7 @@ class SendReceive(private var socket: Socket?) : Thread() {
            // var receivedGroupMessage:String
             try {
                 //new code
+                var sendString = ""
                 Log.d("SendReceive", "Reading fresh new message")
                 message = bufferedReader.readLine()
 
@@ -84,7 +87,8 @@ class SendReceive(private var socket: Socket?) : Thread() {
                     continue@outloop
                 }
 
-                sendAlong(message + "\n")
+//                sendAlong(message + "\n")
+                sendString += message + "\n"
                 Log.d("MessageReceived", message)
                 Log.d("MessageReceived", "size of string = ${message.length}")
                 if(message.equals(Constants.MESSAGE_TYPE_GROUP)){
@@ -93,12 +97,15 @@ class SendReceive(private var socket: Socket?) : Thread() {
                         message = bufferedReader.readLine()
                         Log.d("MessageReceived", message)
                         Log.d("MessageReceived", "size of string = ${message.length}")
-                        sendAlong(message + "\n")
+//                        sendAlong(message + "\n")
+                        sendString += message + "\n"
                         if(message.equals(Constants.MESSAGE_TYPE_GROUP)){       //if you encounter this, the frame is ending
 //                            GroupMessageFragment.mChatListCompanion!!.add(chatEntitySender)
 //                    receiverMessageFlag = true
                             var appDatabase = GroupMessageFragment.appDatabaseCompanion
                             DatabaseUtil.addSenderGroupChatToDataBase(appDatabase, chatEntitySender)
+                            sendAlong(sendString)
+                            sendString = ""
                             break
                         }
                         else{
@@ -122,7 +129,8 @@ class SendReceive(private var socket: Socket?) : Thread() {
                     loop@ while(true){
                         var debugMessage = ""
                         message = bufferedReader.readLine()
-                        sendAlong(message + "\n")
+//                        sendAlong(message + "\n")
+                        sendString += message + "\n"
                         when(messagePass){  //date, landmark, location, needs, latitude, longitude, accuracy
                             0 -> {
                                 Log.d("ledgerreceive0date", message)
@@ -179,6 +187,7 @@ class SendReceive(private var socket: Socket?) : Thread() {
                                     DatabaseUtil.addNewLedgerToDataBase(appDatabaseCompanion,ledgerEntity)
                                     Log.d("LedgerInput", "Inserted this message to database:-")
                                     Log.d("LedgerInput", debugMessage)
+                                    sendAlong(sendString)
                                     break@loop
                                 }
                             }
@@ -240,7 +249,7 @@ class SendReceive(private var socket: Socket?) : Thread() {
     }
 
     fun sendAlong(msg:String){      //this function will forward the msg to every other node it is connected to on the network
-        if (netAddrSendReceiveHashMap?.size!! > 1) {               //this is greater than 1 only when device is either GO or bridge member
+        /*if (netAddrSendReceiveHashMap?.size!! > 1) {               //this is greater than 1 only when device is either GO or bridge member
             Log.d("Forwarding", "Start forwarding messages because there are at least 2 sockets open from my device")
             Log.d("Forwarding", "which means I am either the GO, or bridge member")
             for (sendReceiveDevice in netAddrSendReceiveHashMap!!.values) {
@@ -248,6 +257,28 @@ class SendReceive(private var socket: Socket?) : Thread() {
                     Log.d("Forwarding Message", "from " + socket!!.inetAddress.hostAddress + " to " + sendReceiveDevice.socket!!.inetAddress.hostAddress)
                     sendReceiveDevice.write(msg.toByteArray())
                     // receivedGroupMessage=receivedGroupMessage
+                }
+            }
+        }*/
+        if(MAIN_EXECUTOR!=null)
+            MAIN_EXECUTOR!!.execute(SendAlongRunnable(msg, this))
+    }
+
+    class SendAlongRunnable(msg:String, sendReceive: SendReceive) : Runnable{
+
+        var msg = msg
+        var sendReceive = sendReceive
+
+        override fun run() {
+            if (netAddrSendReceiveHashMap?.size!! > 1) {               //this is greater than 1 only when device is either GO or bridge member
+                Log.d("Forwarding", "Start forwarding messages because there are at least 2 sockets open from my device")
+                Log.d("Forwarding", "which means I am either the GO, or bridge member")
+                for (sendReceiveDevice in netAddrSendReceiveHashMap!!.values) {
+                    if (sendReceiveDevice !== sendReceive) {
+                        Log.d("Forwarding Message", "from " + sendReceive.socket!!.inetAddress.hostAddress + " to " + sendReceiveDevice.socket!!.inetAddress.hostAddress)
+                        sendReceiveDevice.write(msg.toByteArray())
+                        // receivedGroupMessage=receivedGroupMessage
+                    }
                 }
             }
         }
