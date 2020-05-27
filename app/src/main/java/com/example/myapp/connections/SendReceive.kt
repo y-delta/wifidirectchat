@@ -3,6 +3,7 @@ package com.example.myapp.connections
 import android.util.Log
 import com.example.myapp.MainActivity
 import com.example.myapp.MainActivity.Companion.MAIN_EXECUTOR
+import com.example.myapp.MainActivity.Companion.NETWORK_USERNAME
 import com.example.myapp.MainActivity.Companion.userIdUserNameHashMap
 import com.example.myapp.MainActivity.Companion.netAddrSendReceiveHashMap
 import com.example.myapp.MainActivity.Companion.receivedGroupMessage
@@ -45,7 +46,7 @@ class SendReceive(private var socket: Socket?) : Thread() {
                 //this message is not sent along if it is IP addr because this transmission is only from GM/Bridge to GO
                 if(message == Constants.DATA_TYPE_UNIQID_USERNAME){  // this happens only for the first time that's why this message is not sendAlong
                     message = bufferedReader.readLine()
-                    Log.d("Username", message)
+                    Log.d("UserId Username", message)
                     var userid_username = message.split(" ")
                     userIdUserNameHashMap.put(userid_username[0], userid_username[1])
                     Log.d("useridUsernameHashMap", "size = ${userIdUserNameHashMap.size}")
@@ -185,11 +186,31 @@ class SendReceive(private var socket: Socket?) : Thread() {
                                     Log.d("LedgerInput", "Inserted this message to database:-")
                                     Log.d("LedgerInput", debugMessage)
                                     sendAlong(sendString)
+                                    sendString = ""
                                     break@loop
                                 }
                             }
                         }
                     }
+                } else if(message.equals(Constants.MESSAGE_TYPE_UNIQID_USERNAME)){
+                    while(true) {
+                        message = bufferedReader.readLine()
+                        if(message.equals(Constants.MESSAGE_TYPE_UNIQID_USERNAME)){
+                            sendAlong(sendString)
+                            sendString = ""
+                            break
+                            //TODO This is where we will insert all the data from hashmap into the userid-username database
+                        }
+                        sendString += message + "\n"
+                        Log.d("UserID Username", message)
+                        var userid_username = message.split(" ")
+                        if(userid_username.size == 2 && userid_username[0] != NETWORK_USERNAME)
+                            userIdUserNameHashMap.put(userid_username[0], userid_username[1])
+                        Log.d("useridUsernameHashMap", "size = ${userIdUserNameHashMap.size}")
+                        sendAlong(sendString)
+                        sendString = ""
+                    }
+
                 }
 
 

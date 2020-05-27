@@ -3,7 +3,6 @@ package com.example.myapp
 import android.Manifest
 import android.app.AlertDialog
 import android.content.*
-import android.content.pm.PackageManager
 import android.net.nsd.NsdManager
 import android.net.nsd.NsdManager.DiscoveryListener
 import android.net.nsd.NsdManager.RegistrationListener
@@ -24,12 +23,10 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.PermissionChecker
 import androidx.core.content.PermissionChecker.*
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
-import androidx.test.core.app.ApplicationProvider
 import com.example.myapp.connections.*
 import com.example.myapp.db.AppDatabase
 import com.example.myapp.ui.groupmessage.GroupMessageFragment
@@ -43,9 +40,7 @@ import java.net.Inet4Address
 import java.net.InetAddress
 import java.net.NetworkInterface
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.Executor
-import java.util.concurrent.Executors
+import java.util.concurrent.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -106,6 +101,7 @@ class MainActivity : AppCompatActivity() {
             NETWORK_USERNAME = USERNAME
         }
 
+        userIdUserNameHashMap.put(NETWORK_USERID, NETWORK_USERNAME)
 
         Log.d("USERID-", NETWORK_USERID)
         Log.d("USERNAME-", NETWORK_USERNAME)
@@ -523,7 +519,8 @@ class MainActivity : AppCompatActivity() {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener {
                     var text = input.text.toString()
-                    NETWORK_USERNAME = text.trim()
+                    NETWORK_USERNAME = text.trim().replace("\n", "")
+                    userIdUserNameHashMap.put(NETWORK_USERID, NETWORK_USERNAME)
                     val sharedPref = this.getPreferences(Context.MODE_PRIVATE)
                     with(sharedPref.edit()){
                         putString(getString(com.example.myapp.R.string.SHARED_PREF_USERNAME), NETWORK_USERNAME)
@@ -738,6 +735,11 @@ class MainActivity : AppCompatActivity() {
             if (info.groupFormed && info.isGroupOwner) {
                 Log.d("Connection Status", "HOST")
                 Log.d("ConnInfoListener", "I am GO")
+                Log.d("ConnInfoListener", "Broadcasting userlist")
+                if(USERLIST_EXECUTOR == null){
+                    USERLIST_EXECUTOR = Executors.newSingleThreadScheduledExecutor()
+                    USERLIST_EXECUTOR!!.scheduleWithFixedDelay(BroadcastUserListRunnable(), 15, 10, TimeUnit.SECONDS)
+                }
                 groupCreated = true
                 if (!serverCreated) {
                     serverClass = ServerClass()
@@ -819,6 +821,7 @@ class MainActivity : AppCompatActivity() {
         var DEVICEMAC : String? = null
 
         var MAIN_EXECUTOR: Executor? = null
+        var USERLIST_EXECUTOR: ScheduledExecutorService? = null
 
         lateinit var mainActivityCompanion:MainActivity
 
@@ -837,13 +840,22 @@ class MainActivity : AppCompatActivity() {
         var nameOfGO: String? = null
         var nameOfConnectedGOHotspot: String? = null
 
+        fun broadcastUserList(){
+            var msg = ""
+            for((userid, username) in userIdUserNameHashMap){
+                msg += "$userid $username\n"
+            }
+            broadcastMessage(msg, Constants.MESSAGE_TYPE_UNIQID_USERNAME)
+        }
+
         fun broadcastMessage(msg: String, messageType:String = Constants.MESSAGE_TYPE_GROUP): Boolean {
+            var msg = msg
             if(netAddrSendReceiveHashMap?.size!! > 0) {
                 val broadcastMessageAsyncTask = BroadcastMessageAsyncTask()
                 var username:String = ""
                 var msgWithStartEndString = ""
                 if(msg.endsWith("\n") && !msg.isNullOrEmpty()){
-                    msg.substring(0, msg.length - 1)
+                    msg = msg.substring(0, msg.length - 1)
                 }
                 if(NETWORK_USERNAME.isNullOrEmpty()){
                     username = "username_not_set"
@@ -869,6 +881,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+    }
+
+    class BroadcastUserListRunnable : Runnable{
+        override fun run() {
+            broadcastUserList()
+        }
     }
 
     class BroadcastMessageRunnable(msg:String) : Runnable {
