@@ -822,7 +822,7 @@ class MainActivity : AppCompatActivity() {
 
         lateinit var mainActivityCompanion:MainActivity
 
-        var ipAddrUsernameHashMap = ConcurrentHashMap<String, String>()
+        var userIdUserNameHashMap = ConcurrentHashMap<String, String>()
 
         const val SERVICE_TYPE = "_helpapp._tcp."
         var peers: ArrayList<WifiP2pDevice> = ArrayList<WifiP2pDevice>()

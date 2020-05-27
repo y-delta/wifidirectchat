@@ -1,23 +1,17 @@
 package com.example.myapp.connections
 
 import android.util.Log
-import android.webkit.URLUtil
 import com.example.myapp.MainActivity
 import com.example.myapp.MainActivity.Companion.DEVICEMAC
+import com.example.myapp.MainActivity.Companion.NETWORK_USERID
 import com.example.myapp.MainActivity.Companion.broadcastMessage
 import com.example.myapp.MainActivity.Companion.NETWORK_USERNAME
-import com.example.myapp.MainActivity.Companion.mainActivityCompanion
-import com.example.myapp.db.entity.GroupChatEntity
-import com.example.myapp.db.entity.LedgerEntity
-import com.example.myapp.ui.directmessage.DirectMessageFragment
-import com.example.myapp.ui.directmessage.DirectMessageFragment.Companion.directMessageActivityCompanion
 import com.example.myapp.ui.groupmessage.GroupMessageFragment.Companion.appDatabaseCompanion
 import com.example.myapp.utils.Constants
 import java.io.IOException
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.Socket
-import java.util.*
 
 class ClientClass(hostAddress: InetAddress) : Thread() {
     var socket: Socket? = null
@@ -35,7 +29,7 @@ class ClientClass(hostAddress: InetAddress) : Thread() {
             Log.d("ClientClass", "run() added client to sendReceiveHashMap")
             sendReceive!!.start()
             Log.d("ClientClass", "sending username of device to GO ${DEVICEMAC}")
-            broadcastMessage(NETWORK_USERNAME!!, Constants.DATA_TYPE_MAC_ID)
+            broadcastMessage("$NETWORK_USERID $NETWORK_USERNAME", Constants.DATA_TYPE_UNIQID_USERNAME)
             /*var ledger = appDatabaseCompanion!!.ledgerDao().loadAllChatHistory()
             ledger.observe(
                 directMessageActivityCompanion!!,

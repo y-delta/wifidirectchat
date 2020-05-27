@@ -2,7 +2,7 @@ package com.example.myapp.connections
 
 import android.util.Log
 import com.example.myapp.MainActivity
-import com.example.myapp.MainActivity.Companion.ipAddrUsernameHashMap
+import com.example.myapp.MainActivity.Companion.userIdUserNameHashMap
 import com.example.myapp.MainActivity.Companion.netAddrSendReceiveHashMap
 import com.example.myapp.ui.groupmessage.GroupMessageFragment
 import com.example.myapp.utils.Constants
@@ -77,7 +77,7 @@ class ServerClass : Thread() {
         } catch (se: IOException) {
             se.printStackTrace()
             try {
-                ipAddrUsernameHashMap?.remove(socket!!.inetAddress.hostAddress)
+                userIdUserNameHashMap?.remove(socket!!.inetAddress.hostAddress)
                 netAddrSendReceiveHashMap?.remove(socket!!.inetAddress)
             } catch (e: Exception) {
                 e.printStackTrace()
