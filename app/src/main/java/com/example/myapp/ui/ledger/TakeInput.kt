@@ -245,7 +245,6 @@ class TakeInput : AppCompatActivity(){
         }
         if(locationName.isNullOrEmpty())
             locationName = latitude.toString() + ", " + longitude.toString()
-
         var landmark = text_landmark.text.toString()
 
         var checkedItems = arrayListOf<String>()
@@ -256,8 +255,8 @@ class TakeInput : AppCompatActivity(){
         if(findViewById<CheckBox>(R.id.cb_water).isChecked) checkedItems.add("Water")
 
         val intent = Intent()
-        intent.putExtra("Location", locationName)
-        intent.putExtra("Landmark", landmark)
+        intent.putExtra("Location", locationName!!.trim())
+        intent.putExtra("Landmark", landmark!!.trim())
         intent.putStringArrayListExtra("CheckedItems", checkedItems)
         intent.putStringArrayListExtra("LatLongAcc", arrayListOf(latitude.toString(), longitude.toString(), accuracy.toString()))
         Log.d("onButtonClick", "location = $locationName")

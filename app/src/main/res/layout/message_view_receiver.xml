@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="8dp">
+
+
+        <RelativeLayout
+            android:id="@+id/bubble"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="40dp"
+            android:background="@drawable/their_msg"
+            android:orientation="vertical"
+            android:layout_marginTop="15dp"
+            android:minWidth="69dp">
+
+            <TextView
+                android:id="@+id/textview_message_receiver"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:text="Received Message"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:padding="10dp"/>
+
+            <TextView
+                android:id="@+id/textview_message_receiver_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="10dp"
+                android:layout_marginBottom="5dp"
+                android:layout_below="@id/textview_message_receiver"
+                android:layout_marginTop="4dp"
+                android:text=""
+                android:textColor="#000"
+                android:textSize="10sp" />
+
+        </RelativeLayout>
+        <TextView
+            android:id="@+id/sender_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SenderName"
+            android:textSize="10sp"
+            android:textColor="@android:color/tertiary_text_light"
+            />
+
+    </RelativeLayout>
+</layout>

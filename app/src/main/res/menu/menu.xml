@@ -1,18 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item
+    <!--these lines need to be uncommented if you want to test. also uncomment id == R.id.connectionGO in MainActivity thx -->
+    <!--    <item-->
+    <!--        android:id="@+id/scanWifi"-->
+    <!--        android:title=""-->
+    <!--        app:showAsAction="always"-->
+    <!--        android:icon="@drawable/ic_near_black_24dp"-->
+    <!--        android:contentDescription="scan wifi"-->
+    <!--        />-->
+<item
         android:id="@+id/connection"
-        android:title=""
-        app:showAsAction="always"
+        android:title="Establish Connection"
+        app:showAsAction="never"
         android:icon="@drawable/ic_wifi"
         android:contentDescription="discover Peers"
         />
     <item
-        android:id="@+id/connectionGO"
-        android:title=""
-        app:showAsAction="always"
-        android:icon="@drawable/ic_add"
-        android:contentDescription="create Group"
+        android:id="@+id/connectToHotspot"
+        android:title="Connect to a network"
+        app:showAsAction="never"
+        android:icon="@drawable/ic_send_button"
+        android:contentDescription="connect to available hotspot"
         />
+    <item
+        android:id="@+id/showNetworkInformation"
+        android:title="Show Network Information"
+        app:showAsAction="never"
+        android:icon="@drawable/ic_chart_black_24dp"
+        android:contentDescription="Show extra network information"
+        />
+
+    <!--    <item-->
+    <!--        android:id="@+id/connectionGO"-->
+    <!--        android:title=""-->
+    <!--        app:showAsAction="always"-->
+    <!--        android:icon="@drawable/ic_add"-->
+    <!--        android:contentDescription="create Group"-->
+    <!--        />-->
+
 </menu>

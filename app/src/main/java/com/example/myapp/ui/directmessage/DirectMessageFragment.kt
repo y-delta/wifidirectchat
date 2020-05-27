@@ -1,77 +1,77 @@
 package com.example.myapp.ui.directmessage
-import android.content.Context
-import android.database.DataSetObserver
+
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AbsListView
-import android.widget.Button
-import android.widget.EditText
+import android.widget.AdapterView
 import android.widget.ListView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.delta.chatscreen.ChatArrayAdapter
-import com.example.myapp.MainActivity.Companion.broadcastMessage
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModelProviders
+import com.example.myapp.MainActivity
 import com.example.myapp.R
-
-data class ChatMessage(var left: Boolean, var message: String)
+import com.example.myapp.ui.activity.ChatListingActivity
+import com.example.myapp.ui.activity.ChatMessage
+import com.example.myapp.ui.main.ChatAdapter
 
 class DirectMessageFragment : Fragment() {
-    private var chatArrayAdapter: ChatArrayAdapter? = null
-    private var listView: ListView? = null
-    private var chatText: EditText? = null
-    private var buttonSend: Button? = null
-    private var side = false
-    private var globalContext: Context? = null
+    var contactList = mutableListOf<ChatMessage>()
+    private lateinit var dashboardViewModel: DashboardViewModel
 
     init {
+        contactList.add(ChatMessage("Machan69", "bsdk"))
+        contactList.add(ChatMessage("Panda", "kaam kr"))
+        contactList.add(ChatMessage("A-Bot", "pls kaam kr"))
         Log.d("DirectMessageFragment", "Init")
     }
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val root = inflater.inflate(R.layout.fragment_directmessage, container, false)
-        globalContext = this.activity
-        super.onCreate(savedInstanceState)
-        buttonSend = root.findViewById<View>(R.id.send) as Button
-        listView = root.findViewById<View>(R.id.msgview) as ListView
-        if (chatArrayAdapter == null) {
-            chatArrayAdapter = ChatArrayAdapter(globalContext!!, R.layout.right)
+        dashboardViewModel =
+            ViewModelProviders.of(this).get(DashboardViewModel::class.java)
+        val root = inflater.inflate(R.layout.fragment_globalmessage, container, false)
+        val listView: ListView = root.findViewById(R.id.contactList)
+        listView.adapter = ChatAdapter(root.context, R.layout.row, contactList)
+        listView.setOnItemClickListener { parent: AdapterView<*>, view: View, position: Int, id: Long ->
+            Toast.makeText(
+                root.context,
+                "Clicked on" + contactList[position].name,
+                Toast.LENGTH_LONG
+            ).show()
+            val intent = Intent(root.context, ChatListingActivity::class.java)
+            intent.putExtra("contactName", contactList[position].name)
+            startActivityForResult(intent, 6969)
+        }
 
-        }
-        listView?.adapter = chatArrayAdapter
-        chatText = root.findViewById<View>(R.id.msg) as EditText
-        chatText!!.setOnKeyListener { _, keyCode, event ->
-            if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
-                sendChatMessage()
-            } else false
-        }
-        buttonSend?.setOnClickListener { sendChatMessage() }
-        listView?.transcriptMode = AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL
-        listView?.adapter = chatArrayAdapter
-        //to scroll the list view to bottom on data change
-        chatArrayAdapter!!.registerDataSetObserver(object : DataSetObserver() {
-            override fun onChanged() {
-                super.onChanged()
-                listView!!.setSelection(chatArrayAdapter!!.count - 1)
-            }
-        })
+        directMessageActivityCompanion = this.activity
+
+        Log.d("DirectMessageFragment", "onCreateView")
+        var mainActivity: MainActivity = context as MainActivity
+        mainActivity.testDisplay("Yeno bhadwa rascal")
         return root
     }
 
-    private fun sendChatMessage(): Boolean {
-        broadcastMessage(chatText!!.text.toString())
-        chatArrayAdapter?.add(ChatMessage(side, chatText!!.text.toString()))
-        chatText!!.setText("")
-        side = !side
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 6969) {
+            if (resultCode == 7070) {
 
-        return true
+            }
+        }
     }
 
+    companion object{
+        var directMessageActivityCompanion: LifecycleOwner? = null
+        var contactList = mutableListOf<ChatMessage>()
 
+    }
 }

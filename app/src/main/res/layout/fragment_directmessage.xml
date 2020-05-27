@@ -1,44 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
+<layout>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#efefef"
+    android:background="@drawable/chat_bg"
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <ListView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/msgview"
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@null"
-        android:divider="@null"
-        android:paddingTop="5dp"
-        android:stackFromBottom="false"
-        android:transcriptMode="alwaysScroll" />
+        android:paddingTop="5dp" />
 
+<!--    <LinearLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:orientation="horizontal"-->
+<!--        android:paddingBottom="50dp"-->
+<!--        android:weightSum="3">-->
+
+<!--        <EditText-->
+<!--            android:id="@+id/msg"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="fill_parent"-->
+<!--            android:layout_weight="2"-->
+<!--            android:hint="Write your message"-->
+<!--            android:textCursorDrawable="@drawable/cursor" />-->
+
+<!--        <Button-->
+<!--            android:id="@+id/send"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="fill_parent"-->
+<!--            android:layout_weight="1"-->
+<!--            android:text="Send" />-->
+
+<!--    </LinearLayout>-->
     <LinearLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/llChatBottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingBottom="50dp"
-        android:weightSum="3">
+        android:background="@android:color/transparent"
+        android:layout_marginBottom="55dp"
+        android:gravity="center_vertical"
+        android:paddingBottom="4dp"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:weightSum="1">
 
-        <EditText
-            android:id="@+id/msg"
+        <androidx.cardview.widget.CardView
+            style="@style/CardViewStyle_Chats"
             android:layout_width="0dp"
-            android:layout_height="fill_parent"
-            android:layout_weight="2"
-            android:hint="Write your message"
-            android:textCursorDrawable="@drawable/cursor" />
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginTop="0dp"
+            android:layout_weight="0.85"
+            app:cardBackgroundColor="@android:color/white">
 
-        <Button
-            android:id="@+id/send"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/msg"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="@null"
+                    android:hint="Enter text"
+                    android:inputType="textMultiLine"
+                    android:maxEms="5"
+                    android:maxLines="5"
+                    android:paddingBottom="12dp"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="12dp"
+                    android:paddingTop="12dp"
+                    android:text=""
+                    android:textColor="#929292"
+                    android:textColorHint="#929292"
+                    android:textSize="15sp" />
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:text="Send" />
+            android:layout_height="match_parent"
+            android:layout_marginLeft="2dp"
+            android:layout_weight="0.15"
+            android:gravity="center">
 
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/send"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:backgroundTint="@android:color/holo_orange_dark"
+                app:elevation="1dp"
+                app:fabSize="normal"
+                app:rippleColor="@color/colorAccent"
+                app:srcCompat="@drawable/ic_send_button" />
+
+        </LinearLayout>
     </LinearLayout>
+
 </LinearLayout>
+</layout>

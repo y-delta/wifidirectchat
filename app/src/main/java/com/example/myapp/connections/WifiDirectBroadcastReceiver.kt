@@ -15,7 +15,8 @@ class WifiDirectBroadcastReceiver(
     mActivity: MainActivity
 ) :
     BroadcastReceiver() {
-    private val mActivity: MainActivity
+    private val mActivity: MainActivity = mActivity
+
     override fun onReceive(context: Context, intent: Intent) {
         val action = intent.action
         if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION == action) {
@@ -44,7 +45,4 @@ class WifiDirectBroadcastReceiver(
         }
     }
 
-    init {
-        this.mActivity = mActivity
-    }
 }
