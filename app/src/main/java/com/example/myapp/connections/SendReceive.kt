@@ -11,8 +11,10 @@ import com.example.myapp.MainActivity.Companion.netAddrSendReceiveHashMap
 import com.example.myapp.MainActivity.Companion.receivedGroupMessage
 import com.example.myapp.MainActivity.Companion.serverCreated
 import com.example.myapp.db.DatabaseUtil
+import com.example.myapp.db.entity.ChatEntity
 import com.example.myapp.db.entity.GroupChatEntity
 import com.example.myapp.db.entity.LedgerEntity
+import com.example.myapp.db.entity.UserEntity
 import com.example.myapp.ui.groupmessage.GroupMessageFragment
 import com.example.myapp.ui.groupmessage.GroupMessageFragment.Companion.appDatabaseCompanion
 import com.example.myapp.utils.Constants
@@ -34,6 +36,8 @@ class SendReceive(private var socket: Socket?) : Thread() {
     var messageStarted = true
     var messageStartedType = ""
     val chatEntitySender = GroupChatEntity()
+    private val dmEntity = ChatEntity()
+    private val userEntity = UserEntity()
 
     override fun run() {
         val buffer = ByteArray(1024)
@@ -212,8 +216,11 @@ class SendReceive(private var socket: Socket?) : Thread() {
                                     }
                                 }
                             }
-                            break
                             //TODO This is where we will insert all the data from hashmap into the userid-username database
+                            userEntity.userId = NETWORK_USERID
+                            userEntity.username = NETWORK_USERNAME
+                            DatabaseUtil.addUserToDataBase(appDatabaseCompanion,userEntity)
+                            break
                         }
                         sendString += message + "\n"
                         Log.d("UserID Username", message)
@@ -254,6 +261,12 @@ class SendReceive(private var socket: Socket?) : Thread() {
                             if(message.equals(Constants.MESSAGE_TYPE_DIRECT)){
                                 Log.d("DirectMessageReceived", "$messageSenderId says $messageString at $messageDate")
                                 // TODO insert message to Database
+//                                dmEntity.date = messageDate
+//                                dmEntity.chatContent = messageString
+//                                dmEntity.sender = messageSenderId
+//                                dmEntity.chatType = Constants.MESSAGE_RECEIVER
+//                                dmEntity.receiver = NETWORK_USERID
+//                                DatabaseUtil.addReceiverChatToDataBase(appDatabaseCompanion, dmEntity)
 
                                 // TODO send messageReceived response back to messageSenderId in the form of broadcastMessage
                                 broadcastMessage("$messageSenderId\n$messageId", Constants.RESPONSE_TYPE_DIRECT)
@@ -409,12 +422,11 @@ class SendReceive(private var socket: Socket?) : Thread() {
     }
 
     companion object{
-        fun getMessage(): GroupChatEntity {
-            val entry = GroupChatEntity()
+        fun getMessage(): ChatEntity {
+            val entry = ChatEntity()
             val message: String = receivedGroupMessage
-            if (message.isEmpty()) entry.chatContent =
-                "no new message" else entry.chatContent =
-                message
+            entry.chatContent = message
+            entry.chatType = Constants.MESSAGE_RECEIVER
             return entry
         }
 

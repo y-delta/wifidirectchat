@@ -6,15 +6,18 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.example.myapp.R
+import com.example.myapp.connections.SendReceive
 import com.example.myapp.databinding.ActivityChatListingBinding
 import com.example.myapp.db.AppDatabase
 import com.example.myapp.db.DatabaseUtil
 import com.example.myapp.db.entity.ChatEntity
+import com.example.myapp.db.entity.GroupChatEntity
 import com.example.myapp.ui.adapter.MessageAdapter
 import com.example.myapp.utils.AppUtils
 import com.example.myapp.utils.Constants
@@ -40,6 +43,7 @@ class ChatListingActivity : AppCompatActivity() {
         appDatabase = AppDatabase.getDatabase(this.application)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title= intent.getStringExtra("contactName")
+        chatActivityCompanion = this
         initRecyclerView()
         chatHistory
         clickListeners()
@@ -76,7 +80,7 @@ class ChatListingActivity : AppCompatActivity() {
 
     private fun addReceiverMessage() {
         Handler().postDelayed({
-            val chatEntityReceiver = ChatEntity()
+            val chatEntityReceiver = SendReceive.getMessage()
             chatEntityReceiver.chatType = Constants.MESSAGE_RECEIVER
             chatEntityReceiver.chatContent = DatabaseUtil.getDirectChat()
             chatEntityReceiver.date = Date()
@@ -84,7 +88,7 @@ class ChatListingActivity : AppCompatActivity() {
             chatEntityReceiver.receiver = "bhadwaRascal"
             mChatList!!.add(chatEntityReceiver)
             receiverMessageFlag = false
-            DatabaseUtil.addReceiverChatToDataBase(appDatabase, chatEntityReceiver)
+            //DatabaseUtil.addReceiverChatToDataBase(appDatabase, chatEntityReceiver)
         }, 1000)
     }
 
@@ -104,6 +108,7 @@ class ChatListingActivity : AppCompatActivity() {
         binding!!.recyclerviewMessageView.isDrawingCacheEnabled = true
         binding!!.recyclerviewMessageView.drawingCacheQuality = View.DRAWING_CACHE_QUALITY_HIGH
         mChatList = ArrayList()
+        mChatListCompanion = mChatList
         adapter = MessageAdapter(this@ChatListingActivity, mChatList)
         binding!!.recyclerviewMessageView.adapter = adapter
     }
@@ -128,6 +133,7 @@ class ChatListingActivity : AppCompatActivity() {
                 })
         }
     companion object{
-
+        var chatActivityCompanion: LifecycleOwner? = null
+        var mChatListCompanion: MutableList<ChatEntity>? = null
     }
 }

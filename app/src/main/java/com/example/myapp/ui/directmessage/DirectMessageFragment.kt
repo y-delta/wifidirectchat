@@ -1,6 +1,5 @@
 package com.example.myapp.ui.directmessage
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -9,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ListView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
@@ -19,15 +19,30 @@ import com.example.myapp.ui.activity.ChatListingActivity
 import com.example.myapp.ui.activity.ChatMessage
 import com.example.myapp.ui.main.ChatAdapter
 
+
 class DirectMessageFragment : Fragment() {
     var contactList = mutableListOf<ChatMessage>()
     private lateinit var dashboardViewModel: DashboardViewModel
 
     init {
         contactList.add(ChatMessage("Machan69", "bsdk"))
-        contactList.add(ChatMessage("Panda", "kaam kr"))
-        contactList.add(ChatMessage("A-Bot", "pls kaam kr"))
+      //  contactList.add(ChatMessage("Panda", "kaam kr"))
+//        contactList.add(ChatMessage("A-Bot", "pls kaam kr"))
         Log.d("DirectMessageFragment", "Init")
+    }
+
+    private fun getConnectedDevices()
+    {
+       // contactList.clear() // will refresh all list by all presently connected peers
+        var i = 0
+        val connectedPeersList = MainActivity.userIdUserNameHashMap.values
+        while(i<connectedPeersList.size)
+        {
+            if(!contactList.contains(ChatMessage(connectedPeersList.toString(), "hi")))
+            //    contactList.add(ChatMessage(connectedPeersList.toString(), "hi"))
+            i++
+        }
+
     }
 
 
@@ -41,17 +56,18 @@ class DirectMessageFragment : Fragment() {
         val root = inflater.inflate(R.layout.fragment_globalmessage, container, false)
         val listView: ListView = root.findViewById(R.id.contactList)
         listView.adapter = ChatAdapter(root.context, R.layout.row, contactList)
+        listView.emptyView = root.findViewById(R.id.empty)
+        getConnectedDevices()
         listView.setOnItemClickListener { parent: AdapterView<*>, view: View, position: Int, id: Long ->
             Toast.makeText(
                 root.context,
-                "Clicked on" + contactList[position].name,
+                "Clicked on " + contactList[position].name,
                 Toast.LENGTH_LONG
             ).show()
             val intent = Intent(root.context, ChatListingActivity::class.java)
             intent.putExtra("contactName", contactList[position].name)
             startActivityForResult(intent, 6969)
         }
-
         directMessageActivityCompanion = this.activity
 
         Log.d("DirectMessageFragment", "onCreateView")
