@@ -14,5 +14,6 @@ public class Constants {
     public static final String REQUEST_TYPE_LEDGER_LIST = "x0x0x0abphi_-23127";
     public static final String MESSAGE_TYPE_UNIQID_USERNAME = "x0x0x0ga@di_-2__28";
     public static final String MESSAGE_TYPE_DIRECT = "x0x0x0130875k_r_3129";
+    public static final String RESPONSE_TYPE_DIRECT = "x0x0x0_[k885rar_3130";
 }
 

@@ -881,6 +881,8 @@ class MainActivity : AppCompatActivity() {
                     messageType + "\n" + messageType
                 } else if (messageType == Constants.MESSAGE_TYPE_DIRECT) {
                     messageType + "\n" + msg + "\n" + messageType + "\n"
+                } else if(messageType == Constants.RESPONSE_TYPE_DIRECT){
+                    messageType + "\n" + msg + "\n" + messageType + "\n"
                 } else {
                     messageType + "\n" + msg + "\n" + messageType + "\n"
                 }

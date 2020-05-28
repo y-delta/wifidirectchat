@@ -5,6 +5,7 @@ import com.example.myapp.MainActivity
 import com.example.myapp.MainActivity.Companion.MAIN_EXECUTOR
 import com.example.myapp.MainActivity.Companion.NETWORK_USERID
 import com.example.myapp.MainActivity.Companion.NETWORK_USERNAME
+import com.example.myapp.MainActivity.Companion.broadcastMessage
 import com.example.myapp.MainActivity.Companion.userIdUserNameHashMap
 import com.example.myapp.MainActivity.Companion.netAddrSendReceiveHashMap
 import com.example.myapp.MainActivity.Companion.receivedGroupMessage
@@ -255,10 +256,34 @@ class SendReceive(private var socket: Socket?) : Thread() {
                                 // TODO insert message to Database
 
                                 // TODO send messageReceived response back to messageSenderId in the form of broadcastMessage
-
+                                broadcastMessage("$messageSenderId\n$messageId", Constants.RESPONSE_TYPE_DIRECT)
                                 sendString = ""
                                 break
                             }
+                        }
+                    }
+                } else if(message == Constants.RESPONSE_TYPE_DIRECT){ //messagereceiverid, messageid
+                    message = bufferedReader.readLine() //recipientid
+                    sendString += message + "\n"
+                    if(!message.equals(NETWORK_USERID)){
+                        while(true){
+                            message = bufferedReader.readLine()
+                            sendString += message + "\n"
+                            if(message.equals(Constants.RESPONSE_TYPE_DIRECT)){
+                                sendAlong(sendString)
+                                sendString = ""
+                                break
+                            }
+                        }
+                    } else{
+                        message = bufferedReader.readLine() //messageid
+                        var messageId = message
+                        // TODO change in db, attribute received to true where record = messageId
+                        message = bufferedReader.readLine()
+                        if(message == Constants.RESPONSE_TYPE_DIRECT){
+
+                        } else{
+                            // lol unreachable code XDXD trolled u dev
                         }
                     }
                 }
