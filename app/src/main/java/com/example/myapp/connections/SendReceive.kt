@@ -27,6 +27,7 @@ class SendReceive(private var socket: Socket?) : Thread() {
     private var inputStreamReader: InputStreamReader? = null
     lateinit var bufferedReader: BufferedReader
     lateinit var message :String
+    lateinit var USERID: String
     var listening = true
     var messageStarted = true
     var messageStartedType = ""
@@ -49,6 +50,7 @@ class SendReceive(private var socket: Socket?) : Thread() {
                     Log.d("UserId Username", message)
                     var userid_username = message.split(" ")
                     userIdUserNameHashMap.put(userid_username[0], userid_username[1])
+                    this.USERID = userid_username[0]
                     Log.d("useridUsernameHashMap", "size = ${userIdUserNameHashMap.size}")
                     message = bufferedReader.readLine()
                     if(message == Constants.DATA_TYPE_UNIQID_USERNAME){
@@ -269,7 +271,7 @@ class SendReceive(private var socket: Socket?) : Thread() {
                 } catch (e2: Exception) {
                     e2.printStackTrace()
                 } finally {
-                    userIdUserNameHashMap?.remove(inetAddress.hostAddress)
+                    userIdUserNameHashMap?.remove(USERID)
                     netAddrSendReceiveHashMap?.remove(inetAddress)
                     Log.d("Socket Closing", "Removed from sendReceiveHashMap")
                     Log.d("Socket Closing", "items in sendReceiveHashMap = " + netAddrSendReceiveHashMap!!.size)
