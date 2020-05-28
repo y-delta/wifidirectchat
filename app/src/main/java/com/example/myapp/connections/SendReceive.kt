@@ -193,19 +193,31 @@ class SendReceive(private var socket: Socket?) : Thread() {
                         }
                     }
                 } else if(message.equals(Constants.MESSAGE_TYPE_UNIQID_USERNAME)){
+                    var userid = ArrayList<String>()
                     while(true) {
                         message = bufferedReader.readLine()
                         if(message.equals(Constants.MESSAGE_TYPE_UNIQID_USERNAME)){
                             sendAlong(sendString)
                             sendString = ""
+
+                            if(!serverCreated && netAddrSendReceiveHashMap!!.size == 1) {            // this runs only if device is not GO or Bridge GM
+                                //this removes entries that were previously in the network but have since left
+                                for ((uid, _) in userIdUserNameHashMap) {
+                                    if(!userid.contains(uid)){
+                                        userIdUserNameHashMap.remove(uid)
+                                    }
+                                }
+                            }
                             break
                             //TODO This is where we will insert all the data from hashmap into the userid-username database
                         }
                         sendString += message + "\n"
                         Log.d("UserID Username", message)
                         var userid_username = message.split(" ")
-                        if(userid_username.size == 2 && userid_username[0] != NETWORK_USERNAME)
+                        if(userid_username.size == 2 && userid_username[0] != NETWORK_USERNAME) {
                             userIdUserNameHashMap.put(userid_username[0], userid_username[1])
+                            userid.add(userid_username[0])
+                        }
                         Log.d("useridUsernameHashMap", "size = ${userIdUserNameHashMap.size}")
                         sendAlong(sendString)
                         sendString = ""
