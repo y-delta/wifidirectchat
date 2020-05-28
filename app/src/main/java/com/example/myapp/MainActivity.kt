@@ -15,6 +15,7 @@ import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener
 import android.os.AsyncTask
 import android.os.Bundle
+import android.os.IBinder
 import android.text.InputType
 import android.util.Log
 import android.view.Menu
@@ -852,13 +853,21 @@ class MainActivity : AppCompatActivity() {
             broadcastMessage(msg, Constants.MESSAGE_TYPE_UNIQID_USERNAME)
         }
 
+        fun sendDirectMessage(msg:String, recipientId: String, messageId:Integer, date:Date){
+            // usage - sendDirectMessage(message, userid_of_recipient, messageId, date)
+            var messageType: String = Constants.MESSAGE_TYPE_DIRECT
+            if(msg.isNullOrEmpty() || recipientId.isNullOrEmpty()) return
+            var directMessage = "$recipientId\n$NETWORK_USERID\n$messageId\n${date.toString()}\n$msg"   //recipientid, networkuserid, messageid, date, msg
+            broadcastMessage(directMessage, messageType)
+        }
+
         fun broadcastMessage(msg: String, messageType:String = Constants.MESSAGE_TYPE_GROUP): Boolean {
             var msg = msg
             if(netAddrSendReceiveHashMap?.size!! > 0) {
                 val broadcastMessageAsyncTask = BroadcastMessageAsyncTask()
                 var username:String = ""
                 var msgWithStartEndString = ""
-                if(msg.endsWith("\n") && !msg.isNullOrEmpty()){
+                if(msg.endsWith("\n") && !msg.isNullOrEmpty()){ //what if msgtype, msgtype?
                     msg = msg.substring(0, msg.length - 1)
                 }
                 if(NETWORK_USERNAME.isNullOrEmpty()){
@@ -870,6 +879,8 @@ class MainActivity : AppCompatActivity() {
                     messageType + "\n" + username + "\n" + msg + "\n" + messageType + "\n"
                 }else if(messageType == Constants.REQUEST_TYPE_LEDGER_LIST){
                     messageType + "\n" + messageType
+                } else if (messageType == Constants.MESSAGE_TYPE_DIRECT) {
+                    messageType + "\n" + msg + "\n" + messageType + "\n"
                 } else {
                     messageType + "\n" + msg + "\n" + messageType + "\n"
                 }

@@ -3,6 +3,7 @@ package com.example.myapp.connections
 import android.util.Log
 import com.example.myapp.MainActivity
 import com.example.myapp.MainActivity.Companion.MAIN_EXECUTOR
+import com.example.myapp.MainActivity.Companion.NETWORK_USERID
 import com.example.myapp.MainActivity.Companion.NETWORK_USERNAME
 import com.example.myapp.MainActivity.Companion.userIdUserNameHashMap
 import com.example.myapp.MainActivity.Companion.netAddrSendReceiveHashMap
@@ -225,6 +226,41 @@ class SendReceive(private var socket: Socket?) : Thread() {
                         sendString = ""
                     }
 
+                } else if(message.equals(Constants.MESSAGE_TYPE_DIRECT)){ //recipientid, networkuserid, messageid, date, msg
+                    message = bufferedReader.readLine() //recipientid
+                    sendString += message + "\n"
+                    if(!message.equals(NETWORK_USERID)){
+                        while(true){
+                            message = bufferedReader.readLine()
+                            sendString += message + "\n"
+                            if(message.equals(Constants.MESSAGE_TYPE_DIRECT)){
+                                sendAlong(sendString)
+                                sendString = ""
+                                break
+                            }
+                        }
+                    } else{
+                        message = bufferedReader.readLine() //networkuserid
+                        var messageSenderId = message
+                        message = bufferedReader.readLine() //messageid
+                        var messageId = message.toInt()
+                        var messageString = ""
+                        message = bufferedReader.readLine() //date
+                        var messageDate = Date(message)
+                        while(true){
+                            message = bufferedReader.readLine() //msg
+                            messageString += message + "\n"
+                            if(message.equals(Constants.MESSAGE_TYPE_DIRECT)){
+                                Log.d("DirectMessageReceived", "$messageSenderId says $messageString at $messageDate")
+                                // TODO insert message to Database
+
+                                // TODO send messageReceived response back to messageSenderId in the form of broadcastMessage
+
+                                sendString = ""
+                                break
+                            }
+                        }
+                    }
                 }
 
 
