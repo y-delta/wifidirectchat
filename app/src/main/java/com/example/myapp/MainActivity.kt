@@ -386,6 +386,10 @@ class MainActivity : AppCompatActivity() {
             alert.setView(input);
             input.text = ""
             var inputText = ""
+
+            if(groupCreated){
+                inputText += "Group created = true\n"
+            }
             if(serverCreated && groupCreated){
                 mManager!!.requestGroupInfo(mChannel) { group ->
                     inputText += ("PASSPHRASE =  ${group.passphrase}\n")

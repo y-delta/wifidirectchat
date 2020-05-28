@@ -64,7 +64,7 @@ class ClientClass(hostAddress: InetAddress) : Thread() {
                 preparedMsg += ledgerItem.latitude + "\n"
                 preparedMsg += ledgerItem.longitude + "\n"
                 preparedMsg += ledgerItem.accuracy + "\n"
-                preparedMsg += NETWORK_USERNAME + "\n"
+                preparedMsg += ledgerItem.sender + "\n"
                 Log.d("PreparedMessageLedger", preparedMsg)
                 broadcastMessage(preparedMsg, Constants.MESSAGE_TYPE_LEDGER)
                 i++

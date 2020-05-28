@@ -19,6 +19,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.observe
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.myapp.MainActivity
+import com.example.myapp.MainActivity.Companion.NETWORK_USERID
 import com.example.myapp.R
 import com.example.myapp.databinding.ActivityChatListingBinding.inflate
 import com.example.myapp.databinding.FragmentDirectmessageBinding
@@ -201,10 +202,10 @@ class LedgerFragment : Fragment() {
                 ledgerEntity.needs = requiredItems.joinToString(separator=",", transform = {it.toLowerCase().trim()})
                 val dateAdded = Date()
                 ledgerEntity.date = dateAdded // date is added here
-                ledgerEntity.sender = "You"
-                ledgerEntity.latitude=latLongAcc[0]
-                ledgerEntity.longitude= latLongAcc[1]
-                ledgerEntity.accuracy= latLongAcc[2]
+                ledgerEntity.sender = NETWORK_USERID
+                ledgerEntity.latitude = latLongAcc[0]
+                ledgerEntity.longitude = latLongAcc[1]
+                ledgerEntity.accuracy = latLongAcc[2]
 
                 Log.d("com.example.myapp.ui.ledger.LedgerFragment-onActivityResult", "location = $locationName")
                 Log.d("com.example.myapp.ui.ledger.LedgerFragment-onActivityResult", "landmark = $landmark")
@@ -221,7 +222,7 @@ class LedgerFragment : Fragment() {
                 preparedMsg += latLongAcc[0] + "\n"
                 preparedMsg += latLongAcc[1] + "\n"
                 preparedMsg += latLongAcc[2] + "\n"
-                preparedMsg += MainActivity.NETWORK_USERNAME + "\n"
+                preparedMsg += NETWORK_USERID + "\n"
                 Log.d("PreparedMessageLedger", preparedMsg)
                 Log.d("TakeInput", "broadcasting this prepared message")
                 MainActivity.broadcastMessage(preparedMsg, Constants.MESSAGE_TYPE_LEDGER)
