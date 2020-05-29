@@ -22,11 +22,12 @@ import com.example.myapp.ui.main.ChatAdapter
 
 class DirectMessageFragment : Fragment() {
     var contactList = mutableListOf<ChatMessage>()
+    private val connectedPeersList = MainActivity.userIdUserNameHashMap
     private lateinit var dashboardViewModel: DashboardViewModel
 
     init {
-        contactList.add(ChatMessage("Machan69", "bsdk"))
-      //  contactList.add(ChatMessage("Panda", "kaam kr"))
+        contactList.add(ChatMessage("Machan69", "bsdk", "xyz"))
+        contactList.add(ChatMessage("Panda", "kaam kr", "abc"))
 //        contactList.add(ChatMessage("A-Bot", "pls kaam kr"))
         Log.d("DirectMessageFragment", "Init")
     }
@@ -35,10 +36,9 @@ class DirectMessageFragment : Fragment() {
     {
        // contactList.clear() // will refresh all list by all presently connected peers
         var i = 0
-        val connectedPeersList = MainActivity.userIdUserNameHashMap.values
         while(i<connectedPeersList.size)
         {
-            if(!contactList.contains(ChatMessage(connectedPeersList.toString(), "hi")))
+            if(!contactList.contains(ChatMessage(connectedPeersList.values.toString(), "hi", connectedPeersList.keys.toString())))
             //    contactList.add(ChatMessage(connectedPeersList.toString(), "hi"))
             i++
         }
@@ -66,6 +66,7 @@ class DirectMessageFragment : Fragment() {
             ).show()
             val intent = Intent(root.context, ChatListingActivity::class.java)
             intent.putExtra("contactName", contactList[position].name)
+            intent.putExtra("Receiver", contactList[position].receiver)
             startActivityForResult(intent, 6969)
         }
         directMessageActivityCompanion = this.activity

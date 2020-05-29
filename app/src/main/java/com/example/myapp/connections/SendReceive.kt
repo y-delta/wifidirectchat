@@ -260,13 +260,12 @@ class SendReceive(private var socket: Socket?) : Thread() {
                             messageString += message + "\n"
                             if(message.equals(Constants.MESSAGE_TYPE_DIRECT)){
                                 Log.d("DirectMessageReceived", "$messageSenderId says $messageString at $messageDate")
-                                // TODO insert message to Database
-//                                dmEntity.date = messageDate
-//                                dmEntity.chatContent = messageString
-//                                dmEntity.sender = messageSenderId
-//                                dmEntity.chatType = Constants.MESSAGE_RECEIVER
-//                                dmEntity.receiver = NETWORK_USERID
-//                                DatabaseUtil.addReceiverChatToDataBase(appDatabaseCompanion, dmEntity)
+                                dmEntity.date = messageDate
+                                dmEntity.chatContent = messageString
+                                dmEntity.sender = messageSenderId
+                                dmEntity.chatType = Constants.MESSAGE_RECEIVER
+                                dmEntity.receiver = NETWORK_USERID
+                                DatabaseUtil.addReceiverChatToDataBase(appDatabaseCompanion, dmEntity)
 
                                 // TODO send messageReceived response back to messageSenderId in the form of broadcastMessage
                                 broadcastMessage("$messageSenderId\n$messageId", Constants.RESPONSE_TYPE_DIRECT)

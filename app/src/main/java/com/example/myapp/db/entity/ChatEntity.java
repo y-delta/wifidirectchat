@@ -17,6 +17,7 @@ public class ChatEntity {
     private int id;
     private String chatType;
     private String chatContent;
+    private Boolean messageReceived;
     @NotNull private Date date;
     @NotNull private String sender;
     @NotNull private String receiver;
@@ -62,6 +63,11 @@ public class ChatEntity {
     public void setDate(Date date) {
         this.date = date;
     }
+
+    public Boolean getMessageReceived() {return messageReceived;}
+
+    public void setMessageReceived(Boolean messageReceived) {this.messageReceived = messageReceived;}
+
 
     public ChatEntity() {
     }

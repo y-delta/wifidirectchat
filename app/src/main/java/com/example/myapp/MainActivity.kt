@@ -28,6 +28,7 @@ import androidx.core.content.PermissionChecker.*
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
+import com.amitshekhar.DebugDB
 import com.example.myapp.connections.*
 import com.example.myapp.db.AppDatabase
 import com.example.myapp.ui.groupmessage.GroupMessageFragment
@@ -72,6 +73,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        Log.d("DBDEBUG", DebugDB.getAddressLog())
 
         //Request Location Permission if not given
         if (checkCallingOrSelfPermission(applicationContext,permissions[0]) == PERMISSION_DENIED
@@ -79,9 +81,13 @@ class MainActivity : AppCompatActivity() {
         {requestPermissions(permissions, 10)}
 
         val sharedPref = this.getPreferences(Context.MODE_PRIVATE) ?: return
+        with(sharedPref.edit()){
+            putInt("com.example.myapp.MSG_ID", MSG_ID)
+            commit()
+        }
         val USERID = sharedPref.getString(getString(R.string.SHARED_PREF_USERID), "")
         val USERNAME = sharedPref.getString(getString(R.string.SHARED_PREF_USERNAME), "")
-
+        var MSG_ID = sharedPref.getInt("com.example.myapp.MSG_ID", 1)
         Log.d("USERID", USERID)
         Log.d("USERNAME", USERNAME)
 
@@ -844,6 +850,7 @@ class MainActivity : AppCompatActivity() {
 
         var nameOfGO: String? = null
         var nameOfConnectedGOHotspot: String? = null
+        var MSG_ID : Int = 0
 
         fun broadcastUserList(){
             var msg = ""
@@ -853,12 +860,21 @@ class MainActivity : AppCompatActivity() {
             broadcastMessage(msg, Constants.MESSAGE_TYPE_UNIQID_USERNAME)
         }
 
-        fun sendDirectMessage(msg:String, recipientId: String, messageId:Integer, date:Date){
+        fun sendDirectMessage(msg:String, recipientId: String, messageId:Int, date:Date){
             // usage - sendDirectMessage(message, userid_of_recipient, messageId, date)
             var messageType: String = Constants.MESSAGE_TYPE_DIRECT
             if(msg.isNullOrEmpty() || recipientId.isNullOrEmpty()) return
             var directMessage = "$recipientId\n$NETWORK_USERID\n$messageId\n${date.toString()}\n$msg"   //recipientid, networkuserid, messageid, date, msg
             broadcastMessage(directMessage, messageType)
+        }
+
+        fun updateSharedPref():Int{
+            val sharedPref = mainActivityCompanion!!.getPreferences(Context.MODE_PRIVATE)
+            with(sharedPref.edit()){
+                putInt("com.example.myapp.MSG_ID", ++MSG_ID)
+                commit()
+            }
+            return MSG_ID
         }
 
         fun broadcastMessage(msg: String, messageType:String = Constants.MESSAGE_TYPE_GROUP): Boolean {

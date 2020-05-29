@@ -6,10 +6,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".ui.ledger.LedgerFragment">
+
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-           android:id="@+id/swiperefresh"
+            android:id="@+id/swiperefresh"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_gravity="center"
             android:layout_marginBottom="60dp">
 
         <ListView
@@ -19,6 +21,15 @@
             android:visibility="visible"
             app:layout_anchorGravity="center" />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        <TextView
+            android:id="@+id/empty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Oops! Looks like you are not connected to any group yet."
+            android:textSize="16sp"
+            android:textAlignment="center"
+            />
+
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/add"
             android:layout_width="wrap_content"

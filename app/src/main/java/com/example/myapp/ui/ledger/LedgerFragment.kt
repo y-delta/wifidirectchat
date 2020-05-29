@@ -69,7 +69,7 @@ class LedgerFragment : Fragment() {
         root = inflater.inflate(R.layout.fragment_ledger, container, false)
         listView = root.findViewById(R.id.listView)
         listView.adapter = MyAdapter(root.context, R.layout.row, list)
-
+        listView.emptyView = root.findViewById(R.id.empty)
         ledgerFragmentCompanion = this
 
         appDatabase = AppDatabase.getDatabase(activity?.application)

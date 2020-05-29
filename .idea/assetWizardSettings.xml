@@ -18,7 +18,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/home/delta/work/android/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/notification/ic_wifi_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/home/delta/work/android/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/action/ic_done_all_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -29,7 +29,7 @@
                         <option name="values">
                           <map>
                             <entry key="color" value="ffffff" />
-                            <entry key="outputName" value="ic_wifi" />
+                            <entry key="outputName" value="double_tick" />
                             <entry key="sourceFile" value="$USER_HOME$" />
                           </map>
                         </option>
