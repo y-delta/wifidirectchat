@@ -261,7 +261,7 @@ class SendReceive(private var socket: Socket?) : Thread() {
                             if(message.equals(Constants.MESSAGE_TYPE_DIRECT)){
                                 Log.d("DirectMessageReceived", "$messageSenderId says $messageString at $messageDate")
                                 dmEntity.date = messageDate
-                                dmEntity.chatContent = messageString
+                                dmEntity.chatContent = messageString.split(Constants.MESSAGE_TYPE_DIRECT)[0]
                                 dmEntity.sender = messageSenderId
                                 dmEntity.chatType = Constants.MESSAGE_RECEIVER
                                 dmEntity.receiver = NETWORK_USERID

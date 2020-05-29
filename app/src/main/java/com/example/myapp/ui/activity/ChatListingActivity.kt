@@ -88,14 +88,12 @@ class ChatListingActivity : AppCompatActivity() {
     private fun addReceiverMessage() {
         Handler().postDelayed({
             val chatEntityReceiver = SendReceive.getMessage()
-            //once replacing the ChatEntity by getMessage() comment all entityReceiver setters below
-//            chatEntityReceiver.chatType = Constants.MESSAGE_RECEIVER
-//            chatEntityReceiver.chatContent = DatabaseUtil.getDirectChat()
-//            chatEntityReceiver.date = Date()
             chatEntityReceiver.sender = intent.getStringExtra("Receiver")
             chatEntityReceiver.receiver = MainActivity.NETWORK_USERID
-            mChatList!!.add(chatEntityReceiver)
-            receiverMessageFlag = false
+            if (chatEntityReceiver.chatContent.isNotEmpty())
+            {       mChatList!!.add(chatEntityReceiver)
+                    receiverMessageFlag = false
+            }
           //  DatabaseUtil.addReceiverChatToDataBase(appDatabase, chatEntityReceiver)
         }, 1000)
     }

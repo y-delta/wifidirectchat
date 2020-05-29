@@ -18,33 +18,16 @@ import com.example.myapp.R
 import com.example.myapp.ui.activity.ChatListingActivity
 import com.example.myapp.ui.activity.ChatMessage
 import com.example.myapp.ui.main.ChatAdapter
+import kotlinx.android.synthetic.main.fragment_ledger.*
 
 
 class DirectMessageFragment : Fragment() {
     var contactList = mutableListOf<ChatMessage>()
-    private val connectedPeersList = MainActivity.userIdUserNameHashMap
     private lateinit var dashboardViewModel: DashboardViewModel
 
     init {
-        contactList.add(ChatMessage("Machan69", "bsdk", "xyz"))
-        contactList.add(ChatMessage("Panda", "kaam kr", "abc"))
-//        contactList.add(ChatMessage("A-Bot", "pls kaam kr"))
         Log.d("DirectMessageFragment", "Init")
     }
-
-    private fun getConnectedDevices()
-    {
-       // contactList.clear() // will refresh all list by all presently connected peers
-        var i = 0
-        while(i<connectedPeersList.size)
-        {
-            if(!contactList.contains(ChatMessage(connectedPeersList.values.toString(), "hi", connectedPeersList.keys.toString())))
-            //    contactList.add(ChatMessage(connectedPeersList.toString(), "hi"))
-            i++
-        }
-
-    }
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,9 +38,21 @@ class DirectMessageFragment : Fragment() {
             ViewModelProviders.of(this).get(DashboardViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_globalmessage, container, false)
         val listView: ListView = root.findViewById(R.id.contactList)
+//        contactList.clear()
+        for((userid, username) in MainActivity.userIdUserNameHashMap){
+            if(userid != MainActivity.NETWORK_USERID) {
+                contactList.add(
+                    ChatMessage(
+                        username,
+                        "hi",
+                        userid
+                    )
+                )
+                Log.d("Adding to peer list", userid)
+            }
+        }
         listView.adapter = ChatAdapter(root.context, R.layout.row, contactList)
         listView.emptyView = root.findViewById(R.id.empty)
-        getConnectedDevices()
         listView.setOnItemClickListener { parent: AdapterView<*>, view: View, position: Int, id: Long ->
             Toast.makeText(
                 root.context,

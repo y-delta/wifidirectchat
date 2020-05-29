@@ -28,6 +28,7 @@
                 android:text="Received Message"
                 android:textColor="@android:color/white"
                 android:textSize="16sp"
+                android:gravity="top"
                 android:padding="10dp"/>
 
             <TextView
