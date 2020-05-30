@@ -28,7 +28,7 @@ class HotspotConnection (var activity: MainActivity) : Thread() {
                 Log.d("connectToHotspot", "device is legit")
                 for(wifiDevice in MainActivity.resultList){
                     Log.d("connectToHotspot", "checking if ${wifiDevice.SSID} is $deviceName")
-                    if(wifiDevice.SSID.substring(10)==deviceName){
+                    if(wifiDevice.SSID.length > 10 && wifiDevice.SSID.substring(10)==deviceName){
                         Log.d("connectToHotspot", "${wifiDevice.SSID} is $deviceName")
                         Log.d("connectToHotspot", "found the ssid's full name")
                         var wifiConfig = WifiConfiguration()

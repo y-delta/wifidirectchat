@@ -200,8 +200,9 @@ class LedgerFragment : Fragment() {
                 ledgerEntity.location = locationName.replace("\n", " ")
                 ledgerEntity.landmark = landmark.replace("\n", " ")
                 ledgerEntity.needs = requiredItems.joinToString(separator=",", transform = {it.toLowerCase().trim()})
-                val dateAdded = Date()
+                val dateAdded = Date(Date().toString())
                 ledgerEntity.date = dateAdded // date is added here
+                Log.d("DATE SECONDS", dateAdded.seconds.toString())
                 ledgerEntity.sender = NETWORK_USERID
                 ledgerEntity.latitude = latLongAcc[0]
                 ledgerEntity.longitude = latLongAcc[1]
@@ -216,6 +217,7 @@ class LedgerFragment : Fragment() {
 //                Log.d("Ledger list items", ledgerItem.needs)
                 var preparedMsg = ""
                 preparedMsg += dateAdded.toString() + "\n"        //date, landmark, location, needs, latitude, longitude, accuracy
+                Log.d("DATE SECONDS", dateAdded.seconds.toString())
                 preparedMsg += landmark.replace("\n", " ") + "\n"
                 preparedMsg += locationName.replace("\n", " ") + "\n"
                 preparedMsg += requiredItems.joinToString(separator=",", transform = {it.toLowerCase().trim()}) + "\n"

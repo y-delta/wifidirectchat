@@ -103,7 +103,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         if(USERNAME.isNullOrEmpty()){
-            NETWORK_USERNAME = "name_not_set"
+            NETWORK_USERNAME = NETWORK_USERID
         } else{
             NETWORK_USERNAME = USERNAME
         }
@@ -518,13 +518,13 @@ class MainActivity : AppCompatActivity() {
             var text = input.text.toString()
             NETWORK_USERNAME = text.trim().replace("\n", "")
             if(!NETWORK_USERNAME.isNullOrEmpty()){
-                dialog?.cancel()
+//                dialog?.cancel()
             }
         }
         builder.setNegativeButton("Cancel") { _, id ->
 
         }
-        if(forceShow || NETWORK_USERNAME.equals("name_not_set")) {
+        if(forceShow || NETWORK_USERNAME.equals(NETWORK_USERID)) {
             dialog = builder.create()
             dialog?.show()
             dialog.getButton(AlertDialog.BUTTON_POSITIVE)
@@ -537,13 +537,13 @@ class MainActivity : AppCompatActivity() {
                         putString(getString(com.example.myapp.R.string.SHARED_PREF_USERNAME), NETWORK_USERNAME)
                         commit()
                     }
-                    if(!NETWORK_USERNAME.isNullOrEmpty() && !NETWORK_USERNAME.equals("name_not_set")){
+                    if(!NETWORK_USERNAME.isNullOrEmpty() && !NETWORK_USERNAME.equals(NETWORK_USERID)){
                         dialog?.cancel()
                     }
                 }
             dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
                 .setOnClickListener {
-                    if(!NETWORK_USERNAME.equals("name_not_set")){
+                    if(!NETWORK_USERNAME.equals(NETWORK_USERID)){
                         dialog?.cancel()
                     }
                 }
@@ -887,7 +887,7 @@ class MainActivity : AppCompatActivity() {
                     msg = msg.substring(0, msg.length - 1)
                 }
                 if(NETWORK_USERNAME.isNullOrEmpty()){
-                    username = "username_not_set"
+                    username = NETWORK_USERID
                 } else{
                     username = NETWORK_USERNAME
                 }

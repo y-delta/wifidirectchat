@@ -77,7 +77,7 @@ class ServerClass : Thread() {
         } catch (se: IOException) {
             se.printStackTrace()
             try {
-                userIdUserNameHashMap?.remove(socket!!.inetAddress.hostAddress)
+//                userIdUserNameHashMap?.remove(socket!!.inetAddress.hostAddress)
                 netAddrSendReceiveHashMap?.remove(socket!!.inetAddress)
             } catch (e: Exception) {
                 e.printStackTrace()

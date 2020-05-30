@@ -84,7 +84,7 @@ class SendReceive(private var socket: Socket?) : Thread() {
                         preparedMsg += ledgerItem.latitude + "\n"
                         preparedMsg += ledgerItem.longitude + "\n"
                         preparedMsg += ledgerItem.accuracy + "\n"
-                        preparedMsg += MainActivity.NETWORK_USERNAME + "\n"
+                        preparedMsg += ledgerItem.sender + "\n"
                         preparedMsg += Constants.MESSAGE_TYPE_LEDGER + "\n"
                         Log.d("PreparedMessageLedger", preparedMsg)
                         this.write(preparedMsg.toByteArray())
@@ -140,7 +140,7 @@ class SendReceive(private var socket: Socket?) : Thread() {
                         when(messagePass){  //date, landmark, location, needs, latitude, longitude, accuracy
                             0 -> {
                                 Log.d("ledgerreceive0date", message)
-                                ledgerEntity.date = Date(message) // date is added here //entry into db here
+                                ledgerEntity.date = Date(message) // date is added here
                                 messagePass++
                                 debugMessage += message + "\n"
                             }
@@ -344,7 +344,8 @@ class SendReceive(private var socket: Socket?) : Thread() {
                 } catch (e2: Exception) {
                     e2.printStackTrace()
                 } finally {
-                    userIdUserNameHashMap?.remove(USERID)
+                    if(USERID in userIdUserNameHashMap)
+                        userIdUserNameHashMap?.remove(USERID)
                     netAddrSendReceiveHashMap?.remove(inetAddress)
                     Log.d("Socket Closing", "Removed from sendReceiveHashMap")
                     Log.d("Socket Closing", "items in sendReceiveHashMap = " + netAddrSendReceiveHashMap!!.size)
