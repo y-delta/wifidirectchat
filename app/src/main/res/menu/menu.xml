@@ -12,8 +12,8 @@
 <item
         android:id="@+id/connection"
         android:title="Establish Connection"
-        app:showAsAction="never"
-        android:icon="@drawable/ic_wifi"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/connect"
         android:contentDescription="discover Peers"
         />
     <item

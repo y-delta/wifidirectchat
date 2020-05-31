@@ -52,9 +52,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var nsdManager: NsdManager
     private var peerCount = 0
 
-    var directMessageFragment: Fragment = GroupMessageFragment()
-    var globalMessageFragment: Fragment = DirectMessageFragment()
-    var ledgerFragment: Fragment = LedgerFragment()
+    var menubar : Menu? = null
 
     var wifiManager: WifiManager? = null
     var mManager: WifiP2pManager? = null
@@ -197,8 +195,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menubar = menu
         menuInflater.inflate(R.menu.menu, menu)
         return super.onCreateOptionsMenu(menu)
+    }
+
+    private fun connectionSuccessful()
+    {
+        var item = menubar?.getItem(0)
+        val color = item?.icon
+        color?.setTint(resources.getColor(R.color.colorSuccess))
+        item?.icon = color
     }
 
     // handle button activities
@@ -277,6 +284,8 @@ class MainActivity : AppCompatActivity() {
 
             var createGroupOrConnect = CreateGroupOrConnect(mManager, mChannel, applicationContext)
             createGroupOrConnect.start()
+            if(groupCreated || checkedForGroups)
+                connectionSuccessful()
         }
         /*if(id == R.id.connectToHotspot){
             val builder: AlertDialog.Builder = AlertDialog.Builder(this)
@@ -412,7 +421,7 @@ class MainActivity : AppCompatActivity() {
                             ).show()
                             Log.d("createGroup", "Successfully created a group")
                             MainActivity.groupCreated = true
-
+                            connectionSuccessful()
                         }
 
                         override fun onFailure(reason: Int) {

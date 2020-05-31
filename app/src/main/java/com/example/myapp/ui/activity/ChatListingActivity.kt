@@ -78,7 +78,7 @@ class ChatListingActivity : AppCompatActivity() {
         mChatList!!.add(chatEntitySender)
         receiverMessageFlag = true
         DatabaseUtil.addSenderChatToDataBase(appDatabase, chatEntitySender)
-        MainActivity.sendDirectMessage(chatEntitySender.chatContent, chatEntitySender.receiver, MainActivity.updateSharedPref(), chatEntitySender.date)
+        MainActivity.sendDirectMessage(chatEntitySender.chatContent, chatEntitySender.receiver, chatEntitySender.id, chatEntitySender.date)
     }
 
     private fun addReceiverMessage() {
