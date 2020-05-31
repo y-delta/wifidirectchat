@@ -6,6 +6,7 @@ import android.net.wifi.WifiConfiguration
 import android.util.Log
 import android.widget.Toast
 import com.example.myapp.MainActivity
+import com.example.myapp.MainActivity.Companion.nsdAlreadyDiscovering
 
 class HotspotConnection (var activity: MainActivity) : Thread() {
 
@@ -42,9 +43,9 @@ class HotspotConnection (var activity: MainActivity) : Thread() {
                             Log.d("connectToHotspot", "inner checking ${i.SSID}")
                             if (i.SSID != null && i.SSID == "\"" + wifiDevice.SSID.toString() + "\"") {
                                 Log.d("connectToHotspot", "inner attempting connect to ${i.SSID}")
-                                activity.wifiManager!!.disconnect()
-                                activity.wifiManager!!.enableNetwork(i.networkId, true)
-                                activity.wifiManager!!.reconnect()
+//                                activity.wifiManager!!.disconnect()
+//                                activity.wifiManager!!.enableNetwork(i.networkId, true)
+//                                activity.wifiManager!!.reconnect()
 //                                    Log.d("INETADDRESS", getLocalIpAddress()?.hostAddress)
 //                                    clientClass = getLocalIpAddress()?.let { ClientClass(it) }
 //                                    clientClass!!.start()
@@ -53,11 +54,14 @@ class HotspotConnection (var activity: MainActivity) : Thread() {
                         }
                         try {
                             activity.nsdManager = activity.getSystemService(Context.NSD_SERVICE) as NsdManager
-                            activity.nsdManager.discoverServices(
-                                MainActivity.SERVICE_TYPE,
-                                NsdManager.PROTOCOL_DNS_SD,
-                                activity.mDiscoveryListener
-                            )
+                            if(!nsdAlreadyDiscovering) {
+                                activity.nsdManager.discoverServices(
+                                    MainActivity.SERVICE_TYPE,
+                                    NsdManager.PROTOCOL_DNS_SD,
+                                    activity.mDiscoveryListener
+                                )
+                                nsdAlreadyDiscovering = true
+                            }
                         }catch (e:Exception){
                             e.printStackTrace()
                         }

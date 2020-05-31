@@ -6,6 +6,7 @@ import com.example.myapp.MainActivity.Companion.DEVICEMAC
 import com.example.myapp.MainActivity.Companion.NETWORK_USERID
 import com.example.myapp.MainActivity.Companion.broadcastMessage
 import com.example.myapp.MainActivity.Companion.NETWORK_USERNAME
+import com.example.myapp.MainActivity.Companion.connectedToDeviceAlert
 import com.example.myapp.ui.groupmessage.GroupMessageFragment.Companion.appDatabaseCompanion
 import com.example.myapp.utils.Constants
 import java.io.IOException
@@ -28,6 +29,7 @@ class ClientClass(hostAddress: InetAddress) : Thread() {
             Log.d("SendReceive Size", MainActivity.netAddrSendReceiveHashMap?.size.toString())
             Log.d("ClientClass", "run() added client to sendReceiveHashMap")
             sendReceive!!.start()
+            connectedToDeviceAlert()
             Log.d("ClientClass", "sending username of device to GO ${DEVICEMAC}")
             broadcastMessage("$NETWORK_USERID $NETWORK_USERNAME", Constants.DATA_TYPE_UNIQID_USERNAME)
             /*var ledger = appDatabaseCompanion!!.ledgerDao().loadAllChatHistory()

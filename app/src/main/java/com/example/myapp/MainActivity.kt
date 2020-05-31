@@ -26,6 +26,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.PermissionChecker.*
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.amitshekhar.DebugDB
@@ -371,21 +373,16 @@ class MainActivity : AppCompatActivity() {
         }
         if (id == R.id.showNetworkInformation) { // do something here
             val alert = AlertDialog.Builder(this)
-            alert.setTitle("Please select")
+            alert.setTitle("Network Information")
             var input = TextView (this);
             alert.setView(input);
             input.text = ""
             var inputText = ""
 
-            if(groupCreated){
-                inputText += "Group created = true\n"
-            }
-            if(serverCreated && groupCreated){
-                mManager!!.requestGroupInfo(mChannel) { group ->
-                    inputText += ("PASSPHRASE =  ${group.passphrase}\n")
-                }
+            inputText += if(!GOPWD.isNullOrEmpty()){
+                "DIRECT password = $GOPWD\n"
             } else{
-                alert.setMessage("this device is not GO, click \"Create Group\" to manually become a GO")
+//                "this device is not GO, click \"Create Group\" to manually become a GO"
             }
 
             if(groupCreated){
@@ -402,7 +399,7 @@ class MainActivity : AppCompatActivity() {
                 else
                     inputText += "Not yet connected to a network\n"
             }
-            inputText += "No of items in netAddrSendReceiveHashMap = ${netAddrSendReceiveHashMap?.size}"
+            inputText += "Connected to ${netAddrSendReceiveHashMap?.size} device(s)"
 
             alert.setPositiveButton("Ok") { _, id ->
 
@@ -520,6 +517,7 @@ class MainActivity : AppCompatActivity() {
                         putString(getString(com.example.myapp.R.string.SHARED_PREF_USERNAME), NETWORK_USERNAME)
                         commit()
                     }
+                    broadcastMessage("$NETWORK_USERID $NETWORK_USERNAME", Constants.DATA_TYPE_UNIQID_USERNAME)
                     if(!NETWORK_USERNAME.isNullOrEmpty() && !NETWORK_USERNAME.equals(NETWORK_USERID)){
                         dialog?.cancel()
                     }
@@ -727,12 +725,15 @@ class MainActivity : AppCompatActivity() {
         ConnectionInfoListener { info ->
             val groupOwnerAddress = info.groupOwnerAddress
             if (info.groupFormed && info.isGroupOwner) {
+                mManager!!.requestGroupInfo(mChannel) { group ->
+                    GOPWD += ("PASSPHRASE =  ${group.passphrase}\n")
+                }
                 Log.d("Connection Status", "HOST")
                 Log.d("ConnInfoListener", "I am GO")
                 Log.d("ConnInfoListener", "Broadcasting userlist")
                 if(USERLIST_EXECUTOR == null){
                     USERLIST_EXECUTOR = Executors.newSingleThreadScheduledExecutor()
-                    USERLIST_EXECUTOR!!.scheduleWithFixedDelay(BroadcastUserListRunnable(), 15, 10, TimeUnit.SECONDS)
+                    USERLIST_EXECUTOR!!.scheduleWithFixedDelay(BroadcastUserListRunnable(), 0, 10, TimeUnit.SECONDS)
                 }
                 groupCreated = true
                 if (!serverCreated) {
@@ -813,6 +814,8 @@ class MainActivity : AppCompatActivity() {
         var checkedForGroups = false
         var receivedGroupMessage: String = ""
         var DEVICEMAC : String? = null
+        var nsdAlreadyDiscovering: Boolean = false
+        var GOPWD = ""
 
         var MAIN_EXECUTOR: Executor? = null
         var USERLIST_EXECUTOR: ScheduledExecutorService? = null
@@ -830,10 +833,17 @@ class MainActivity : AppCompatActivity() {
         lateinit var deviceArray: Array<WifiP2pDevice?>
         var NETWORK_USERNAME:String = ""
         var NETWORK_USERID:String = ""
+        var liveConnectedDevice= MutableLiveData<Boolean>(false)
+        // TODO observe this var. if its true, then show green colour, else show white
+
 
         var nameOfGO: String? = null
         var nameOfConnectedGOHotspot: String? = null
         var MSG_ID : Int = 0
+
+        fun connectedToDeviceAlert(){
+            liveConnectedDevice.postValue(false)
+        }
 
         fun broadcastUserList(){
             var msg = ""
@@ -841,6 +851,7 @@ class MainActivity : AppCompatActivity() {
                 msg += "$userid $username\n"
             }
             broadcastMessage(msg, Constants.MESSAGE_TYPE_UNIQID_USERNAME)
+            liveConnectedDevice.postValue(netAddrSendReceiveHashMap?.size != 0)
         }
 
         fun sendDirectMessage(msg:String, recipientId: String, messageId:Int, date:Date){

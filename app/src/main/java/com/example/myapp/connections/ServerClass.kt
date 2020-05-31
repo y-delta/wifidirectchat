@@ -2,6 +2,8 @@ package com.example.myapp.connections
 
 import android.util.Log
 import com.example.myapp.MainActivity
+import com.example.myapp.MainActivity.Companion.connectedToDeviceAlert
+import com.example.myapp.MainActivity.Companion.liveConnectedDevice
 import com.example.myapp.MainActivity.Companion.userIdUserNameHashMap
 import com.example.myapp.MainActivity.Companion.netAddrSendReceiveHashMap
 import com.example.myapp.ui.groupmessage.GroupMessageFragment
@@ -50,6 +52,7 @@ class ServerClass : Thread() {
                 Log.d("SendReceive Size", netAddrSendReceiveHashMap?.size.toString())
                 Log.d("ServerClass", "run() added client to sendReceiveHashMap")
                 sendReceive!!.start()
+                connectedToDeviceAlert()
 
                 Log.d("ServerClass", "attempting to send GO info only to newly connected device")
                 var ledgerList = GroupMessageFragment.appDatabaseCompanion!!.ledgerDao().loadAllLedgers()
