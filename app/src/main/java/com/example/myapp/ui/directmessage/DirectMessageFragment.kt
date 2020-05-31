@@ -23,9 +23,9 @@ import kotlinx.android.synthetic.main.fragment_ledger.*
 
 class DirectMessageFragment : Fragment() {
     var contactList = mutableListOf<ChatMessage>()
-    private lateinit var dashboardViewModel: DashboardViewModel
 
     init {
+        contactList.add(ChatMessage("TestContact","meh","xyz"))
         Log.d("DirectMessageFragment", "Init")
     }
 
@@ -34,8 +34,6 @@ class DirectMessageFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        dashboardViewModel =
-            ViewModelProviders.of(this).get(DashboardViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_globalmessage, container, false)
         val listView: ListView = root.findViewById(R.id.contactList)
 //        contactList.clear()

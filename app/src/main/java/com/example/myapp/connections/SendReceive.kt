@@ -10,11 +10,14 @@ import com.example.myapp.MainActivity.Companion.userIdUserNameHashMap
 import com.example.myapp.MainActivity.Companion.netAddrSendReceiveHashMap
 import com.example.myapp.MainActivity.Companion.receivedGroupMessage
 import com.example.myapp.MainActivity.Companion.serverCreated
+import com.example.myapp.R
 import com.example.myapp.db.DatabaseUtil
 import com.example.myapp.db.entity.ChatEntity
 import com.example.myapp.db.entity.GroupChatEntity
 import com.example.myapp.db.entity.LedgerEntity
 import com.example.myapp.db.entity.UserEntity
+import com.example.myapp.ui.activity.ChatListingActivity
+import com.example.myapp.ui.adapter.MessageAdapter
 import com.example.myapp.ui.groupmessage.GroupMessageFragment
 import com.example.myapp.ui.groupmessage.GroupMessageFragment.Companion.appDatabaseCompanion
 import com.example.myapp.utils.Constants
@@ -217,9 +220,11 @@ class SendReceive(private var socket: Socket?) : Thread() {
                                 }
                             }
                             //TODO This is where we will insert all the data from hashmap into the userid-username database
-                            userEntity.userId = NETWORK_USERID
-                            userEntity.username = NETWORK_USERNAME
-                            DatabaseUtil.addUserToDataBase(appDatabaseCompanion,userEntity)
+                            for((id, name)in userIdUserNameHashMap) {
+                                userEntity.userId = id
+                                userEntity.username = name
+                                DatabaseUtil.addUserToDataBase(appDatabaseCompanion, userEntity)
+                            }
                             break
                         }
                         sendString += message + "\n"
@@ -261,13 +266,13 @@ class SendReceive(private var socket: Socket?) : Thread() {
                             if(message.equals(Constants.MESSAGE_TYPE_DIRECT)){
                                 Log.d("DirectMessageReceived", "$messageSenderId says $messageString at $messageDate")
                                 dmEntity.date = messageDate
+                                dmEntity.id = messageId
                                 dmEntity.chatContent = messageString.split(Constants.MESSAGE_TYPE_DIRECT)[0]
                                 dmEntity.sender = messageSenderId
                                 dmEntity.chatType = Constants.MESSAGE_RECEIVER
                                 dmEntity.receiver = NETWORK_USERID
                                 DatabaseUtil.addReceiverChatToDataBase(appDatabaseCompanion, dmEntity)
 
-                                // TODO send messageReceived response back to messageSenderId in the form of broadcastMessage
                                 broadcastMessage("$messageSenderId\n$messageId", Constants.RESPONSE_TYPE_DIRECT)
                                 sendString = ""
                                 break
@@ -293,7 +298,9 @@ class SendReceive(private var socket: Socket?) : Thread() {
                         // TODO change in db, attribute received to true where record = messageId
                         message = bufferedReader.readLine()
                         if(message == Constants.RESPONSE_TYPE_DIRECT){
-
+                            dmEntity.messageReceived = true
+                            dmEntity.id = messageId.toInt()
+                            DatabaseUtil.updateReceivedValue(appDatabaseCompanion, dmEntity)
                         } else{
                             // lol unreachable code XDXD trolled u dev
                         }
@@ -429,6 +436,6 @@ class SendReceive(private var socket: Socket?) : Thread() {
             entry.chatType = Constants.MESSAGE_RECEIVER
             return entry
         }
-
+        var messageReceivedByRecipient : Boolean = false
     }
 }

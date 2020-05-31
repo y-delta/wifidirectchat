@@ -5,6 +5,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import android.widget.Toast.LENGTH_LONG
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.databinding.DataBindingUtil.inflate
 import androidx.fragment.app.Fragment
@@ -19,7 +21,6 @@ import com.example.myapp.db.AppDatabase
 import com.example.myapp.db.DatabaseUtil
 import com.example.myapp.db.entity.GroupChatEntity
 import com.example.myapp.ui.adapter.GroupMessageAdapter
-import com.example.myapp.utils.AppUtils
 import com.example.myapp.utils.Constants
 import com.example.myapp.utils.NPALinearLayoutManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -145,7 +146,7 @@ class GroupMessageFragment : Fragment() {
             // clear edit text
             chatText?.setText("")
         } else {
-            AppUtils.toastMessage(this.activity, "Please enter some message")
+            Toast.makeText(this.activity, "Please enter some message", LENGTH_LONG).show()
         }
 
         return true

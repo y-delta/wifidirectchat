@@ -34,21 +34,35 @@
                 android:padding="10dp"
                 android:paddingBottom="-6dp"
                 tools:ignore="RtlHardcoded" />
-
+            <RelativeLayout
+                android:layout_weight="1"
+                android:layout_height="0dp"
+                android:layout_width="50dp"
+                android:layout_gravity="right"
+                android:layout_marginEnd="0dp">
+                <ImageView
+                    android:id="@+id/ticks"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_alignParentEnd="true"
+                    android:contentDescription="for ticks" />
             <TextView
                 android:id="@+id/textview_message_time_sender"
                 android:layout_width="wrap_content"
                 android:layout_height="12sp"
                 android:layout_marginBottom="5dp"
                 android:layout_gravity="right"
-                android:layout_marginEnd="10dp"
-                android:layout_below="@id/textview_message_sender"
+                android:layout_marginEnd="16dp"
                 android:layout_marginTop="4dp"
-                android:text=""
                 android:textColor="#fff"
                 android:textSize="10sp"
-                tools:ignore="RtlHardcoded" />
+                tools:ignore="RtlHardcoded"
+                android:layout_alignParentEnd="true"/>
 
+
+            </RelativeLayout>
         </LinearLayout>
         <TextView
             android:id="@+id/your_id"
@@ -56,6 +70,7 @@
             android:layout_height="wrap_content"
             android:text="You"
             android:textSize="10sp"
+            android:layout_marginTop="3dp"
             android:layout_alignParentRight="true"
             android:textColor="@android:color/tertiary_text_light"
             />

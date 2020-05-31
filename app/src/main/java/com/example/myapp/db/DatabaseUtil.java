@@ -19,18 +19,6 @@ import java.util.Random;
  */
 public class DatabaseUtil {
 
-    private static final String[] RECEIVER_MESSAGES = new String[]{
-            "new messsage1","new messsage2","new messsage3","new messsage5","new messsage4"
-    };
-
-    public static String getDirectChat()
-    {
-        String msg = DatabaseUtil.RECEIVER_MESSAGES[1];
-        //fetch from mainActivity/SendReceive and add to this object
-
-        return msg;
-    }
-
     public static void addSenderChatToDataBase(AppDatabase db, ChatEntity chatEntitySender) {
         new addAsyncTask(db).execute(chatEntitySender);
     }
@@ -49,6 +37,10 @@ public class DatabaseUtil {
 
     public static void addNewLedgerToDataBase(AppDatabase db, LedgerEntity ledgerEntitySender) {
         new addAsyncTask2(db).execute(ledgerEntitySender);
+    }
+
+    public static void updateReceived(AppDatabase db, ChatEntity chatEntityReceiver) {
+        new addAsyncTask4(db).execute(chatEntityReceiver);
     }
 
     /**
@@ -113,6 +105,31 @@ public class DatabaseUtil {
             return null;
         }
 
+    }
+
+    private static class addAsyncTask4 extends AsyncTask<ChatEntity, Void, Void> {
+
+        private AppDatabase db;
+
+        addAsyncTask4(AppDatabase appDatabase) {
+            db = appDatabase;
+        }
+
+        @Override
+        protected Void doInBackground(ChatEntity... chatEntities) {
+            updateReceivedValue(db, chatEntities[0]);
+            return null;
+        }
+    }
+
+    public static void updateReceivedValue(AppDatabase db, ChatEntity chatEntity) {
+        db.beginTransaction();
+        try {
+            db.chatDao().update(chatEntity.getMessageReceived(), chatEntity.getId());
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
     }
 
     public static void insertUserName(AppDatabase db, UserEntity userEntity) {

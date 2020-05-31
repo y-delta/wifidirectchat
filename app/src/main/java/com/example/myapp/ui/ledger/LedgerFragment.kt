@@ -44,7 +44,6 @@ import kotlin.collections.ArrayList
 
 class LedgerFragment : Fragment() {
 
-    private lateinit var notificationsViewModel: NotificationsViewModel
     var list = mutableListOf<Model>()
     private lateinit var listView: ListView
     private lateinit var root: View
@@ -64,10 +63,8 @@ class LedgerFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        notificationsViewModel =
-            ViewModelProviders.of(this).get(NotificationsViewModel::class.java)
         root = inflater.inflate(R.layout.fragment_ledger, container, false)
-        listView = root.findViewById(R.id.listView)
+        listView = root.findViewById(R.id.listView) as ListView
         listView.adapter = MyAdapter(root.context, R.layout.row, list)
         listView.emptyView = root.findViewById(R.id.empty)
         ledgerFragmentCompanion = this

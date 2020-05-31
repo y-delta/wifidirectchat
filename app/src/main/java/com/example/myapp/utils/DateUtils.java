@@ -1,6 +1,6 @@
 package com.example.myapp.utils;
 
-import com.example.myapp.utils.AppUtils;
+import android.util.Log;
 
 import java.util.Date;
 
@@ -19,7 +19,7 @@ public class DateUtils {
                 timeFormatted += ":" + String.valueOf(mDate.getMinutes());
             }
         } catch (Exception e) {
-            AppUtils.logMe("DateTime Exception", e.toString());
+            Log.d("DateTime Exception", e.toString());
         }
 
         return timeFormatted;

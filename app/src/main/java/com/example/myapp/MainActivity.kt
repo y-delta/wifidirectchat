@@ -31,6 +31,8 @@ import androidx.navigation.ui.setupWithNavController
 import com.amitshekhar.DebugDB
 import com.example.myapp.connections.*
 import com.example.myapp.db.AppDatabase
+import com.example.myapp.db.DatabaseUtil
+import com.example.myapp.db.entity.UserEntity
 import com.example.myapp.ui.groupmessage.GroupMessageFragment
 import com.example.myapp.ui.directmessage.DirectMessageFragment
 import com.example.myapp.ui.groupmessage.GroupMessageFragment.Companion.appDatabaseCompanion
@@ -65,6 +67,7 @@ class MainActivity : AppCompatActivity() {
 
     var serverClass: ServerClass? = null
     var clientClass: ClientClass? = null
+    var userEntity = UserEntity()
 
     private var permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
 
@@ -109,7 +112,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         userIdUserNameHashMap.put(NETWORK_USERID, NETWORK_USERNAME)
-
         Log.d("USERID-", NETWORK_USERID)
         Log.d("USERNAME-", NETWORK_USERNAME)
 
@@ -124,8 +126,11 @@ class MainActivity : AppCompatActivity() {
 
             MAIN_EXECUTOR = Executors.newSingleThreadExecutor()
 
-            var appDatabase = AppDatabase.getDatabase(this.application)
+            val appDatabase = AppDatabase.getDatabase(this.application)
             appDatabaseCompanion = appDatabase
+            userEntity.userId = NETWORK_USERID
+            userEntity.username = NETWORK_USERNAME
+            DatabaseUtil.addUserToDataBase(appDatabase, userEntity)
             //supportFragmentManager.beginTransaction()
             //  .add(R.id.nav_host_fragment, globalMessageFragment, "putGlobalMessageFragment")
             //.commit()
@@ -191,37 +196,6 @@ class MainActivity : AppCompatActivity() {
         if(results!!.size > 0) wifiScannedAtleastOnce = true
     }
 
-    private val mOnNavigationItemSelectedListener =
-        BottomNavigationView.OnNavigationItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.navigation_directmessage -> {
-                    supportFragmentManager.beginTransaction().replace(
-                        R.id.nav_host_fragment,
-                        directMessageFragment,
-                        "putDirectMessageFragment"
-                    )
-                        .commit()
-                    return@OnNavigationItemSelectedListener true
-                }
-                R.id.navigation_globalmessage -> {
-                    supportFragmentManager.beginTransaction().replace(
-                        R.id.nav_host_fragment,
-                        globalMessageFragment,
-                        "putGlobalMessageFragment"
-                    )
-                        .commit()
-                    return@OnNavigationItemSelectedListener true
-                }
-                R.id.navigation_ledger -> {
-                    supportFragmentManager.beginTransaction()
-                        .replace(R.id.nav_host_fragment, ledgerFragment, "putLedgerFragment")
-                        .commit()
-                    return@OnNavigationItemSelectedListener true
-                }
-            }
-
-            false
-        }
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu, menu)
         return super.onCreateOptionsMenu(menu)

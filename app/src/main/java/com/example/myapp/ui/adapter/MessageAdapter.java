@@ -8,6 +8,7 @@ import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapp.R;
+import com.example.myapp.connections.SendReceive;
 import com.example.myapp.databinding.MessageViewReceiverBinding;
 import com.example.myapp.databinding.MessageViewSenderBinding;
 import com.example.myapp.utils.Constants;
@@ -63,13 +64,19 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             ((MessageRightViewHolder) holder).binding.yourId.setText("");
             ((MessageRightViewHolder) holder).binding.textviewMessageSender.setText(message.getChatContent());
             ((MessageRightViewHolder) holder).binding.textviewMessageTimeSender.setText(DateUtils.getFormattedTime(message.getDate()));
-
+            if(message.getMessageReceived()) {
+                ((MessageRightViewHolder) holder).binding.ticks.setImageResource(R.drawable.double_tick);
+            }
+            else{
+                ((MessageRightViewHolder) holder).binding.ticks.setImageResource(R.drawable.single_tick);
+            }
         } else if (holder instanceof MessageLeftViewHolder) {
 
             final ChatEntity message = mMessagesList.get(position);
             ((MessageLeftViewHolder) holder).binding.senderName.setText("");
             ((MessageLeftViewHolder) holder).binding.textviewMessageReceiver.setText(message.getChatContent());
             ((MessageLeftViewHolder) holder).binding.textviewMessageReceiverTime.setText(DateUtils.getFormattedTime(message.getDate()));
+
         }
     }
 

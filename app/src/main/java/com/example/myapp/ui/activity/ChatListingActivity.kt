@@ -4,9 +4,9 @@ import android.os.Bundle
 import android.os.Handler
 import android.view.MenuItem
 import android.view.View
-import android.widget.TextView
+import android.widget.ImageView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
@@ -16,14 +16,11 @@ import androidx.recyclerview.widget.SimpleItemAnimator
 import com.example.myapp.MainActivity
 import com.example.myapp.R
 import com.example.myapp.connections.SendReceive
-import com.example.myapp.connections.WifiDirectBroadcastReceiver
 import com.example.myapp.databinding.ActivityChatListingBinding
 import com.example.myapp.db.AppDatabase
 import com.example.myapp.db.DatabaseUtil
 import com.example.myapp.db.entity.ChatEntity
-import com.example.myapp.db.entity.GroupChatEntity
 import com.example.myapp.ui.adapter.MessageAdapter
-import com.example.myapp.utils.AppUtils
 import com.example.myapp.utils.Constants
 import com.example.myapp.utils.NPALinearLayoutManager
 import java.util.*
@@ -38,7 +35,6 @@ class ChatListingActivity : AppCompatActivity() {
     var adapter: MessageAdapter? = null
     var mChatList: MutableList<ChatEntity>? = null
     var appDatabase: AppDatabase? = null
-    var ticks: TextView? = null
     private var mObservableChats: LiveData<List<ChatEntity>>? = null
     private var layoutManager: NPALinearLayoutManager? = null
     private var receiverMessageFlag = false
@@ -48,7 +44,6 @@ class ChatListingActivity : AppCompatActivity() {
         appDatabase = AppDatabase.getDatabase(this.application)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title= intent.getStringExtra("contactName")
-
         chatActivityCompanion = this
         initRecyclerView()
         chatHistory
@@ -67,7 +62,7 @@ class ChatListingActivity : AppCompatActivity() {
                 // clear edit text
                 binding!!.editTextChat.setText("")
             } else {
-                AppUtils.toastMessage(this@ChatListingActivity, "Please enter some message")
+                Toast.makeText(this@ChatListingActivity, "Please enter some message", Toast.LENGTH_LONG).show()
             }
         })
     }
@@ -79,6 +74,7 @@ class ChatListingActivity : AppCompatActivity() {
         chatEntitySender.date = Date()
         chatEntitySender.sender = MainActivity.NETWORK_USERID
         chatEntitySender.receiver = intent.getStringExtra("Receiver")
+        chatEntitySender.id = MainActivity.updateSharedPref()
         mChatList!!.add(chatEntitySender)
         receiverMessageFlag = true
         DatabaseUtil.addSenderChatToDataBase(appDatabase, chatEntitySender)
@@ -141,5 +137,6 @@ class ChatListingActivity : AppCompatActivity() {
     companion object{
         var chatActivityCompanion: LifecycleOwner? = null
         var mChatListCompanion: MutableList<ChatEntity>? = null
+        var bubble1: ImageView? = null
     }
 }

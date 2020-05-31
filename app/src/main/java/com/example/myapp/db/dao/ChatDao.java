@@ -5,6 +5,7 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
+import androidx.room.Update;
 
 import com.example.myapp.db.entity.ChatEntity;
 
@@ -21,7 +22,10 @@ public interface ChatDao {
     @Query("SELECT * FROM chats WHERE receiver=:contact UNION SELECT * from chats WHERE sender=:contact ORDER BY date")
     LiveData<List<ChatEntity>> loadAllChatHistoryByContact(String contact);
 
+    @Query("UPDATE chats SET messageReceived=:value WHERE id =:id")
+    void update(Boolean value, int id);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(ChatEntity chats);
+
 }

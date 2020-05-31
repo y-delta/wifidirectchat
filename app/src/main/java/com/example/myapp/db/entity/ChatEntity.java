@@ -17,7 +17,8 @@ public class ChatEntity {
     private int id;
     private String chatType;
     private String chatContent;
-    private Boolean messageReceived;
+    @NotNull
+    private Boolean messageReceived = false;
     @NotNull private Date date;
     @NotNull private String sender;
     @NotNull private String receiver;
