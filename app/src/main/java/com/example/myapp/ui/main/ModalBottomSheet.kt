@@ -12,10 +12,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.Toast
 import com.example.myapp.R
 import com.example.myapp.R.*
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.android.synthetic.main.activity_main.*
 
 private lateinit var continueButton: Button
 private lateinit var wifiButton: Button
@@ -56,7 +59,6 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
             serviceOn(gpsButton)
 
         continueButton.setOnClickListener {
-            dismiss()
             if(!wifiManager.isWifiEnabled||!locManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
                 Toast.makeText(
                     root.context,

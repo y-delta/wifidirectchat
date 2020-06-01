@@ -8,6 +8,7 @@ import androidx.room.Query;
 import androidx.room.Update;
 
 import com.example.myapp.db.entity.ChatEntity;
+import com.example.myapp.db.entity.UserEntity;
 
 import java.util.List;
 
@@ -16,8 +17,8 @@ import java.util.List;
  */
 @Dao
 public interface ChatDao {
-    @Query("SELECT * FROM chats")
-    LiveData<List<ChatEntity>> loadAllChatHistory();
+    @Query("SELECT * FROM users")
+    LiveData<List<UserEntity>> loadAllChatHistory();
 
     @Query("SELECT * FROM chats WHERE receiver=:contact UNION SELECT * from chats WHERE sender=:contact ORDER BY date")
     LiveData<List<ChatEntity>> loadAllChatHistoryByContact(String contact);

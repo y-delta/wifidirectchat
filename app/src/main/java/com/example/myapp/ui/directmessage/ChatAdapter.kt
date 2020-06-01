@@ -9,6 +9,8 @@ import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import com.example.myapp.R
+import com.example.myapp.db.entity.ChatEntity
+import com.example.myapp.db.entity.UserEntity
 import com.example.myapp.ui.activity.ChatMessage
 
 
@@ -17,6 +19,8 @@ class ChatAdapter(var mCtx: Context, var resources: Int, var items: List<ChatMes
     init {
         //   items = items.reversed()
     }
+
+    private lateinit var mMessagesList: List<UserEntity?>
 
     @SuppressLint("ViewHolder")
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
@@ -32,5 +36,9 @@ class ChatAdapter(var mCtx: Context, var resources: Int, var items: List<ChatMes
 
 
         return view
+    }
+
+    fun refresh(mMessagesList: List<UserEntity?>) {
+        this.mMessagesList = mMessagesList
     }
 }

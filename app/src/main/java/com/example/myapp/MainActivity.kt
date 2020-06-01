@@ -20,20 +20,22 @@ import android.text.InputType
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.PermissionChecker.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.observe
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.amitshekhar.DebugDB
 import com.example.myapp.connections.*
 import com.example.myapp.db.AppDatabase
 import com.example.myapp.db.DatabaseUtil
+import com.example.myapp.db.entity.ChatEntity
 import com.example.myapp.db.entity.UserEntity
 import com.example.myapp.ui.groupmessage.GroupMessageFragment
 import com.example.myapp.ui.directmessage.DirectMessageFragment
@@ -42,6 +44,9 @@ import com.example.myapp.ui.ledger.LedgerFragment
 import com.example.myapp.ui.main.ModalBottomSheet
 import com.example.myapp.utils.Constants
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.android.synthetic.main.activity_chat_listing.*
+import kotlinx.android.synthetic.main.activity_main.*
 import java.net.Inet4Address
 import java.net.InetAddress
 import java.net.NetworkInterface
@@ -115,7 +120,6 @@ class MainActivity : AppCompatActivity() {
         Log.d("USERID-", NETWORK_USERID)
         Log.d("USERNAME-", NETWORK_USERNAME)
 
-
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
         val navController = findNavController(R.id.nav_host_fragment)
         navView.setupWithNavController(navController)
@@ -176,8 +180,31 @@ class MainActivity : AppCompatActivity() {
 
         modalBottomSheet.show(supportFragmentManager, modalBottomSheet.tag) //implement this on WiFiDirectBroadcastReceiver when Prashant sends code
         modalBottomSheet.isCancelable = false //prevents cancelling
+        liveConnectedDevice.observe(
+            this,
+            androidx.lifecycle.Observer { _ ->
+                if(liveConnectedDevice.value==true){
+                    connectionSuccessful()
+                }
+                else
+                    connectionUnsuccessful()
+            }
+        )
+
     }
 
+    private fun connectionUnsuccessful() {
+        var item = menubar?.getItem(0)
+        val color = item?.icon
+        color?.setTint(resources.getColor(R.color.design_default_color_background))
+        item?.icon = color
+        Snackbar.make(window.decorView.rootView.findViewById(R.id.container),
+                "Not connected to any network",Snackbar.LENGTH_LONG)
+                .apply {view.layoutParams = (view.layoutParams as FrameLayout.LayoutParams)
+                .apply { setMargins(leftMargin, topMargin, rightMargin, nav_view.height) }
+                }.setBackgroundTint(resources.getColor(R.color.design_default_color_error))
+                .show()
+    }
 
 //    private fun scanSuccess() {
 //        val results = wifiManager?.scanResults
@@ -208,6 +235,9 @@ class MainActivity : AppCompatActivity() {
         val color = item?.icon
         color?.setTint(resources.getColor(R.color.colorSuccess))
         item?.icon = color
+        Snackbar.make(window.decorView.rootView.findViewById(R.id.container), "Connection Successful", Snackbar.LENGTH_LONG)
+            .apply {view.layoutParams = (view.layoutParams as FrameLayout.LayoutParams)
+                .apply {setMargins(leftMargin, topMargin, rightMargin, nav_view.height)}}.show()
     }
 
     // handle button activities
