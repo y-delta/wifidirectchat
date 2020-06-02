@@ -14,7 +14,7 @@ class MyAdapter (var mCtx:Context,var resources:Int,var items:List<Model>):Array
     private val mMessagesList: List<Model>? = null
 
     init{
-        items = items.reversed()
+//        items = items.reversed()
     }
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val layoutInflater:LayoutInflater= LayoutInflater.from(mCtx)
