@@ -612,8 +612,10 @@ class MainActivity : AppCompatActivity() {
             Log.d("DiscoveryListener", "host is null, servicename = ${serviceInfo?.serviceName}, servicetype = ${serviceInfo?.serviceType}, port = ${serviceInfo?.port}")
             try{
                 Log.d("Resolve", "about to create client class object alhamdulilah")
-                clientClass = ClientClass(serviceInfo!!.host)
-                clientClass!!.start()
+                if(serviceInfo!!.host != lastinetaddress) {
+                    clientClass = ClientClass(serviceInfo!!.host)
+                    clientClass!!.start()
+                }
                 Log.d("Resolve", "created client object and started thread mashallah")
             }
             catch (e:Exception){
@@ -785,6 +787,7 @@ class MainActivity : AppCompatActivity() {
                 }
             } else if (info.groupFormed) {
                 Log.d("Connection Status", "Client")
+                lastinetaddress = groupOwnerAddress
                 clientClass = ClientClass(groupOwnerAddress)
                 clientClass!!.start()
                 serverCreated = false
@@ -854,6 +857,8 @@ class MainActivity : AppCompatActivity() {
 
         var MAIN_EXECUTOR: Executor? = null
         var USERLIST_EXECUTOR: ScheduledExecutorService? = null
+
+        var lastinetaddress:InetAddress ?= null
 
         lateinit var mainActivityCompanion:MainActivity
 
