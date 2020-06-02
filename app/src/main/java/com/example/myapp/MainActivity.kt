@@ -183,10 +183,10 @@ class MainActivity : AppCompatActivity() {
         liveConnectedDevice.observe(
             this,
             androidx.lifecycle.Observer { _ ->
-                if(liveConnectedDevice.value==true){
+                lastConnectionStatus = liveConnectedDevice.value!!
+                if (liveConnectedDevice.value == true) {
                     connectionSuccessful()
-                }
-                else
+                } else
                     connectionUnsuccessful()
             }
         )
@@ -316,8 +316,8 @@ class MainActivity : AppCompatActivity() {
 
             var createGroupOrConnect = CreateGroupOrConnect(mManager, mChannel, applicationContext)
             createGroupOrConnect.start()
-            if(groupCreated || checkedForGroups)
-                connectionSuccessful()
+//            if(groupCreated || checkedForGroups)
+//                connectionSuccessful()
         }
         /*if(id == R.id.connectToHotspot){
             val builder: AlertDialog.Builder = AlertDialog.Builder(this)
@@ -448,7 +448,8 @@ class MainActivity : AppCompatActivity() {
                             ).show()
                             Log.d("createGroup", "Successfully created a group")
                             MainActivity.groupCreated = true
-                            connectionSuccessful()
+//                            connectionSuccessful()
+                            liveConnectedDevice.postValue(true)
                         }
 
                         override fun onFailure(reason: Int) {
@@ -702,6 +703,8 @@ class MainActivity : AppCompatActivity() {
                 peerCount++
 //                if(peerCount >= 2){
                 peersScannedAtleastOnce = true
+
+                updateConnectionStatus()
 //                }
 
 //                val dialogBuilder = AlertDialog.Builder(this)
@@ -847,6 +850,8 @@ class MainActivity : AppCompatActivity() {
         var nsdAlreadyDiscovering: Boolean = false
         var GOPWD = ""
 
+        var lastConnectionStatus = true
+
         var MAIN_EXECUTOR: Executor? = null
         var USERLIST_EXECUTOR: ScheduledExecutorService? = null
 
@@ -863,6 +868,7 @@ class MainActivity : AppCompatActivity() {
         lateinit var deviceArray: Array<WifiP2pDevice?>
         var NETWORK_USERNAME:String = ""
         var NETWORK_USERID:String = ""
+
         var liveConnectedDevice= MutableLiveData<Boolean>(false)
         // TODO observe this var. if its true, then show green colour, else show white
 
@@ -872,7 +878,7 @@ class MainActivity : AppCompatActivity() {
         var MSG_ID : Int = 0
 
         fun connectedToDeviceAlert(){
-            liveConnectedDevice.postValue(false)
+            liveConnectedDevice.postValue(true)
         }
 
         fun broadcastUserList(){
@@ -881,7 +887,21 @@ class MainActivity : AppCompatActivity() {
                 msg += "$userid $username\n"
             }
             broadcastMessage(msg, Constants.MESSAGE_TYPE_UNIQID_USERNAME)
-            liveConnectedDevice.postValue(netAddrSendReceiveHashMap?.size != 0)
+            updateConnectionStatus()
+        }
+
+        fun updateConnectionStatus(){
+            if(liveConnectedDevice.value == false && lastConnectionStatus) {
+                if (netAddrSendReceiveHashMap?.size != 0 || serverCreated)
+                    liveConnectedDevice.postValue(true)
+                lastConnectionStatus = false
+            } else if(liveConnectedDevice.value == true && !lastConnectionStatus) {
+                if (netAddrSendReceiveHashMap?.size == 0 || !serverCreated)
+                    liveConnectedDevice.postValue(false)
+                lastConnectionStatus = true
+            }
+            Log.d("liveconnecteddevice", liveConnectedDevice.toString())
+            Log.d("lastconnectionstatus", lastConnectionStatus.toString())
         }
 
         fun sendDirectMessage(msg:String, recipientId: String, messageId:Int, date:Date){

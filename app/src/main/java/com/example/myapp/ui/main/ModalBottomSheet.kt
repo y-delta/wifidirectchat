@@ -60,11 +60,11 @@ class ModalBottomSheet : BottomSheetDialogFragment() {
 
         continueButton.setOnClickListener {
             if(!wifiManager.isWifiEnabled||!locManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
-                Toast.makeText(
-                    root.context,
-                    "Enable permissions first!",
-                    Toast.LENGTH_LONG
-                ).show()
+//                Toast.makeText(
+//                    root.context,
+//                    "Enable permissions first!",
+//                    Toast.LENGTH_LONG
+//                ).show()
             else {
                 dismiss()
             }

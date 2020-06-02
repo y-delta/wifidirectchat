@@ -52,7 +52,6 @@ class ServerClass : Thread() {
                 Log.d("SendReceive Size", netAddrSendReceiveHashMap?.size.toString())
                 Log.d("ServerClass", "run() added client to sendReceiveHashMap")
                 sendReceive!!.start()
-                connectedToDeviceAlert()
 
                 Log.d("ServerClass", "attempting to send GO info only to newly connected device")
                 var ledgerList = GroupMessageFragment.appDatabaseCompanion!!.ledgerDao().loadAllLedgers()

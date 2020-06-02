@@ -34,7 +34,7 @@ class SendReceive(private var socket: Socket?) : Thread() {
     private var inputStreamReader: InputStreamReader? = null
     lateinit var bufferedReader: BufferedReader
     lateinit var message :String
-    lateinit var USERID: String
+    var USERID: String = ""
     var listening = true
     var messageStarted = true
     var messageStartedType = ""
@@ -60,6 +60,10 @@ class SendReceive(private var socket: Socket?) : Thread() {
                     var userid_username = message.split(" ")
                     userIdUserNameHashMap.put(userid_username[0], userid_username[1])
                     this.USERID = userid_username[0]
+                    var userEntity = UserEntity()
+                    userEntity.userId = userid_username[0]
+                    userEntity.username = userid_username[1]
+                    DatabaseUtil.addUserToDataBase(appDatabaseCompanion, userEntity)
                     Log.d("useridUsernameHashMap", "size = ${userIdUserNameHashMap.size}")
                     message = bufferedReader.readLine()
                     if(message == Constants.DATA_TYPE_UNIQID_USERNAME){
