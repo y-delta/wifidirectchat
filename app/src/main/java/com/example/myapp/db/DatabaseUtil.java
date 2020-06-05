@@ -8,6 +8,7 @@ import com.example.myapp.connections.SendReceive;
 import com.example.myapp.db.entity.ChatEntity;
 import com.example.myapp.db.entity.GroupChatEntity;
 import com.example.myapp.db.entity.LedgerEntity;
+import com.example.myapp.db.entity.UserEntity;
 
 import java.util.List;
 import java.util.Random;
@@ -17,32 +18,6 @@ import java.util.Random;
  * Also have helper methods to do operation in a different thread
  */
 public class DatabaseUtil {
-
-    private static final String[] RECEIVER_MESSAGES = new String[]{
-            "new messsage1","new messsage2","new messsage3","new messsage5","new messsage4"
-    };
-
-    //add message content here of type GroupChatEntity to retrieve from socket
-//    public static GroupChatEntity getMessage()
-//    {
-//        GroupChatEntity entry = new GroupChatEntity();
-//        String message;
-//        message = MainActivity.receivedGroupMessage;
-//        if(message.isEmpty())
-//            entry.setChatContent("no new message");
-//        else
-//            entry.setChatContent(message);
-//
-//        return entry;
-//    }
-
-    public static String getDirectChat()
-    {
-        String msg = DatabaseUtil.RECEIVER_MESSAGES[1];
-        //fetch from mainActivity/SendRecieve and add to this object
-
-        return msg;
-    }
 
     public static void addSenderChatToDataBase(AppDatabase db, ChatEntity chatEntitySender) {
         new addAsyncTask(db).execute(chatEntitySender);
@@ -56,12 +31,16 @@ public class DatabaseUtil {
         new addAsyncTask1(db).execute(groupChatEntitySender);
     }
 
-    public static void addReceiverGroupChatToDataBase(AppDatabase db, GroupChatEntity groupChatEntityReceiver) {
-        new addAsyncTask1(db).execute(groupChatEntityReceiver);
+    public static void addUserToDataBase(AppDatabase db, UserEntity userEntity) {
+        new addAsyncTask3(db).execute(userEntity);
     }
 
     public static void addNewLedgerToDataBase(AppDatabase db, LedgerEntity ledgerEntitySender) {
         new addAsyncTask2(db).execute(ledgerEntitySender);
+    }
+
+    public static void updateReceived(AppDatabase db, ChatEntity chatEntityReceiver) {
+        new addAsyncTask4(db).execute(chatEntityReceiver);
     }
 
     /**
@@ -109,6 +88,57 @@ public class DatabaseUtil {
         protected Void doInBackground(LedgerEntity... ledgerEntities) {
             insertLedgerData(db, ledgerEntities[0]);
             return null;
+        }
+    }
+
+    private static class addAsyncTask3 extends AsyncTask<UserEntity, Void, Void> {
+
+        private AppDatabase db;
+
+        addAsyncTask3(AppDatabase appDatabase) {
+            db = appDatabase;
+        }
+
+        @Override
+        protected Void doInBackground(UserEntity... userEntities) {
+            insertUserName(db, userEntities[0]);
+            return null;
+        }
+
+    }
+
+    private static class addAsyncTask4 extends AsyncTask<ChatEntity, Void, Void> {
+
+        private AppDatabase db;
+
+        addAsyncTask4(AppDatabase appDatabase) {
+            db = appDatabase;
+        }
+
+        @Override
+        protected Void doInBackground(ChatEntity... chatEntities) {
+            updateReceivedValue(db, chatEntities[0]);
+            return null;
+        }
+    }
+
+    public static void updateReceivedValue(AppDatabase db, ChatEntity chatEntity) {
+        db.beginTransaction();
+        try {
+            db.chatDao().update(chatEntity.getMessageReceived(), chatEntity.getId());
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    public static void insertUserName(AppDatabase db, UserEntity userEntity) {
+        db.beginTransaction();
+        try {
+            db.userDao().insert(userEntity);
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
         }
     }
 

@@ -4,19 +4,23 @@ import android.os.Bundle
 import android.os.Handler
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.SimpleItemAnimator
+import com.example.myapp.MainActivity
 import com.example.myapp.R
+import com.example.myapp.connections.SendReceive
 import com.example.myapp.databinding.ActivityChatListingBinding
 import com.example.myapp.db.AppDatabase
 import com.example.myapp.db.DatabaseUtil
 import com.example.myapp.db.entity.ChatEntity
 import com.example.myapp.ui.adapter.MessageAdapter
-import com.example.myapp.utils.AppUtils
 import com.example.myapp.utils.Constants
 import com.example.myapp.utils.NPALinearLayoutManager
 import java.util.*
@@ -24,7 +28,7 @@ import java.util.*
 /**
  * Using LiveData to keep the UI updated with the data changes in the database.
  */
-data class ChatMessage(var name: String, var message: String, var icon: Int = R.drawable.contact)
+data class ChatMessage(var name: String, var message: String, var receiver: String, var icon: Int = R.drawable.contact)
 
 class ChatListingActivity : AppCompatActivity() {
     var binding: ActivityChatListingBinding? = null
@@ -40,6 +44,7 @@ class ChatListingActivity : AppCompatActivity() {
         appDatabase = AppDatabase.getDatabase(this.application)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title= intent.getStringExtra("contactName")
+        chatActivityCompanion = this
         initRecyclerView()
         chatHistory
         clickListeners()
@@ -57,7 +62,7 @@ class ChatListingActivity : AppCompatActivity() {
                 // clear edit text
                 binding!!.editTextChat.setText("")
             } else {
-                AppUtils.toastMessage(this@ChatListingActivity, "Please enter some message")
+                Toast.makeText(this@ChatListingActivity, "Please enter some message", Toast.LENGTH_LONG).show()
             }
         })
     }
@@ -67,24 +72,25 @@ class ChatListingActivity : AppCompatActivity() {
         chatEntitySender.chatType = Constants.MESSAGE_SENDER
         chatEntitySender.chatContent = binding!!.editTextChat.text.toString()
         chatEntitySender.date = Date()
-        chatEntitySender.sender = "bhadwaRascal"
-        chatEntitySender.receiver = intent.getStringExtra("contactName")
+        chatEntitySender.sender = MainActivity.NETWORK_USERID
+        chatEntitySender.receiver = intent.getStringExtra("Receiver")
+        chatEntitySender.id = MainActivity.updateSharedPref()
         mChatList!!.add(chatEntitySender)
         receiverMessageFlag = true
         DatabaseUtil.addSenderChatToDataBase(appDatabase, chatEntitySender)
+        MainActivity.sendDirectMessage(chatEntitySender.chatContent, chatEntitySender.receiver, chatEntitySender.id, chatEntitySender.date)
     }
 
     private fun addReceiverMessage() {
         Handler().postDelayed({
-            val chatEntityReceiver = ChatEntity()
-            chatEntityReceiver.chatType = Constants.MESSAGE_RECEIVER
-            chatEntityReceiver.chatContent = DatabaseUtil.getDirectChat()
-            chatEntityReceiver.date = Date()
-            chatEntityReceiver.sender = intent.getStringExtra("contactName")
-            chatEntityReceiver.receiver = "bhadwaRascal"
-            mChatList!!.add(chatEntityReceiver)
-            receiverMessageFlag = false
-            DatabaseUtil.addReceiverChatToDataBase(appDatabase, chatEntityReceiver)
+            val chatEntityReceiver = SendReceive.getMessage()
+            chatEntityReceiver.sender = intent.getStringExtra("Receiver")
+            chatEntityReceiver.receiver = MainActivity.NETWORK_USERID
+            if (chatEntityReceiver.chatContent.isNotEmpty())
+            {       mChatList!!.add(chatEntityReceiver)
+                    receiverMessageFlag = false
+            }
+          //  DatabaseUtil.addReceiverChatToDataBase(appDatabase, chatEntityReceiver)
         }, 1000)
     }
 
@@ -104,13 +110,14 @@ class ChatListingActivity : AppCompatActivity() {
         binding!!.recyclerviewMessageView.isDrawingCacheEnabled = true
         binding!!.recyclerviewMessageView.drawingCacheQuality = View.DRAWING_CACHE_QUALITY_HIGH
         mChatList = ArrayList()
+        mChatListCompanion = mChatList
         adapter = MessageAdapter(this@ChatListingActivity, mChatList)
         binding!!.recyclerviewMessageView.adapter = adapter
     }
 
     private val chatHistory: Unit
         private get() {
-            mObservableChats = appDatabase!!.chatDao().loadAllChatHistory()
+            mObservableChats = appDatabase!!.chatDao().loadAllChatHistoryByContact(intent.getStringExtra("Receiver"))
             mObservableChats?.observe(
                 this,
                 Observer<MutableList<ChatEntity>?> { chatsHistoryList ->
@@ -128,6 +135,8 @@ class ChatListingActivity : AppCompatActivity() {
                 })
         }
     companion object{
-
+        var chatActivityCompanion: LifecycleOwner? = null
+        var mChatListCompanion: MutableList<ChatEntity>? = null
+        var bubble1: ImageView? = null
     }
 }

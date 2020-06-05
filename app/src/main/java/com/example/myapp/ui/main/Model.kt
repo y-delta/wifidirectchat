@@ -2,7 +2,7 @@ package com.example.myapp.ui.main
 
 import com.example.myapp.R
 
-class Model(val locationName:String, val landmarkName:String, val latLongAcc: ArrayList<String> = arrayListOf("13.082417", "77.556861", "0"), var requiredItems:ArrayList<String> = arrayListOf(), var img:Int = R.drawable.helpwe){
+class Model(val locationName:String, val landmarkName:String, val latLongAcc: ArrayList<String> = arrayListOf("13.082417", "77.556861", "0"), var requiredItems:ArrayList<String> = arrayListOf(), var img:Int = R.drawable.contact){
 
     var accuracy : Float = latLongAcc[2].toFloat()
     var latitude : Float = latLongAcc[0].toFloat()

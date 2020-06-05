@@ -19,6 +19,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.observe
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.myapp.MainActivity
+import com.example.myapp.MainActivity.Companion.NETWORK_USERID
 import com.example.myapp.R
 import com.example.myapp.databinding.ActivityChatListingBinding.inflate
 import com.example.myapp.databinding.FragmentDirectmessageBinding
@@ -43,7 +44,6 @@ import kotlin.collections.ArrayList
 
 class LedgerFragment : Fragment() {
 
-    private lateinit var notificationsViewModel: NotificationsViewModel
     var list = mutableListOf<Model>()
     private lateinit var listView: ListView
     private lateinit var root: View
@@ -63,12 +63,10 @@ class LedgerFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        notificationsViewModel =
-            ViewModelProviders.of(this).get(NotificationsViewModel::class.java)
         root = inflater.inflate(R.layout.fragment_ledger, container, false)
-        listView = root.findViewById(R.id.listView)
+        listView = root.findViewById(R.id.listView) as ListView
         listView.adapter = MyAdapter(root.context, R.layout.row, list)
-
+        listView.emptyView = root.findViewById(R.id.empty)
         ledgerFragmentCompanion = this
 
         appDatabase = AppDatabase.getDatabase(activity?.application)
@@ -199,12 +197,13 @@ class LedgerFragment : Fragment() {
                 ledgerEntity.location = locationName.replace("\n", " ")
                 ledgerEntity.landmark = landmark.replace("\n", " ")
                 ledgerEntity.needs = requiredItems.joinToString(separator=",", transform = {it.toLowerCase().trim()})
-                val dateAdded = Date()
+                val dateAdded = Date(Date().toString())
                 ledgerEntity.date = dateAdded // date is added here
-                ledgerEntity.sender = "You"
-                ledgerEntity.latitude=latLongAcc[0]
-                ledgerEntity.longitude= latLongAcc[1]
-                ledgerEntity.accuracy= latLongAcc[2]
+                Log.d("DATE SECONDS", dateAdded.seconds.toString())
+                ledgerEntity.sender = NETWORK_USERID
+                ledgerEntity.latitude = latLongAcc[0]
+                ledgerEntity.longitude = latLongAcc[1]
+                ledgerEntity.accuracy = latLongAcc[2]
 
                 Log.d("com.example.myapp.ui.ledger.LedgerFragment-onActivityResult", "location = $locationName")
                 Log.d("com.example.myapp.ui.ledger.LedgerFragment-onActivityResult", "landmark = $landmark")
@@ -215,13 +214,14 @@ class LedgerFragment : Fragment() {
 //                Log.d("Ledger list items", ledgerItem.needs)
                 var preparedMsg = ""
                 preparedMsg += dateAdded.toString() + "\n"        //date, landmark, location, needs, latitude, longitude, accuracy
+                Log.d("DATE SECONDS", dateAdded.seconds.toString())
                 preparedMsg += landmark.replace("\n", " ") + "\n"
                 preparedMsg += locationName.replace("\n", " ") + "\n"
                 preparedMsg += requiredItems.joinToString(separator=",", transform = {it.toLowerCase().trim()}) + "\n"
                 preparedMsg += latLongAcc[0] + "\n"
                 preparedMsg += latLongAcc[1] + "\n"
                 preparedMsg += latLongAcc[2] + "\n"
-                preparedMsg += MainActivity.NETWORK_USERNAME + "\n"
+                preparedMsg += NETWORK_USERID + "\n"
                 Log.d("PreparedMessageLedger", preparedMsg)
                 Log.d("TakeInput", "broadcasting this prepared message")
                 MainActivity.broadcastMessage(preparedMsg, Constants.MESSAGE_TYPE_LEDGER)

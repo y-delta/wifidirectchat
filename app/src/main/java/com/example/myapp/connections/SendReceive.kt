@@ -3,18 +3,23 @@ package com.example.myapp.connections
 import android.util.Log
 import com.example.myapp.MainActivity
 import com.example.myapp.MainActivity.Companion.MAIN_EXECUTOR
+import com.example.myapp.MainActivity.Companion.NETWORK_USERID
+import com.example.myapp.MainActivity.Companion.NETWORK_USERNAME
 import com.example.myapp.MainActivity.Companion.broadcastMessage
-import com.example.myapp.MainActivity.Companion.ipAddrUsernameHashMap
+import com.example.myapp.MainActivity.Companion.userIdUserNameHashMap
 import com.example.myapp.MainActivity.Companion.netAddrSendReceiveHashMap
 import com.example.myapp.MainActivity.Companion.receivedGroupMessage
 import com.example.myapp.MainActivity.Companion.serverCreated
+import com.example.myapp.R
 import com.example.myapp.db.DatabaseUtil
+import com.example.myapp.db.entity.ChatEntity
 import com.example.myapp.db.entity.GroupChatEntity
 import com.example.myapp.db.entity.LedgerEntity
+import com.example.myapp.db.entity.UserEntity
+import com.example.myapp.ui.activity.ChatListingActivity
+import com.example.myapp.ui.adapter.MessageAdapter
 import com.example.myapp.ui.groupmessage.GroupMessageFragment
 import com.example.myapp.ui.groupmessage.GroupMessageFragment.Companion.appDatabaseCompanion
-import com.example.myapp.ui.ledger.LedgerFragment
-import com.example.myapp.ui.ledger.LedgerFragment.Companion.ledgerFragmentCompanion
 import com.example.myapp.utils.Constants
 import java.io.*
 import java.net.InetAddress
@@ -29,10 +34,13 @@ class SendReceive(private var socket: Socket?) : Thread() {
     private var inputStreamReader: InputStreamReader? = null
     lateinit var bufferedReader: BufferedReader
     lateinit var message :String
+    var USERID: String = ""
     var listening = true
     var messageStarted = true
     var messageStartedType = ""
     val chatEntitySender = GroupChatEntity()
+    private val dmEntity = ChatEntity()
+    private val userEntity = UserEntity()
 
     override fun run() {
         val buffer = ByteArray(1024)
@@ -46,14 +54,19 @@ class SendReceive(private var socket: Socket?) : Thread() {
                 message = bufferedReader.readLine()
 
                 //this message is not sent along if it is IP addr because this transmission is only from GM/Bridge to GO
-                if(message == Constants.DATA_TYPE_MAC_ID){  // this happens only for the first time that's why this message is not sendAlong
+                if(message == Constants.DATA_TYPE_UNIQID_USERNAME){  // this happens only for the first time that's why this message is not sendAlong
                     message = bufferedReader.readLine()
-                    Log.d("Username", message)
-                    ipAddrUsernameHashMap.put(this.inetAddress.hostAddress, message)
-                    Log.d("ipAddrUsernameHashMap", "${this.inetAddress.hostAddress}")
-                    Log.d("ipAddrUsernameHashMap", "size = ${ipAddrUsernameHashMap.size}")
+                    Log.d("UserId Username", message)
+                    var userid_username = message.split(" ")
+                    userIdUserNameHashMap.put(userid_username[0], userid_username[1])
+                    this.USERID = userid_username[0]
+                    var userEntity = UserEntity()
+                    userEntity.userId = userid_username[0]
+                    userEntity.username = userid_username[1]
+                    DatabaseUtil.addUserToDataBase(appDatabaseCompanion, userEntity)
+                    Log.d("useridUsernameHashMap", "size = ${userIdUserNameHashMap.size}")
                     message = bufferedReader.readLine()
-                    if(message == Constants.DATA_TYPE_MAC_ID){
+                    if(message == Constants.DATA_TYPE_UNIQID_USERNAME){
                         Log.d("Username", "done reading MAC ID")
                         continue@outloop //go back to reading messages
                     }
@@ -78,7 +91,7 @@ class SendReceive(private var socket: Socket?) : Thread() {
                         preparedMsg += ledgerItem.latitude + "\n"
                         preparedMsg += ledgerItem.longitude + "\n"
                         preparedMsg += ledgerItem.accuracy + "\n"
-                        preparedMsg += MainActivity.NETWORK_USERNAME + "\n"
+                        preparedMsg += ledgerItem.sender + "\n"
                         preparedMsg += Constants.MESSAGE_TYPE_LEDGER + "\n"
                         Log.d("PreparedMessageLedger", preparedMsg)
                         this.write(preparedMsg.toByteArray())
@@ -134,7 +147,7 @@ class SendReceive(private var socket: Socket?) : Thread() {
                         when(messagePass){  //date, landmark, location, needs, latitude, longitude, accuracy
                             0 -> {
                                 Log.d("ledgerreceive0date", message)
-                                ledgerEntity.date = Date(message) // date is added here //entry into db here
+                                ledgerEntity.date = Date(message) // date is added here
                                 messagePass++
                                 debugMessage += message + "\n"
                             }
@@ -188,9 +201,112 @@ class SendReceive(private var socket: Socket?) : Thread() {
                                     Log.d("LedgerInput", "Inserted this message to database:-")
                                     Log.d("LedgerInput", debugMessage)
                                     sendAlong(sendString)
+                                    sendString = ""
                                     break@loop
                                 }
                             }
+                        }
+                    }
+                } else if(message.equals(Constants.MESSAGE_TYPE_UNIQID_USERNAME)){
+                    var userid = ArrayList<String>()
+                    while(true) {
+                        message = bufferedReader.readLine()
+                        if(message.equals(Constants.MESSAGE_TYPE_UNIQID_USERNAME)){
+                            sendAlong(sendString)
+                            sendString = ""
+
+                            if(!serverCreated && netAddrSendReceiveHashMap!!.size == 1) {            // this runs only if device is not GO or Bridge GM
+                                //this removes entries that were previously in the network but have since left
+                                for ((uid, _) in userIdUserNameHashMap) {
+                                    if(!userid.contains(uid)){
+                                        userIdUserNameHashMap.remove(uid)
+                                    }
+                                }
+                            }
+                            //TODO This is where we will insert all the data from hashmap into the userid-username database
+                            for((id, name)in userIdUserNameHashMap) {
+                                userEntity.userId = id
+                                userEntity.username = name
+                                DatabaseUtil.addUserToDataBase(appDatabaseCompanion, userEntity)
+                            }
+                            break
+                        }
+                        sendString += message + "\n"
+                        Log.d("UserID Username", message)
+                        var userid_username = message.split(" ")
+                        if(userid_username.size == 2 && userid_username[0] != NETWORK_USERNAME) {
+                            userIdUserNameHashMap.put(userid_username[0], userid_username[1])
+                            userid.add(userid_username[0])
+                        }
+                        Log.d("useridUsernameHashMap", "size = ${userIdUserNameHashMap.size}")
+                        sendAlong(sendString)
+                        sendString = ""
+                    }
+
+                } else if(message.equals(Constants.MESSAGE_TYPE_DIRECT)){ //recipientid, networkuserid, messageid, date, msg
+                    message = bufferedReader.readLine() //recipientid
+                    sendString += message + "\n"
+                    if(!message.equals(NETWORK_USERID)){
+                        while(true){
+                            message = bufferedReader.readLine()
+                            sendString += message + "\n"
+                            if(message.equals(Constants.MESSAGE_TYPE_DIRECT)){
+                                sendAlong(sendString)
+                                sendString = ""
+                                break
+                            }
+                        }
+                    } else{
+                        message = bufferedReader.readLine() //networkuserid
+                        var messageSenderId = message
+                        message = bufferedReader.readLine() //messageid
+                        var messageId = message.toInt()
+                        var messageString = ""
+                        message = bufferedReader.readLine() //date
+                        var messageDate = Date(message)
+                        while(true){
+                            message = bufferedReader.readLine() //msg
+                            messageString += message + "\n"
+                            if(message.equals(Constants.MESSAGE_TYPE_DIRECT)){
+                                Log.d("DirectMessageReceived", "$messageSenderId says $messageString at $messageDate")
+                                dmEntity.date = messageDate
+                                dmEntity.id = messageId
+                                dmEntity.chatContent = messageString.split(Constants.MESSAGE_TYPE_DIRECT)[0]
+                                dmEntity.sender = messageSenderId
+                                dmEntity.chatType = Constants.MESSAGE_RECEIVER
+                                dmEntity.receiver = NETWORK_USERID
+                                DatabaseUtil.addReceiverChatToDataBase(appDatabaseCompanion, dmEntity)
+
+                                broadcastMessage("$messageSenderId\n$messageId", Constants.RESPONSE_TYPE_DIRECT)
+                                sendString = ""
+                                break
+                            }
+                        }
+                    }
+                } else if(message == Constants.RESPONSE_TYPE_DIRECT){ //messagereceiverid, messageid
+                    message = bufferedReader.readLine() //recipientid
+                    sendString += message + "\n"
+                    if(!message.equals(NETWORK_USERID)){
+                        while(true){
+                            message = bufferedReader.readLine()
+                            sendString += message + "\n"
+                            if(message.equals(Constants.RESPONSE_TYPE_DIRECT)){
+                                sendAlong(sendString)
+                                sendString = ""
+                                break
+                            }
+                        }
+                    } else{
+                        message = bufferedReader.readLine() //messageid
+                        var messageId = message
+                        // TODO change in db, attribute received to true where record = messageId
+                        message = bufferedReader.readLine()
+                        if(message == Constants.RESPONSE_TYPE_DIRECT){
+                            dmEntity.messageReceived = true
+                            dmEntity.id = messageId.toInt()
+                            DatabaseUtil.updateReceivedValue(appDatabaseCompanion, dmEntity)
+                        } else{
+                            // lol unreachable code XDXD trolled u dev
                         }
                     }
                 }
@@ -239,7 +355,8 @@ class SendReceive(private var socket: Socket?) : Thread() {
                 } catch (e2: Exception) {
                     e2.printStackTrace()
                 } finally {
-                    ipAddrUsernameHashMap?.remove(inetAddress.hostAddress)
+                    if(USERID in userIdUserNameHashMap)
+                        userIdUserNameHashMap?.remove(USERID)
                     netAddrSendReceiveHashMap?.remove(inetAddress)
                     Log.d("Socket Closing", "Removed from sendReceiveHashMap")
                     Log.d("Socket Closing", "items in sendReceiveHashMap = " + netAddrSendReceiveHashMap!!.size)
@@ -316,14 +433,13 @@ class SendReceive(private var socket: Socket?) : Thread() {
     }
 
     companion object{
-        fun getMessage(): GroupChatEntity {
-            val entry = GroupChatEntity()
+        fun getMessage(): ChatEntity {
+            val entry = ChatEntity()
             val message: String = receivedGroupMessage
-            if (message.isEmpty()) entry.chatContent =
-                "no new message" else entry.chatContent =
-                message
+            entry.chatContent = message
+            entry.chatType = Constants.MESSAGE_RECEIVER
             return entry
         }
-
+        var messageReceivedByRecipient : Boolean = false
     }
 }

@@ -3,7 +3,6 @@ package com.example.myapp
 import android.Manifest
 import android.app.AlertDialog
 import android.content.*
-import android.content.pm.PackageManager
 import android.net.nsd.NsdManager
 import android.net.nsd.NsdManager.DiscoveryListener
 import android.net.nsd.NsdManager.RegistrationListener
@@ -16,22 +15,28 @@ import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener
 import android.os.AsyncTask
 import android.os.Bundle
+import android.os.IBinder
 import android.text.InputType
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.PermissionChecker
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.PermissionChecker.*
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.observe
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
-import androidx.test.core.app.ApplicationProvider
+import com.amitshekhar.DebugDB
 import com.example.myapp.connections.*
 import com.example.myapp.db.AppDatabase
+import com.example.myapp.db.DatabaseUtil
+import com.example.myapp.db.entity.ChatEntity
+import com.example.myapp.db.entity.UserEntity
 import com.example.myapp.ui.groupmessage.GroupMessageFragment
 import com.example.myapp.ui.directmessage.DirectMessageFragment
 import com.example.myapp.ui.groupmessage.GroupMessageFragment.Companion.appDatabaseCompanion
@@ -39,13 +44,14 @@ import com.example.myapp.ui.ledger.LedgerFragment
 import com.example.myapp.ui.main.ModalBottomSheet
 import com.example.myapp.utils.Constants
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.android.synthetic.main.activity_chat_listing.*
+import kotlinx.android.synthetic.main.activity_main.*
 import java.net.Inet4Address
 import java.net.InetAddress
 import java.net.NetworkInterface
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.Executor
-import java.util.concurrent.Executors
+import java.util.concurrent.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -53,9 +59,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var nsdManager: NsdManager
     private var peerCount = 0
 
-    var directMessageFragment: Fragment = GroupMessageFragment()
-    var globalMessageFragment: Fragment = DirectMessageFragment()
-    var ledgerFragment: Fragment = LedgerFragment()
+    var menubar : Menu? = null
 
     var wifiManager: WifiManager? = null
     var mManager: WifiP2pManager? = null
@@ -68,6 +72,7 @@ class MainActivity : AppCompatActivity() {
 
     var serverClass: ServerClass? = null
     var clientClass: ClientClass? = null
+    var userEntity = UserEntity()
 
     private var permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
 
@@ -76,11 +81,44 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        Log.d("DBDEBUG", DebugDB.getAddressLog())
 
         //Request Location Permission if not given
         if (checkCallingOrSelfPermission(applicationContext,permissions[0]) == PERMISSION_DENIED
             || checkCallingOrSelfPermission(applicationContext,permissions[1])== PERMISSION_DENIED)
         {requestPermissions(permissions, 10)}
+
+        val sharedPref = this.getPreferences(Context.MODE_PRIVATE) ?: return
+        with(sharedPref.edit()){
+            putInt("com.example.myapp.MSG_ID", MSG_ID)
+            commit()
+        }
+        val USERID = sharedPref.getString(getString(R.string.SHARED_PREF_USERID), "")
+        val USERNAME = sharedPref.getString(getString(R.string.SHARED_PREF_USERNAME), "")
+        var MSG_ID = sharedPref.getInt("com.example.myapp.MSG_ID", 1)
+        Log.d("USERID", USERID)
+        Log.d("USERNAME", USERNAME)
+
+        if(USERID.isNullOrEmpty()){
+            val randomString = UUID.randomUUID().toString().substring(0,8)
+            with(sharedPref.edit()){
+                putString(getString(R.string.SHARED_PREF_USERID), randomString)
+                commit()
+            }
+            NETWORK_USERID = randomString
+        } else{
+            NETWORK_USERID = USERID
+        }
+
+        if(USERNAME.isNullOrEmpty()){
+            NETWORK_USERNAME = NETWORK_USERID
+        } else{
+            NETWORK_USERNAME = USERNAME
+        }
+
+        userIdUserNameHashMap.put(NETWORK_USERID, NETWORK_USERNAME)
+        Log.d("USERID-", NETWORK_USERID)
+        Log.d("USERNAME-", NETWORK_USERNAME)
 
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
         val navController = findNavController(R.id.nav_host_fragment)
@@ -92,8 +130,11 @@ class MainActivity : AppCompatActivity() {
 
             MAIN_EXECUTOR = Executors.newSingleThreadExecutor()
 
-            var appDatabase = AppDatabase.getDatabase(this.application)
+            val appDatabase = AppDatabase.getDatabase(this.application)
             appDatabaseCompanion = appDatabase
+            userEntity.userId = NETWORK_USERID
+            userEntity.username = NETWORK_USERNAME
+            DatabaseUtil.addUserToDataBase(appDatabase, userEntity)
             //supportFragmentManager.beginTransaction()
             //  .add(R.id.nav_host_fragment, globalMessageFragment, "putGlobalMessageFragment")
             //.commit()
@@ -139,8 +180,31 @@ class MainActivity : AppCompatActivity() {
 
         modalBottomSheet.show(supportFragmentManager, modalBottomSheet.tag) //implement this on WiFiDirectBroadcastReceiver when Prashant sends code
         modalBottomSheet.isCancelable = false //prevents cancelling
+        liveConnectedDevice.observe(
+            this,
+            androidx.lifecycle.Observer { _ ->
+                lastConnectionStatus = liveConnectedDevice.value!!
+                if (liveConnectedDevice.value == true) {
+                    connectionSuccessful()
+                } else
+                    connectionUnsuccessful()
+            }
+        )
+
     }
 
+    private fun connectionUnsuccessful() {
+        var item = menubar?.getItem(0)
+        val color = item?.icon
+        color?.setTint(resources.getColor(R.color.design_default_color_background))
+        item?.icon = color
+        Snackbar.make(window.decorView.rootView.findViewById(R.id.container),
+                "Not connected to any network",Snackbar.LENGTH_LONG)
+                .apply {view.layoutParams = (view.layoutParams as FrameLayout.LayoutParams)
+                .apply { setMargins(leftMargin, topMargin, rightMargin, nav_view.height) }
+                }.setBackgroundTint(resources.getColor(R.color.design_default_color_error))
+                .show()
+    }
 
 //    private fun scanSuccess() {
 //        val results = wifiManager?.scanResults
@@ -159,40 +223,21 @@ class MainActivity : AppCompatActivity() {
         if(results!!.size > 0) wifiScannedAtleastOnce = true
     }
 
-    private val mOnNavigationItemSelectedListener =
-        BottomNavigationView.OnNavigationItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.navigation_directmessage -> {
-                    supportFragmentManager.beginTransaction().replace(
-                        R.id.nav_host_fragment,
-                        directMessageFragment,
-                        "putDirectMessageFragment"
-                    )
-                        .commit()
-                    return@OnNavigationItemSelectedListener true
-                }
-                R.id.navigation_globalmessage -> {
-                    supportFragmentManager.beginTransaction().replace(
-                        R.id.nav_host_fragment,
-                        globalMessageFragment,
-                        "putGlobalMessageFragment"
-                    )
-                        .commit()
-                    return@OnNavigationItemSelectedListener true
-                }
-                R.id.navigation_ledger -> {
-                    supportFragmentManager.beginTransaction()
-                        .replace(R.id.nav_host_fragment, ledgerFragment, "putLedgerFragment")
-                        .commit()
-                    return@OnNavigationItemSelectedListener true
-                }
-            }
-
-            false
-        }
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menubar = menu
         menuInflater.inflate(R.menu.menu, menu)
         return super.onCreateOptionsMenu(menu)
+    }
+
+    private fun connectionSuccessful()
+    {
+        var item = menubar?.getItem(0)
+        val color = item?.icon
+        color?.setTint(resources.getColor(R.color.colorSuccess))
+        item?.icon = color
+        Snackbar.make(window.decorView.rootView.findViewById(R.id.container), "Connection Successful", Snackbar.LENGTH_LONG)
+            .apply {view.layoutParams = (view.layoutParams as FrameLayout.LayoutParams)
+                .apply {setMargins(leftMargin, topMargin, rightMargin, nav_view.height)}}.show()
     }
 
     // handle button activities
@@ -271,6 +316,8 @@ class MainActivity : AppCompatActivity() {
 
             var createGroupOrConnect = CreateGroupOrConnect(mManager, mChannel, applicationContext)
             createGroupOrConnect.start()
+//            if(groupCreated || checkedForGroups)
+//                connectionSuccessful()
         }
         /*if(id == R.id.connectToHotspot){
             val builder: AlertDialog.Builder = AlertDialog.Builder(this)
@@ -356,17 +403,16 @@ class MainActivity : AppCompatActivity() {
         }
         if (id == R.id.showNetworkInformation) { // do something here
             val alert = AlertDialog.Builder(this)
-            alert.setTitle("Please select")
+            alert.setTitle("Network Information")
             var input = TextView (this);
             alert.setView(input);
             input.text = ""
             var inputText = ""
-            if(serverCreated && groupCreated){
-                mManager!!.requestGroupInfo(mChannel) { group ->
-                    inputText += ("PASSPHRASE =  ${group.passphrase}\n")
-                }
+
+            inputText += if(!GOPWD.isNullOrEmpty()){
+                "DIRECT password = $GOPWD\n"
             } else{
-                alert.setMessage("this device is not GO, click \"Create Group\" to manually become a GO")
+//                "this device is not GO, click \"Create Group\" to manually become a GO"
             }
 
             if(groupCreated){
@@ -375,13 +421,15 @@ class MainActivity : AppCompatActivity() {
             if(serverCreated){
                 inputText += "Server created = true\n"
             }
+            inputText += "USERNAME = $NETWORK_USERNAME\n"
+            inputText += "USERID = $NETWORK_USERID\n"
             if(!groupCreated && !serverCreated){
                 if(netAddrSendReceiveHashMap!!.size > 0)
                     inputText += "I am a client\n"
                 else
                     inputText += "Not yet connected to a network\n"
             }
-            inputText += "No of items in netAddrSendReceiveHashMap = ${netAddrSendReceiveHashMap?.size}"
+            inputText += "Connected to ${netAddrSendReceiveHashMap?.size} device(s)"
 
             alert.setPositiveButton("Ok") { _, id ->
 
@@ -400,7 +448,8 @@ class MainActivity : AppCompatActivity() {
                             ).show()
                             Log.d("createGroup", "Successfully created a group")
                             MainActivity.groupCreated = true
-
+//                            connectionSuccessful()
+                            liveConnectedDevice.postValue(true)
                         }
 
                         override fun onFailure(reason: Int) {
@@ -416,6 +465,9 @@ class MainActivity : AppCompatActivity() {
             }
             input.text = inputText
             alert.show()
+        }
+        if(id == R.id.setUsername){
+            showAlertDialogForUsername(true)
         }
         return super.onOptionsItemSelected(item)
     }
@@ -465,7 +517,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun showAlertDialogForUsername(){
+    fun showAlertDialogForUsername(forceShow: Boolean = false){
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
         builder.setTitle("Enter Username")
         val input =  EditText(this)
@@ -473,21 +525,37 @@ class MainActivity : AppCompatActivity() {
         input.inputType = InputType.TYPE_CLASS_TEXT
         builder.setView(input)
         builder.setCancelable(false)
-        builder.setPositiveButton("Ok") { _, id ->
+        builder.setPositiveButton("Set Username") { _, id ->
             var text = input.text.toString()
-            NETWORK_USERNAME = text.trim()
+            NETWORK_USERNAME = text.trim().replace("\n", "")
             if(!NETWORK_USERNAME.isNullOrEmpty()){
-                dialog?.cancel()
+//                dialog?.cancel()
             }
         }
-        if(NETWORK_USERNAME.isNullOrEmpty()) {
+        builder.setNegativeButton("Cancel") { _, id ->
+
+        }
+        if(forceShow || NETWORK_USERNAME.equals(NETWORK_USERID)) {
             dialog = builder.create()
             dialog?.show()
             dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener {
                     var text = input.text.toString()
-                    NETWORK_USERNAME = text.trim()
-                    if(!NETWORK_USERNAME.isNullOrEmpty()){
+                    NETWORK_USERNAME = text.trim().replace("\n", "")
+                    userIdUserNameHashMap.put(NETWORK_USERID, NETWORK_USERNAME)
+                    val sharedPref = this.getPreferences(Context.MODE_PRIVATE)
+                    with(sharedPref.edit()){
+                        putString(getString(com.example.myapp.R.string.SHARED_PREF_USERNAME), NETWORK_USERNAME)
+                        commit()
+                    }
+                    broadcastMessage("$NETWORK_USERID $NETWORK_USERNAME", Constants.DATA_TYPE_UNIQID_USERNAME)
+                    if(!NETWORK_USERNAME.isNullOrEmpty() && !NETWORK_USERNAME.equals(NETWORK_USERID)){
+                        dialog?.cancel()
+                    }
+                }
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+                .setOnClickListener {
+                    if(!NETWORK_USERNAME.equals(NETWORK_USERID)){
                         dialog?.cancel()
                     }
                 }
@@ -544,8 +612,10 @@ class MainActivity : AppCompatActivity() {
             Log.d("DiscoveryListener", "host is null, servicename = ${serviceInfo?.serviceName}, servicetype = ${serviceInfo?.serviceType}, port = ${serviceInfo?.port}")
             try{
                 Log.d("Resolve", "about to create client class object alhamdulilah")
-                clientClass = ClientClass(serviceInfo!!.host)
-                clientClass!!.start()
+                if(serviceInfo!!.host != lastinetaddress) {
+                    clientClass = ClientClass(serviceInfo!!.host)
+                    clientClass!!.start()
+                }
                 Log.d("Resolve", "created client object and started thread mashallah")
             }
             catch (e:Exception){
@@ -635,6 +705,8 @@ class MainActivity : AppCompatActivity() {
                 peerCount++
 //                if(peerCount >= 2){
                 peersScannedAtleastOnce = true
+
+                updateConnectionStatus()
 //                }
 
 //                val dialogBuilder = AlertDialog.Builder(this)
@@ -688,8 +760,16 @@ class MainActivity : AppCompatActivity() {
         ConnectionInfoListener { info ->
             val groupOwnerAddress = info.groupOwnerAddress
             if (info.groupFormed && info.isGroupOwner) {
+                mManager!!.requestGroupInfo(mChannel) { group ->
+                    GOPWD += ("PASSPHRASE =  ${group.passphrase}\n")
+                }
                 Log.d("Connection Status", "HOST")
                 Log.d("ConnInfoListener", "I am GO")
+                Log.d("ConnInfoListener", "Broadcasting userlist")
+                if(USERLIST_EXECUTOR == null){
+                    USERLIST_EXECUTOR = Executors.newSingleThreadScheduledExecutor()
+                    USERLIST_EXECUTOR!!.scheduleWithFixedDelay(BroadcastUserListRunnable(), 0, 10, TimeUnit.SECONDS)
+                }
                 groupCreated = true
                 if (!serverCreated) {
                     serverClass = ServerClass()
@@ -707,6 +787,7 @@ class MainActivity : AppCompatActivity() {
                 }
             } else if (info.groupFormed) {
                 Log.d("Connection Status", "Client")
+                lastinetaddress = groupOwnerAddress
                 clientClass = ClientClass(groupOwnerAddress)
                 clientClass!!.start()
                 serverCreated = false
@@ -769,12 +850,19 @@ class MainActivity : AppCompatActivity() {
         var checkedForGroups = false
         var receivedGroupMessage: String = ""
         var DEVICEMAC : String? = null
+        var nsdAlreadyDiscovering: Boolean = false
+        var GOPWD = ""
+
+        var lastConnectionStatus = true
 
         var MAIN_EXECUTOR: Executor? = null
+        var USERLIST_EXECUTOR: ScheduledExecutorService? = null
+
+        var lastinetaddress:InetAddress ?= null
 
         lateinit var mainActivityCompanion:MainActivity
 
-        var ipAddrUsernameHashMap = ConcurrentHashMap<String, String>()
+        var userIdUserNameHashMap = ConcurrentHashMap<String, String>()
 
         const val SERVICE_TYPE = "_helpapp._tcp."
         var peers: ArrayList<WifiP2pDevice> = ArrayList<WifiP2pDevice>()
@@ -784,20 +872,71 @@ class MainActivity : AppCompatActivity() {
         lateinit var deviceNameArray: Array<String?>
         lateinit var deviceArray: Array<WifiP2pDevice?>
         var NETWORK_USERNAME:String = ""
+        var NETWORK_USERID:String = ""
+
+        var liveConnectedDevice= MutableLiveData<Boolean>(false)
+        // TODO observe this var. if its true, then show green colour, else show white
+
 
         var nameOfGO: String? = null
         var nameOfConnectedGOHotspot: String? = null
+        var MSG_ID : Int = 0
+
+        fun connectedToDeviceAlert(){
+            liveConnectedDevice.postValue(true)
+        }
+
+        fun broadcastUserList(){
+            var msg = ""
+            for((userid, username) in userIdUserNameHashMap){
+                msg += "$userid $username\n"
+            }
+            broadcastMessage(msg, Constants.MESSAGE_TYPE_UNIQID_USERNAME)
+            updateConnectionStatus()
+        }
+
+        fun updateConnectionStatus(){
+            if(liveConnectedDevice.value == false && lastConnectionStatus) {
+                if (netAddrSendReceiveHashMap?.size != 0 || serverCreated)
+                    liveConnectedDevice.postValue(true)
+                lastConnectionStatus = false
+            } else if(liveConnectedDevice.value == true && !lastConnectionStatus) {
+                if (netAddrSendReceiveHashMap?.size == 0 || !serverCreated)
+                    liveConnectedDevice.postValue(false)
+                lastConnectionStatus = true
+            }
+            Log.d("liveconnecteddevice", liveConnectedDevice.toString())
+            Log.d("lastconnectionstatus", lastConnectionStatus.toString())
+        }
+
+        fun sendDirectMessage(msg:String, recipientId: String, messageId:Int, date:Date){
+            // usage - sendDirectMessage(message, userid_of_recipient, messageId, date)
+            var messageType: String = Constants.MESSAGE_TYPE_DIRECT
+            if(msg.isNullOrEmpty() || recipientId.isNullOrEmpty()) return
+            var directMessage = "$recipientId\n$NETWORK_USERID\n$messageId\n${date.toString()}\n$msg"   //recipientid, networkuserid, messageid, date, msg
+            broadcastMessage(directMessage, messageType)
+        }
+
+        fun updateSharedPref():Int{
+            val sharedPref = mainActivityCompanion!!.getPreferences(Context.MODE_PRIVATE)
+            with(sharedPref.edit()){
+                putInt("com.example.myapp.MSG_ID", ++MSG_ID)
+                commit()
+            }
+            return MSG_ID
+        }
 
         fun broadcastMessage(msg: String, messageType:String = Constants.MESSAGE_TYPE_GROUP): Boolean {
+            var msg = msg
             if(netAddrSendReceiveHashMap?.size!! > 0) {
                 val broadcastMessageAsyncTask = BroadcastMessageAsyncTask()
                 var username:String = ""
                 var msgWithStartEndString = ""
-                if(msg.endsWith("\n") && !msg.isNullOrEmpty()){
-                    msg.substring(0, msg.length - 1)
+                if(msg.endsWith("\n") && !msg.isNullOrEmpty()){ //what if msgtype, msgtype?
+                    msg = msg.substring(0, msg.length - 1)
                 }
                 if(NETWORK_USERNAME.isNullOrEmpty()){
-                    username = "username_not_set"
+                    username = NETWORK_USERID
                 } else{
                     username = NETWORK_USERNAME
                 }
@@ -805,6 +944,10 @@ class MainActivity : AppCompatActivity() {
                     messageType + "\n" + username + "\n" + msg + "\n" + messageType + "\n"
                 }else if(messageType == Constants.REQUEST_TYPE_LEDGER_LIST){
                     messageType + "\n" + messageType
+                } else if (messageType == Constants.MESSAGE_TYPE_DIRECT) {
+                    messageType + "\n" + msg + "\n" + messageType + "\n"
+                } else if(messageType == Constants.RESPONSE_TYPE_DIRECT){
+                    messageType + "\n" + msg + "\n" + messageType + "\n"
                 } else {
                     messageType + "\n" + msg + "\n" + messageType + "\n"
                 }
@@ -820,6 +963,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+    }
+
+    class BroadcastUserListRunnable : Runnable{
+        override fun run() {
+            broadcastUserList()
+        }
     }
 
     class BroadcastMessageRunnable(msg:String) : Runnable {

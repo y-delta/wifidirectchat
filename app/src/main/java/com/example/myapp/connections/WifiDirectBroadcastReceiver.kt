@@ -22,9 +22,9 @@ class WifiDirectBroadcastReceiver(
         if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION == action) {
             val state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1)
             if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
-                Toast.makeText(context, "WIFI IS ON", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(context, "WIFI IS ON", Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(context, "WIFI IS OFF", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(context, "WIFI IS OFF", Toast.LENGTH_SHORT).show()
             }
         } else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION == action) {
             mManger?.requestPeers(mChannel, mActivity.peerListListener)

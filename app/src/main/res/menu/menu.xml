@@ -12,13 +12,13 @@
 <item
         android:id="@+id/connection"
         android:title="Establish Connection"
-        app:showAsAction="never"
-        android:icon="@drawable/ic_wifi"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/connect"
         android:contentDescription="discover Peers"
         />
     <item
         android:id="@+id/connectToHotspot"
-        android:title="Connect to a network"
+        android:title="Connect without WiFi Direct"
         app:showAsAction="never"
         android:icon="@drawable/ic_send_button"
         android:contentDescription="connect to available hotspot"
@@ -29,6 +29,13 @@
         app:showAsAction="never"
         android:icon="@drawable/ic_chart_black_24dp"
         android:contentDescription="Show extra network information"
+        />
+    <item
+        android:id="@+id/setUsername"
+        android:title="Set Username"
+        app:showAsAction="never"
+        android:icon="@drawable/ic_chart_black_24dp"
+        android:contentDescription="Set a username for the network manually"
         />
 
     <!--    <item-->

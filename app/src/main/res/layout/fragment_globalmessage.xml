@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout xmlns:tools="http://schemas.android.com/tools">
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.directmessage.DirectMessageFragment">
-<RelativeLayout
+
+    <RelativeLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    >
+    android:gravity="center"
+    android:layout_gravity="center">
 
     <ListView
         android:id="@+id/contactList"
@@ -21,8 +21,17 @@
         android:transcriptMode="alwaysScroll"
 
         />
+        <TextView
+            android:id="@+id/empty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Oops! Looks like you are not connected to any group yet."
+            android:textSize="16sp"
+            android:textAlignment="center"
+            />
 
 </RelativeLayout>
+
 </FrameLayout>
 
 </layout>

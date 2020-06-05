@@ -10,14 +10,16 @@ import androidx.room.TypeConverters;
 import com.example.myapp.db.dao.ChatDao;
 import com.example.myapp.db.dao.GroupChatDao;
 import com.example.myapp.db.dao.LedgerDao;
+import com.example.myapp.db.dao.UserDao;
 import com.example.myapp.db.entity.ChatEntity;
 import com.example.myapp.db.entity.GroupChatEntity;
 import com.example.myapp.db.entity.LedgerEntity;
+import com.example.myapp.db.entity.UserEntity;
 
 /**
  * Contains the config for the actual database
  */
-@Database(entities = {ChatEntity.class, GroupChatEntity.class, LedgerEntity.class}, version = 1, exportSchema = false)
+@Database(entities = {ChatEntity.class, GroupChatEntity.class, LedgerEntity.class, UserEntity.class}, version = 1, exportSchema = false)
 @TypeConverters(com.example.myapp.db.DateConverter.class)
 public abstract class AppDatabase extends RoomDatabase {
 
@@ -37,5 +39,6 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract ChatDao chatDao();
     public abstract GroupChatDao groupChatDao();
     public abstract LedgerDao  ledgerDao();
+    public abstract UserDao userDao();
 
 }
