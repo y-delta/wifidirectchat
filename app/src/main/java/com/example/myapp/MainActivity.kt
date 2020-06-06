@@ -2,10 +2,12 @@ package com.example.myapp
 
 import android.Manifest
 import android.app.AlertDialog
-import android.content.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.net.nsd.NsdManager
-import android.net.nsd.NsdManager.DiscoveryListener
-import android.net.nsd.NsdManager.RegistrationListener
+import android.net.nsd.NsdManager.*
 import android.net.nsd.NsdServiceInfo
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
@@ -15,37 +17,31 @@ import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener
 import android.os.AsyncTask
 import android.os.Bundle
-import android.os.IBinder
 import android.text.InputType
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.*
+import android.widget.EditText
+import android.widget.FrameLayout
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.content.PermissionChecker.*
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.LiveData
+import androidx.core.content.PermissionChecker.PERMISSION_DENIED
+import androidx.core.content.PermissionChecker.checkCallingOrSelfPermission
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.observe
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.amitshekhar.DebugDB
 import com.example.myapp.connections.*
 import com.example.myapp.db.AppDatabase
 import com.example.myapp.db.DatabaseUtil
-import com.example.myapp.db.entity.ChatEntity
 import com.example.myapp.db.entity.UserEntity
-import com.example.myapp.ui.groupmessage.GroupMessageFragment
-import com.example.myapp.ui.directmessage.DirectMessageFragment
 import com.example.myapp.ui.groupmessage.GroupMessageFragment.Companion.appDatabaseCompanion
-import com.example.myapp.ui.ledger.LedgerFragment
 import com.example.myapp.ui.main.ModalBottomSheet
 import com.example.myapp.utils.Constants
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.activity_chat_listing.*
 import kotlinx.android.synthetic.main.activity_main.*
 import java.net.Inet4Address
 import java.net.InetAddress
@@ -611,12 +607,12 @@ class MainActivity : AppCompatActivity() {
         override fun onServiceResolved(serviceInfo: NsdServiceInfo?) {
             Log.d("DiscoveryListener", "host is null, servicename = ${serviceInfo?.serviceName}, servicetype = ${serviceInfo?.serviceType}, port = ${serviceInfo?.port}")
             try{
-                Log.d("Resolve", "about to create client class object alhamdulilah")
                 if(serviceInfo!!.host != lastinetaddress) {
+                    Log.d("Resolve", "about to create client class object alhamdulilah")
                     clientClass = ClientClass(serviceInfo!!.host)
                     clientClass!!.start()
+                    Log.d("Resolve", "created client object and started thread mashallah")
                 }
-                Log.d("Resolve", "created client object and started thread mashallah")
             }
             catch (e:Exception){
                 e.printStackTrace()
@@ -638,12 +634,31 @@ class MainActivity : AppCompatActivity() {
                     serviceInfo.serviceName
                 )
             )
-            if(serviceInfo.serviceType.contains(MainActivity.SERVICE_TYPE))
-                nsdManager.resolveService(serviceInfo, resolveListener);
             try {
-                Log.d("nsd", "About to create a clientclass object alhamdulilah")
+                if(serviceInfo.serviceType.contains(MainActivity.SERVICE_TYPE))
+                    nsdManager.resolveService(serviceInfo, object : ResolveListener{
+                        override fun onResolveFailed(serviceInfo: NsdServiceInfo?, errorCode: Int) {
+                            //do nothing for now
+                        }
+
+                        override fun onServiceResolved(serviceInfo: NsdServiceInfo?) {
+                            Log.d("DiscoveryListener", "host is null, servicename = ${serviceInfo?.serviceName}, servicetype = ${serviceInfo?.serviceType}, port = ${serviceInfo?.port}")
+                            try{
+                                if(serviceInfo!!.host != lastinetaddress) {
+                                    Log.d("Resolve", "about to create client class object alhamdulilah")
+                                    clientClass = ClientClass(serviceInfo!!.host)
+                                    clientClass!!.start()
+                                    Log.d("Resolve", "created client object and started thread mashallah")
+                                } else{
+                                    Log.d("Resolve", "not connecting, already connected through WiFi Direct")
+                                }
+                            }
+                            catch (e:Exception){
+                                e.printStackTrace()
+                            }
+                        }
+                    });
                 Log.d("DiscoveryListener", "host is null, servicename = ${serviceInfo.serviceName}, servicetype = ${serviceInfo.serviceType}, port = ${serviceInfo.port}")
-                Log.d("nsd", "just created clientclass object and started the thread mashallah")
             }catch (e:Exception){
                 e.printStackTrace()
             }

@@ -211,6 +211,7 @@ class SendReceive(private var socket: Socket?) : Thread() {
                     var userid = ArrayList<String>()
                     while(true) {
                         message = bufferedReader.readLine()
+                        sendString += message + "\n"
                         if(message.equals(Constants.MESSAGE_TYPE_UNIQID_USERNAME)){
                             sendAlong(sendString)
                             sendString = ""
@@ -231,11 +232,14 @@ class SendReceive(private var socket: Socket?) : Thread() {
                             }
                             break
                         }
-                        sendString += message + "\n"
-                        Log.d("UserID Username", message)
+                        Log.d("msg type", message)
                         var userid_username = message.split(" ")
                         if(userid_username.size == 2 && userid_username[0] != NETWORK_USERNAME) {
                             userIdUserNameHashMap.put(userid_username[0], userid_username[1])
+                            var userEntity = UserEntity()
+                            userEntity.userId = userid_username[0]
+                            userEntity.username = userid_username[1]
+                            DatabaseUtil.addUserToDataBase(appDatabaseCompanion, userEntity)
                             userid.add(userid_username[0])
                         }
                         Log.d("useridUsernameHashMap", "size = ${userIdUserNameHashMap.size}")
