@@ -5,11 +5,11 @@ Help was created using Kotlin as its base language with a little Java for the da
 
 ## Screenshots<br>
 ![First Screen](screenshots/1.jpeg "Starting off")![One-on-One Messaging](screenshots/1-5.jpeg "Direct Messaging")
-![Group Chat](screenshots/2.jpeg "Group Messaging")![Ledger List](screenshots/3.jpeg "Ledger")
-![Ledger Expanded](screenshots/4.jpeg "Look for people in need")
+![Group Chat](screenshots/2.jpeg "Group Messaging")
+![Username](screenshots/6_1.jpeg "Set up your username")![Username](screenshots/6_2.jpeg "Let people easily identify you")
+![Ledger List](screenshots/3.jpeg "Ledger")![Ledger Expanded](screenshots/4.jpeg "Look for people in need")
 ![Requirements](screenshots/5.jpeg "What do you need help with?")
-![Username](screenshots/6_1.jpeg "Set up your username")
-![Username](screenshots/6_2.jpeg "Let people easily identify you")
+
 
 
 ## Build Instructions
