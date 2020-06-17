@@ -4,15 +4,13 @@ It is a android chatting app which creates a mesh network of mobiles. Mobiles ca
 Help was created using Kotlin as its base language with a little Java for the database code.
 
 ## Screenshots<br>
-![First Screen](screenshots/1.jpeg "Starting off")" "
-![One-on-One Messaging](screenshots/1-5.jpeg "Direct Messaging")" "
-![Group Chat](screenshots/2.jpeg "Group Messaging")" "
-![Ledger List](screenshots/3.jpeg "Ledger")<br>
-<br>
+![First Screen](screenshots/1.jpeg "Starting off")![One-on-One Messaging](screenshots/1-5.jpeg "Direct Messaging")
+![Group Chat](screenshots/2.jpeg "Group Messaging")![Ledger List](screenshots/3.jpeg "Ledger")
 ![Ledger Expanded](screenshots/4.jpeg "Look for people in need")
+![Requirements](screenshots/5.jpeg "What do you need help with?")
 ![Username](screenshots/6_1.jpeg "Set up your username")
 ![Username](screenshots/6_2.jpeg "Let people easily identify you")
-![Requirements](screenshots/5.jpeg "What do you need help with?")
+
 
 ## Build Instructions
 
