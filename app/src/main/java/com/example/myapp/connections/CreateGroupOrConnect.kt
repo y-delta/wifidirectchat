@@ -6,6 +6,8 @@ import android.net.wifi.p2p.WifiP2pManager
 import android.util.Log
 import android.widget.Toast
 import com.example.myapp.MainActivity
+import com.example.myapp.MainActivity.Companion.GOPWD
+import com.example.myapp.MainActivity.Companion.NETWORK_USERID
 import com.example.myapp.MainActivity.Companion.checkedForGroups
 import com.example.myapp.MainActivity.Companion.deviceArray
 import com.example.myapp.MainActivity.Companion.deviceNameArray
@@ -23,7 +25,7 @@ class CreateGroupOrConnect (
     private var scanCount = 0
     private var maxScans = 20
     override fun run() {
-        while(NETWORK_USERNAME.isNullOrEmpty()){
+        while(NETWORK_USERNAME.isNullOrEmpty() || NETWORK_USERNAME.equals(NETWORK_USERID)){        //TODO Change the way this works
             Log.d("CreateGroupOrConnect", "Username is not yet set")
             sleep(1500)
         }
@@ -36,7 +38,7 @@ class CreateGroupOrConnect (
             Log.d("CreateGroupOrConnect", "wifiScan = $wifiScannedAtleastOnce, peerScan = $peersScannedAtleastOnce")
             sleep(2000)
         }
-        sleep(3000)
+//        sleep(3000)
         checkedForGroups = true
 
 //        mManager!!.requestGroupInfo(mChannel) { group ->
@@ -65,9 +67,12 @@ class CreateGroupOrConnect (
             }
         }
         else {
-
             Log.d("CreateGroupOrConnect", "I'll connect to GO because it exists near me")
             for (deviceName in deviceNameArray) {
+
+                // WiFi Direct - motog4 <- GO
+                // WiFi scan - ssid name - DIRECT-xx-motog4
+
                 if (ssidList.contains(deviceName)) {
                     nameOfGO = deviceName
                     Log.d("CreateGroupOrConnect", "I'll connect to $deviceName")
@@ -83,6 +88,7 @@ class CreateGroupOrConnect (
                                 "connected to " + device.deviceName,
                                 Toast.LENGTH_SHORT
                             ).show()
+                            GOPWD = "WD Connected to ${device.deviceName}"
                             success = true
                         }
 

@@ -82,6 +82,8 @@ class LedgerFragment : Fragment() {
             val builder = AlertDialog.Builder(context)
             builder.setTitle(Html.fromHtml("<font size = '18'><b>Help!</b>"))
 
+            var position = list.size - position - 1 // to show the latest ledger item at the top
+
             val message = StringBuilder()
             if(!list[position].requiredItems.isNullOrEmpty()) {
                 message.append("I am in great need of:").append("\n\n")
@@ -138,13 +140,13 @@ class LedgerFragment : Fragment() {
             val fetchedNeeds = ArrayList(fetchedData.needs.split(","))
 
             Log.d("fetchedLocation", fetchedLocation)
-            Log.d("fetchedLandmark", fetchedLandmark)
-            Log.d("fetchedLatitude", fetchedLatitude)
-            Log.d("fetchedLongitude", fetchedLongitude)
-            Log.d("fetchedAccuracy", fetchedAccuracy)
-            Log.d("fetchedNeeds", fetchedNeeds.toString())
-            Log.d("fetchedDate", fetchedDate.toString())
-            Log.d("fetchedSender", fetchedSender)
+//            Log.d("fetchedLandmark", fetchedLandmark)
+//            Log.d("fetchedLatitude", fetchedLatitude)
+//            Log.d("fetchedLongitude", fetchedLongitude)
+//            Log.d("fetchedAccuracy", fetchedAccuracy)
+//            Log.d("fetchedNeeds", fetchedNeeds.toString())
+//            Log.d("fetchedDate", fetchedDate.toString())
+//            Log.d("fetchedSender", fetchedSender)
 
             list.add(Model(fetchedLocation, fetchedLandmark, arrayListOf(fetchedLatitude, fetchedLongitude, fetchedAccuracy), fetchedNeeds))
             i++
