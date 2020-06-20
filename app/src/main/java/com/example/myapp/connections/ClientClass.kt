@@ -32,6 +32,7 @@ class ClientClass(hostAddress: InetAddress) : Thread() {
             connectedToDeviceAlert()
             Log.d("ClientClass", "sending username of device to GO ${DEVICEMAC}")
             broadcastMessage("$NETWORK_USERID $NETWORK_USERNAME", Constants.DATA_TYPE_UNIQID_USERNAME)
+            // TODO - {resolved} make userid username transfer thread safe
             /*var ledger = appDatabaseCompanion!!.ledgerDao().loadAllChatHistory()
             ledger.observe(
                 directMessageActivityCompanion!!,
@@ -53,7 +54,7 @@ class ClientClass(hostAddress: InetAddress) : Thread() {
                     }
                 }
             )*/
-            var ledgerList = appDatabaseCompanion!!.ledgerDao().loadAllLedgers()
+            /*var ledgerList = appDatabaseCompanion!!.ledgerDao().loadAllLedgers()
             var i = 0
             while(i < ledgerList!!.size){               //this will be sent to GO
                 var ledgerItem = ledgerList[i]!!
@@ -70,7 +71,8 @@ class ClientClass(hostAddress: InetAddress) : Thread() {
                 Log.d("PreparedMessageLedger", preparedMsg)
                 broadcastMessage(preparedMsg, Constants.MESSAGE_TYPE_LEDGER)
                 i++
-            }
+            }*/
+            BroadcastLedgerList().run()
         } catch (e: IOException) {
             socket = Socket()
             e.printStackTrace()

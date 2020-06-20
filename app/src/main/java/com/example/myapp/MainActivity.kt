@@ -50,6 +50,8 @@ import java.util.*
 import java.util.concurrent.*
 
 
+// TODO show group owner ID , group ID to which client is connected
+
 class MainActivity : AppCompatActivity() {
 
     lateinit var nsdManager: NsdManager
@@ -125,7 +127,6 @@ class MainActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
 
             MAIN_EXECUTOR = Executors.newSingleThreadExecutor()
-
             val appDatabase = AppDatabase.getDatabase(this.application)
             appDatabaseCompanion = appDatabase
             userEntity.userId = NETWORK_USERID
@@ -298,7 +299,7 @@ class MainActivity : AppCompatActivity() {
 //
 //        }
         if(id == R.id.connection){
-            scanWifi()
+            scanWifi()  //to scan WiFi
             mManager!!.discoverPeers(mChannel, object : WifiP2pManager.ActionListener {
                 override fun onSuccess() {
                     Log.d("Discover Peers", "Discover karega ab")
@@ -523,7 +524,7 @@ class MainActivity : AppCompatActivity() {
         builder.setCancelable(false)
         builder.setPositiveButton("Set Username") { _, id ->
             var text = input.text.toString()
-            NETWORK_USERNAME = text.trim().replace("\n", "")
+            NETWORK_USERNAME = text.trim().replace("\n", "").replace(" ", "")
             if(!NETWORK_USERNAME.isNullOrEmpty()){
 //                dialog?.cancel()
             }
@@ -537,15 +538,16 @@ class MainActivity : AppCompatActivity() {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener {
                     var text = input.text.toString()
-                    NETWORK_USERNAME = text.trim().replace("\n", "")
-                    userIdUserNameHashMap.put(NETWORK_USERID, NETWORK_USERNAME)
-                    val sharedPref = this.getPreferences(Context.MODE_PRIVATE)
-                    with(sharedPref.edit()){
-                        putString(getString(com.example.myapp.R.string.SHARED_PREF_USERNAME), NETWORK_USERNAME)
-                        commit()
-                    }
-                    broadcastMessage("$NETWORK_USERID $NETWORK_USERNAME", Constants.DATA_TYPE_UNIQID_USERNAME)
+                    // TODO check network username is not empty
+                    NETWORK_USERNAME = text.trim().replace("\n", "").replace(" ", "")
                     if(!NETWORK_USERNAME.isNullOrEmpty() && !NETWORK_USERNAME.equals(NETWORK_USERID)){
+                        userIdUserNameHashMap.put(NETWORK_USERID, NETWORK_USERNAME)
+                        val sharedPref = this.getPreferences(Context.MODE_PRIVATE)
+                        with(sharedPref.edit()){
+                            putString(getString(com.example.myapp.R.string.SHARED_PREF_USERNAME), NETWORK_USERNAME)
+                            commit()
+                        }
+                        broadcastMessage("$NETWORK_USERID $NETWORK_USERNAME", Constants.DATA_TYPE_UNIQID_USERNAME)
                         dialog?.cancel()
                     }
                 }
@@ -776,7 +778,8 @@ class MainActivity : AppCompatActivity() {
             val groupOwnerAddress = info.groupOwnerAddress
             if (info.groupFormed && info.isGroupOwner) {
                 mManager!!.requestGroupInfo(mChannel) { group ->
-                    GOPWD += ("PASSPHRASE =  ${group.passphrase}\n")
+                    if(GOPWD.isNullOrEmpty())
+                        GOPWD += ("PASSPHRASE =  ${group.passphrase}\n")
                 }
                 Log.d("Connection Status", "HOST")
                 Log.d("ConnInfoListener", "I am GO")
@@ -886,7 +889,7 @@ class MainActivity : AppCompatActivity() {
         var SERVICE_NAME : String? = null
         lateinit var deviceNameArray: Array<String?>
         lateinit var deviceArray: Array<WifiP2pDevice?>
-        var NETWORK_USERNAME:String = ""
+        var NETWORK_USERNAME:String = ""    //TODO USERNAME MUST NOT HAVE WHITESPACE
         var NETWORK_USERID:String = ""
 
         var liveConnectedDevice= MutableLiveData<Boolean>(false)
@@ -941,10 +944,10 @@ class MainActivity : AppCompatActivity() {
             return MSG_ID
         }
 
-        fun broadcastMessage(msg: String, messageType:String = Constants.MESSAGE_TYPE_GROUP): Boolean {
+        fun broadcastMessage(msg: String, messageType:String = Constants.MESSAGE_TYPE_GROUP): Boolean {     // thread safe
             var msg = msg
             if(netAddrSendReceiveHashMap?.size!! > 0) {
-                val broadcastMessageAsyncTask = BroadcastMessageAsyncTask()
+//                val broadcastMessageAsyncTask = BroadcastMessageAsyncTask()
                 var username:String = ""
                 var msgWithStartEndString = ""
                 if(msg.endsWith("\n") && !msg.isNullOrEmpty()){ //what if msgtype, msgtype?
@@ -962,6 +965,8 @@ class MainActivity : AppCompatActivity() {
                 } else if (messageType == Constants.MESSAGE_TYPE_DIRECT) {
                     messageType + "\n" + msg + "\n" + messageType + "\n"
                 } else if(messageType == Constants.RESPONSE_TYPE_DIRECT){
+                    messageType + "\n" + msg + "\n" + messageType + "\n"
+                } else if(messageType == Constants.MESSAGE_TYPE_LEDGER){
                     messageType + "\n" + msg + "\n" + messageType + "\n"
                 } else {
                     messageType + "\n" + msg + "\n" + messageType + "\n"
@@ -1008,7 +1013,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    class BroadcastMessageAsyncTask : AsyncTask<String, String, Boolean>() {
+    /*class BroadcastMessageAsyncTask : AsyncTask<String, String, Boolean>() {
         override fun doInBackground(vararg params: String?): Boolean {
             val msg = params[0]
             try {
@@ -1029,5 +1034,5 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-    }
+    }*/
 }
