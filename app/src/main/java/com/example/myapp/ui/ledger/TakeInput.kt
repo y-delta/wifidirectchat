@@ -66,6 +66,14 @@ class TakeInput : AppCompatActivity(){
 
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        locationManager.removeUpdates(gpsLocationListener)
+        locationManager.removeUpdates(networkLocationListener)
+        Log.d("TakeInput", "onDestroy() - activity destroyed")
+//        locationManager.listen
+    }
+
     private fun checkPermission(permissionArray: Array<String>): Boolean {
         var allSuccess = true
         for (i in permissionArray.indices) {
@@ -73,6 +81,64 @@ class TakeInput : AppCompatActivity(){
                 allSuccess = false
         }
         return allSuccess
+    }
+
+    var gpsLocationListener = object :
+        LocationListener {
+        override fun onLocationChanged(location: Location?) {
+            if (location != null) {
+                locationGps = location
+                bestLocation = location
+                latitude = locationGps!!.latitude
+                longitude = locationGps!!.longitude
+                accuracy = locationGps!!.accuracy
+                text_location_accuracy.text = accuracy.toString()
+                Log.d("CodeAndroidLocation", " GPS Latitude : " + locationGps!!.latitude)
+                Log.d("CodeAndroidLocation", " GPS Longitude : " + locationGps!!.longitude)
+
+            }
+        }
+
+        override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
+
+        }
+
+        override fun onProviderEnabled(provider: String?) {
+
+        }
+
+        override fun onProviderDisabled(provider: String?) {
+            locationManager.removeUpdates(this)
+        }
+
+    }
+
+    var networkLocationListener = object : LocationListener {
+        override fun onLocationChanged(location: Location?) {
+            if (location != null && location!!.accuracy > accuracy!!) {
+                locationNetwork = location
+                bestLocation = location
+                latitude = locationNetwork!!.latitude
+                longitude = locationNetwork!!.longitude
+                accuracy = locationNetwork!!.accuracy
+                text_location_accuracy.text = accuracy.toString()
+                Log.d(
+                    "CodeAndroidLocation",
+                    " Network Latitude : " + locationNetwork!!.latitude
+                )
+                Log.d(
+                    "CodeAndroidLocation",
+                    " Network Longitude : " + locationNetwork!!.longitude
+                )
+            }
+        }
+
+        override fun onStatusChanged(provider: String?,status: Int,extras: Bundle?) { }
+
+        override fun onProviderEnabled(provider: String?) { }
+
+        override fun onProviderDisabled(provider: String?) { }
+
     }
 
     @SuppressLint("MissingPermission")
@@ -85,49 +151,7 @@ class TakeInput : AppCompatActivity(){
 
                 if (hasGps) {
                     Log.d("CodeAndroidLocation", "hasGps")
-                    locationManager.requestLocationUpdates(
-                        LocationManager.GPS_PROVIDER,
-                        5000,
-                        0F,
-                        object :
-                            LocationListener {
-                            override fun onLocationChanged(location: Location?) {
-                                if (location != null) {
-                                    locationGps = location
-                                    bestLocation = location
-                                    latitude = locationGps!!.latitude
-                                    longitude = locationGps!!.longitude
-                                    accuracy = locationGps!!.accuracy
-                                    text_location_accuracy.text = accuracy.toString()
-                                    Log.d(
-                                        "CodeAndroidLocation",
-                                        " GPS Latitude : " + locationGps!!.latitude
-                                    )
-                                    Log.d(
-                                        "CodeAndroidLocation",
-                                        " GPS Longitude : " + locationGps!!.longitude
-                                    )
-
-                                }
-                            }
-
-                            override fun onStatusChanged(
-                                provider: String?,
-                                status: Int,
-                                extras: Bundle?
-                            ) {
-
-                            }
-
-                            override fun onProviderEnabled(provider: String?) {
-
-                            }
-
-                            override fun onProviderDisabled(provider: String?) {
-
-                            }
-
-                        })
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0F, gpsLocationListener)
 
                     val localGpsLocation =
                         locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
@@ -136,37 +160,7 @@ class TakeInput : AppCompatActivity(){
                 }
                 if (hasNetwork) {
                     Log.d("CodeAndroidLocation", "hasGps")
-                    locationManager.requestLocationUpdates(
-                        LocationManager.NETWORK_PROVIDER,
-                        5000,
-                        0F,
-                        object : LocationListener {
-                            override fun onLocationChanged(location: Location?) {
-                                if (location != null && location!!.accuracy > accuracy!!) {
-                                    locationNetwork = location
-                                    bestLocation = location
-                                    latitude = locationNetwork!!.latitude
-                                    longitude = locationNetwork!!.longitude
-                                    accuracy = locationNetwork!!.accuracy
-                                    text_location_accuracy.text = accuracy.toString()
-                                    Log.d(
-                                        "CodeAndroidLocation",
-                                        " Network Latitude : " + locationNetwork!!.latitude
-                                    )
-                                    Log.d(
-                                        "CodeAndroidLocation",
-                                        " Network Longitude : " + locationNetwork!!.longitude
-                                    )
-                                }
-                            }
-
-                            override fun onStatusChanged(provider: String?,status: Int,extras: Bundle?) { }
-
-                            override fun onProviderEnabled(provider: String?) { }
-
-                            override fun onProviderDisabled(provider: String?) { }
-
-                        })
+                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 0F, networkLocationListener)
 
                     val localNetworkLocation =
                         locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
