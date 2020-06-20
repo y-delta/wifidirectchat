@@ -53,15 +53,15 @@ class HotspotConnection (var activity: MainActivity) : Thread() {
                             }
                         }
                         try {
-                            activity.nsdManager = activity.getSystemService(Context.NSD_SERVICE) as NsdManager
-                            if(!nsdAlreadyDiscovering) {
-                                activity.nsdManager.discoverServices(
-                                    MainActivity.SERVICE_TYPE,
-                                    NsdManager.PROTOCOL_DNS_SD,
-                                    activity.mDiscoveryListener
-                                )
-                                nsdAlreadyDiscovering = true
-                            }
+//                            activity.nsdManager = activity.getSystemService(Context.NSD_SERVICE) as NsdManager
+//                            if(!nsdAlreadyDiscovering) {
+//                                activity.nsdManager.discoverServices(
+//                                    MainActivity.SERVICE_TYPE,
+//                                    NsdManager.PROTOCOL_DNS_SD,
+//                                    activity.mDiscoveryListener
+//                                )
+//                                nsdAlreadyDiscovering = true
+//                            }
                         }catch (e:Exception){
                             e.printStackTrace()
                         }

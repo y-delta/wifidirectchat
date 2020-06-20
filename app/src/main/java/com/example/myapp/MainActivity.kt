@@ -313,6 +313,15 @@ class MainActivity : AppCompatActivity() {
 
             var createGroupOrConnect = CreateGroupOrConnect(mManager, mChannel, applicationContext)
             createGroupOrConnect.start()
+            nsdManager = getSystemService(Context.NSD_SERVICE) as NsdManager
+            if(!nsdAlreadyDiscovering) {
+                nsdManager.discoverServices(
+                    MainActivity.SERVICE_TYPE,
+                    NsdManager.PROTOCOL_DNS_SD,
+                    mDiscoveryListener
+                )
+                nsdAlreadyDiscovering = true
+            }
 //            if(groupCreated || checkedForGroups)
 //                connectionSuccessful()
         }
@@ -805,9 +814,9 @@ class MainActivity : AppCompatActivity() {
                 }
             } else if (info.groupFormed) {
                 Log.d("Connection Status", "Client")
-                lastinetaddress = groupOwnerAddress
-                clientClass = ClientClass(groupOwnerAddress)
-                clientClass!!.start()
+//                lastinetaddress = groupOwnerAddress
+//                clientClass = ClientClass(groupOwnerAddress)
+//                clientClass!!.start()
                 serverCreated = false
                 groupCreated = false
 
