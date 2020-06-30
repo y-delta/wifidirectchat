@@ -65,7 +65,7 @@
 
         <Button
             android:id="@+id/wifi_on"
-            android:layout_width="wrap_content"
+            android:layout_width="74dp"
             android:layout_height="40dp"
             android:layout_gravity="center"
             android:layout_marginStart="168dp"
@@ -113,7 +113,7 @@
 
         <Button
             android:id="@+id/loc_on"
-            android:layout_width="wrap_content"
+            android:layout_width="74dp"
             android:layout_height="40dp"
             android:layout_gravity="center"
             android:layout_marginStart="180dp"

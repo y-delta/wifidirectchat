@@ -15,7 +15,6 @@ import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pManager
 import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener
-import android.os.AsyncTask
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
@@ -28,7 +27,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.PermissionChecker.PERMISSION_DENIED
 import androidx.core.content.PermissionChecker.checkCallingOrSelfPermission
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
@@ -40,6 +38,7 @@ import com.example.myapp.db.entity.UserEntity
 import com.example.myapp.ui.groupmessage.GroupMessageFragment.Companion.appDatabaseCompanion
 import com.example.myapp.ui.main.ModalBottomSheet
 import com.example.myapp.utils.Constants
+import com.example.myapp.utils.HelpScreen
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
@@ -75,8 +74,10 @@ class MainActivity : AppCompatActivity() {
     private var permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
 
     private val modalBottomSheet = ModalBottomSheet()
+    private val helpIntent = Intent(this, HelpScreen::class.java)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         Log.d("DBDEBUG", DebugDB.getAddressLog())
@@ -125,6 +126,8 @@ class MainActivity : AppCompatActivity() {
         mainActivityCompanion = this
 
         if (savedInstanceState == null) {
+
+           // startActivityForResult(helpIntent, 6969)
 
             MAIN_EXECUTOR = Executors.newSingleThreadExecutor()
             val appDatabase = AppDatabase.getDatabase(this.application)
@@ -392,6 +395,10 @@ class MainActivity : AppCompatActivity() {
 
             }
         }*/
+        if(id == R.id.help) // displays the HelpScreen activity
+        {
+            startActivityForResult(helpIntent, 6969)
+        }
         if (id == R.id.connectToHotspot){       // single button to connect to a hotspot
             showAlertDialogForUsername()
             wifiScannedAtleastOnce = false
