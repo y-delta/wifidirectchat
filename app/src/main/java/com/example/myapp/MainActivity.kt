@@ -74,7 +74,6 @@ class MainActivity : AppCompatActivity() {
     private var permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
 
     private val modalBottomSheet = ModalBottomSheet()
-    private val helpIntent = Intent(this, HelpScreen::class.java)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
@@ -85,7 +84,10 @@ class MainActivity : AppCompatActivity() {
         //Request Location Permission if not given
         if (checkCallingOrSelfPermission(applicationContext,permissions[0]) == PERMISSION_DENIED
             || checkCallingOrSelfPermission(applicationContext,permissions[1])== PERMISSION_DENIED)
-        {requestPermissions(permissions, 10)}
+        {
+            startActivityForResult(Intent(this, HelpScreen::class.java), 1234)
+//            requestPermissions(permissions, 10)
+        }
 
         val sharedPref = this.getPreferences(Context.MODE_PRIVATE) ?: return
         with(sharedPref.edit()){
@@ -126,8 +128,6 @@ class MainActivity : AppCompatActivity() {
         mainActivityCompanion = this
 
         if (savedInstanceState == null) {
-
-           // startActivityForResult(helpIntent, 6969)
 
             MAIN_EXECUTOR = Executors.newSingleThreadExecutor()
             val appDatabase = AppDatabase.getDatabase(this.application)
@@ -397,7 +397,7 @@ class MainActivity : AppCompatActivity() {
         }*/
         if(id == R.id.help) // displays the HelpScreen activity
         {
-            startActivityForResult(helpIntent, 6969)
+            startActivityForResult(Intent(this, HelpScreen::class.java), 6969)
         }
         if (id == R.id.connectToHotspot){       // single button to connect to a hotspot
             showAlertDialogForUsername()
