@@ -121,7 +121,7 @@ class HelpScreen : AppIntro()
         setNextArrowColor(colorPrimary)
         setColorDoneText(colorPrimary)
         setColorSkipButton(colorPrimary)
-        setTransformer(AppIntroPageTransformerType.Fade)
+        setTransformer(AppIntroPageTransformerType.Depth)
         isSystemBackButtonLocked = true
     }
 
