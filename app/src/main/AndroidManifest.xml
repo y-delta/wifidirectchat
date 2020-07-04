@@ -15,15 +15,18 @@
         android:roundIcon="@mipmap/ic_icon_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.ledger.TakeInput" />
-<!--        <activity android:name=".ui.globalmessage.ChatActivity" />-->
+        <activity android:name=".ui.ledger.TakeInput"
+            android:windowSoftInputMode="stateHidden"/>
         <activity android:name=".ui.activity.ChatListingActivity" />
-
-
-        <activity
-            android:name=".MainActivity"
+        <activity android:name=".utils.HelpScreen"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"/>
+        <activity android:name=".MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
-            android:label="@string/title_activity_main2">
+            android:label="@string/title_activity_main2"
+            android:theme="@style/AppTheme"/>
+        <activity
+            android:name=".utils.SplashScreen"
+            android:theme="@style/SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

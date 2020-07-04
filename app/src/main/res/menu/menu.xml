@@ -9,12 +9,19 @@
     <!--        android:icon="@drawable/ic_near_black_24dp"-->
     <!--        android:contentDescription="scan wifi"-->
     <!--        />-->
-<item
+    <item
         android:id="@+id/connection"
         android:title="Establish Connection"
         app:showAsAction="ifRoom"
         android:icon="@drawable/connect"
         android:contentDescription="discover Peers"
+        />
+    <item
+        android:id="@+id/help"
+        android:title="How to?"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_help"
+        android:contentDescription="Displays help section"
         />
     <item
         android:id="@+id/connectToHotspot"
